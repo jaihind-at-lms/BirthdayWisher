@@ -1,9 +1,9 @@
 import cron from "node-cron";
-import { readdirSync, writeFileSync } from "fs";
+import { readdirSync, writeFileSync, unlinkSync } from "fs";
 import { resolve, dirname } from "path";
 import { fileURLToPath } from "url";
 import logger from "../utils/logger.js";
-import { getSheetRecords } from "../services/index.js";
+import { getSheetRecords, downloadEmployeeImage } from "../services/index.js";
 import { generateBirthdayCard } from "../services/birthdayCard.js";
 import { config } from "../config/env.js";
 
@@ -32,15 +32,19 @@ export const BirthdayWisher = async () => {
   for (const emp of employees) {
     const id = emp["Employee ID "] ?? "unknown";
     const name = emp["Employee Name "] ?? "Unknown";
+    const image = emp["Employee Image "] ?? "./employee.jpeg";
 
     if (ti >= templateCycle.length) {
       templateCycle = shuffle(templates);
       ti = 0;
     }
 
-    const card = await generateBirthdayCard(name, "./employee.jpeg", templateCycle[ti]);
+    const tempPath = await downloadEmployeeImage(image, id);
+    const imgPath = tempPath ?? "./employee.jpeg";
+    const card = await generateBirthdayCard(name, imgPath, templateCycle[ti]);
     ti++;
     writeFileSync(`birthday-cards/${id}.png`, card);
+    if (tempPath) unlinkSync(tempPath);
     logger.info(`Birthday card saved for ${id}`);
   }
 

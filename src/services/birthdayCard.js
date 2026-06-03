@@ -3,6 +3,7 @@ import { readdirSync, readFileSync, existsSync } from "fs";
 import { resolve, dirname } from "path";
 import { fileURLToPath } from "url";
 import sharp from "sharp";
+import logger from "../utils/logger.js";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const TEMPLATES_DIR = resolve(__dirname, "../templates");
@@ -27,12 +28,6 @@ const QUOTES = [
 ];
 
 const getRandomItem = (arr) => arr[Math.floor(Math.random() * arr.length)];
-
-const loadAnyImage = async (path) => {
-  const buf = readFileSync(path);
-  const png = await sharp(buf).png().toBuffer();
-  return loadImage(png);
-};
 
 const loadConfig = () => {
   try {
@@ -207,10 +202,18 @@ export const generateBirthdayCard = async (employeeName, employeeImagePath, temp
 
   drawOverlay(ctx, tmplCfg?.overlay, W, H);
 
-  let empImg;
+  let empImg = null;
   try {
-    empImg = await loadAnyImage(employeeImagePath);
+    const buf = readFileSync(employeeImagePath);
+    const png = await sharp(buf).png().toBuffer();
+    empImg = await loadImage(png);
   } catch {
+    logger.error("Failed to load employee image:", employeeImagePath);
+  }
+
+  if (empImg) {
+    drawPhoto(ctx, tmplCfg?.photo, W, H, empImg);
+  } else {
     const s = 0.22 * W;
     const x = (W - s) / 2;
     const y = 0.26 * H;
@@ -223,10 +226,8 @@ export const generateBirthdayCard = async (employeeName, employeeImagePath, temp
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
     ctx.fillText("\uD83D\uDC64", W / 2, y + s / 2);
-    return canvas.toBuffer("image/png");
   }
 
-  drawPhoto(ctx, tmplCfg?.photo, W, H, empImg);
   drawGreeting(ctx, tmplCfg?.greeting, W, H);
   drawName(ctx, tmplCfg?.name, W, H, employeeName);
   drawQuote(ctx, tmplCfg?.quote, W, H);

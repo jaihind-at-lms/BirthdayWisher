@@ -1,6 +1,9 @@
 # Generated birthday cards
 birthday-cards/
 
+# Temp downloaded images
+src/temp/
+
 # Logs
 logs
 *.log
