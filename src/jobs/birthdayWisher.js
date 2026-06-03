@@ -1,15 +1,13 @@
 import cron from "node-cron";
 import logger from "../utils/logger.js";
+import { getSheetRecords } from "../services/index.js";
+import { config } from "../config/env.js";
 
-/**
- * BirthdayWisher
- * --------------
- * Checks employee birthdays for the current day,
- * generates a birthday greeting card,
- * and sends birthday wishes via email.
- */
 export const BirthdayWisher = async () => {
-  return true;
+  const range = `${config.googleSheetEmployeeTab}!A:Z`;
+  const employees = await getSheetRecords(range);
+  logger.info(`Fetched ${employees.length} employees from sheet`);
+  return employees;
 };
 
 // Runs BirthdayWisher() every day at 06:00 AM
