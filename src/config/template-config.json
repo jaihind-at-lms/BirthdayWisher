@@ -9,12 +9,12 @@
       "photo": {
         "cx": 0.50,
         "cy": 0.38,
-        "size": 0.28,
+        "size": 0.40,
         "shape": "circle"
       },
       "greeting": {
         "cx": 0.50,
-        "cy": 0.15,
+        "cy": 0.05,
         "fontSize": 60,
         "color": "#FFFFFF",
         "bold": true
@@ -28,8 +28,8 @@
       },
       "quote": {
         "cx": 0.50,
-        "cy": 0.72,
-        "fontSize": 28,
+        "cy": 0.68,
+        "fontSize": 35,
         "color": "#FFFFFF",
         "maxWidth": 700,
         "bold": false
@@ -38,32 +38,32 @@
     {
       "file": "template-2.png",
       "photo": {
-        "cx": 0.36,
-        "cy": 0.49,
-        "size": 0.42,
+        "cx": 0.42,
+        "cy": 0.57,
+        "size": 0.50,
         "shape": "rounded"
       },
       "greeting": {
-        "cx": 0.73,
-        "cy": 0.22,
+        "cy": 0.10,
         "fontSize": 56,
         "color": "#7A1E76",
-        "bold": false
+        "bold": true,
+        "align": "center"
       },
       "name": {
-        "cx": 0.73,
-        "cy": 0.30,
+        "cy": 0.85,
         "fontSize": 48,
         "color": "#7A1E76",
-        "bold": true
+        "bold": true,
+        "align": "center"
       },
       "quote": {
-        "cx": 0.73,
-        "cy": 0.45,
-        "fontSize": 24,
+        "cy": 0.20,
+        "fontSize": 35,
         "color": "#444444",
-        "maxWidth": 350,
-        "bold": false
+        "maxWidth": 750,
+        "bold": false,
+        "align": "center"
       }
     },
     {
@@ -71,7 +71,7 @@
       "photo": {
         "cx": 0.50,
         "cy": 0.25,
-        "size": 0.29,
+        "size": 0.32,
         "shape": "rounded"
       },
       "greeting": {
@@ -91,7 +91,7 @@
       "quote": {
         "cx": 0.50,
         "cy": 0.75,
-        "fontSize": 26,
+        "fontSize": 35,
         "color": "#555555",
         "maxWidth": 700,
         "bold": false
@@ -100,10 +100,10 @@
     {
       "file": "template-4.png",
       "photo": {
-        "cx": 0.46,
         "cy": 0.22,
-        "size": 0.36,
-        "shape": "circle"
+        "size": 0.43,
+        "shape": "circle",
+        "align": "center"
       },
       "greeting": {
         "text": "Happy Birthday",
@@ -122,8 +122,8 @@
       },
       "quote": {
         "cx": 0.50,
-        "cy": 0.76,
-        "fontSize": 28,
+        "cy": 0.69,
+        "fontSize": 35,
         "color": "#4A5568",
         "maxWidth": 750,
         "bold": false
@@ -133,9 +133,10 @@
       "file": "template-5.png",
       "photo": {
         "cx": 0.50,
-        "cy": 0.66,
-        "size": 0.42,
-        "shape": "rounded"
+        "cy": 0.70,
+        "size": 0.49,
+        "shape": "rounded",
+        "borderColor": "#8B6B4A"
       },
       "greeting": {
         "text": "Happy Birthday",
@@ -154,8 +155,8 @@
       },
       "quote": {
         "cx": 0.50,
-        "cy": 0.92,
-        "fontSize": 26,
+        "cy": 0.32,
+        "fontSize": 35,
         "color": "#5C5C5C",
         "maxWidth": 800,
         "bold": false
@@ -165,8 +166,8 @@
       "file": "template-6.png",
       "photo": {
         "cx": 0.48,
-        "cy": 0.48,
-        "size": 0.60,
+        "cy": 0.52,
+        "size": 0.52,
         "shape": "rounded"
       },
       "greeting": {
@@ -175,7 +176,7 @@
         "cy": 0.12,
         "fontSize": 64,
         "color": "#FFFFFF",
-        "bold": false
+        "bold": true
       },
       "name": {
         "cx": 0.50,
@@ -186,8 +187,8 @@
       },
       "quote": {
         "cx": 0.50,
-        "cy": 0.94,
-        "fontSize": 24,
+        "cy": 0.90,
+        "fontSize": 35,
         "color": "#E8E8FF",
         "maxWidth": 760,
         "bold": false
@@ -197,30 +198,31 @@
       "file": "template-7.png",
       "photo": {
         "cx": 0.50,
-        "cy": 0.45,
-        "size": 0.60,
-        "shape": "square"
+        "cy": 0.40,
+        "size": 0.62,
+        "shape": "rounded",
+        "borderColor": "#FF5A36"
       },
       "greeting": {
         "text": "Happy Birthday",
-        "cx": 0.50,
-        "cy": 0.10,
+        "cy": 0.01,
         "fontSize": 62,
         "color": "#FF5A36",
-        "bold": false
+        "bold": true,
+        "align": "center"
       },
       "name": {
-        "cx": 0.50,
-        "cy": 0.82,
+        "cy": 0.85,
         "fontSize": 58,
-        "color": "#2E3192",
-        "bold": true
+        "color": "#FFFFFF",
+        "bold": true,
+        "align": "center"
       },
       "quote": {
         "cx": 0.50,
         "cy": 0.94,
-        "fontSize": 24,
-        "color": "#444444",
+        "fontSize": 35,
+        "color": "#FFFFFF",
         "maxWidth": 760,
         "bold": false
       }

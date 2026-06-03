@@ -26,11 +26,6 @@ const QUOTES = [
   "May your day be as wonderful as the joy you bring to others.",
 ];
 
-const ACCENT_COLORS = [
-  "#ffd700", "#ff6b6b", "#48dbfb", "#ff9ff3", "#54a0ff",
-  "#5f27cd", "#01a3a4", "#f368e0", "#ffa502", "#2ed573",
-];
-
 const getRandomItem = (arr) => arr[Math.floor(Math.random() * arr.length)];
 
 const loadAnyImage = async (path) => {
@@ -91,10 +86,12 @@ const drawPhoto = (ctx, cfg, W, H, img) => {
   }
 
   const s = cfg.size * W;
-  const x = cfg.cx * W - s / 2;
-  const y = cfg.cy * H - s / 2;
-  const cx = cfg.cx * W;
+  const align = cfg.align ?? "center";
+  const cxDef = align === "right" ? 0.95 : align === "left" ? 0.05 : 0.5;
+  const cx = (cfg.cx ?? cxDef) * W;
   const cy = cfg.cy * H;
+  const x = align === "left" ? cx : align === "right" ? cx - s : cx - s / 2;
+  const y = cfg.cy * H - s / 2;
   const r = s / 2;
 
   ctx.save();
@@ -124,41 +121,39 @@ const drawPhoto = (ctx, cfg, W, H, img) => {
   } else {
     ctx.arc(cx, cy, r + bw / 2, 0, Math.PI * 2);
   }
-  ctx.strokeStyle = cfg.borderColor;
+  ctx.strokeStyle = cfg.borderColor ?? "#000000";
   ctx.lineWidth = bw;
   ctx.stroke();
 };
 
 const drawGreeting = (ctx, cfg, W, H) => {
   if (!cfg) return;
-  const { cx = 0.5, cy = 0.48, fontSize = 36, color = "rgba(255,255,255,0.85)", bold = false } = cfg;
-  ctx.textAlign = "center";
+  const { cy = 0.48, fontSize = 36, color = "rgba(255,255,255,0.85)", bold = false, align = "center" } = cfg;
+  const cx = cfg.cx ?? (align === "right" ? 0.95 : align === "left" ? 0.05 : 0.5);
+  ctx.textAlign = align;
   ctx.textBaseline = "top";
   ctx.font = bold ? `bold ${fontSize}px sans-serif` : `${fontSize}px sans-serif`;
   ctx.fillStyle = color;
   ctx.fillText("Happy Birthday!", cx * W, cy * H);
 };
 
-const drawName = (ctx, cfg, W, H, employeeName, accentColor) => {
+const drawName = (ctx, cfg, W, H, employeeName) => {
   if (!cfg) return;
-  const { cx = 0.5, cy = 0.55, fontSize = 52, color = "#ffffff", bold = true } = cfg;
-  ctx.textAlign = "center";
+  const { cy = 0.55, fontSize = 52, color = "#ffffff", bold = true, align = "center" } = cfg;
+  const cx = cfg.cx ?? (align === "right" ? 0.95 : align === "left" ? 0.05 : 0.5);
+  ctx.textAlign = align;
   ctx.textBaseline = "top";
   ctx.font = bold ? `bold ${fontSize}px sans-serif` : `${fontSize}px sans-serif`;
   ctx.fillStyle = color;
   ctx.fillText(employeeName, cx * W, cy * H);
-
-  const underlineY = cy * H + fontSize + 8;
-  const tw = ctx.measureText(employeeName).width;
-  ctx.fillStyle = accentColor;
-  ctx.fillRect(cx * W - tw / 2, underlineY, tw, 3);
 };
 
 const drawQuote = (ctx, cfg, W, H) => {
   const quote = getRandomItem(QUOTES);
-  const { color = "rgba(255,255,255,0.9)", fontSize = 28, cx = 0.5, cy = 0.63, maxWidth = 750, bold = false } = cfg ?? {};
+  const { color = "rgba(255,255,255,0.9)", fontSize = 28, cy = 0.63, maxWidth = 750, bold = false, align = "center" } = cfg ?? {};
+  const cx = cfg?.cx ?? (align === "right" ? 0.95 : align === "left" ? 0.05 : 0.5);
   ctx.font = bold ? `bold ${fontSize}px sans-serif` : `${fontSize}px sans-serif`;
-  ctx.textAlign = "center";
+  ctx.textAlign = align;
   ctx.textBaseline = "top";
   ctx.fillStyle = color;
 
@@ -231,10 +226,9 @@ export const generateBirthdayCard = async (employeeName, employeeImagePath, temp
     return canvas.toBuffer("image/png");
   }
 
-  const accentColor = getRandomItem(ACCENT_COLORS);
   drawPhoto(ctx, tmplCfg?.photo, W, H, empImg);
   drawGreeting(ctx, tmplCfg?.greeting, W, H);
-  drawName(ctx, tmplCfg?.name, W, H, employeeName, accentColor);
+  drawName(ctx, tmplCfg?.name, W, H, employeeName);
   drawQuote(ctx, tmplCfg?.quote, W, H);
 
   return canvas.toBuffer("image/png");
