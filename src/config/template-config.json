@@ -1,0 +1,268 @@
+{
+  "canvas": {
+    "width": 1080,
+    "height": 1080
+  },
+  "templates": [
+    {
+      "file": "template-1.png",
+      "photo": {
+        "cx": 0.50,
+        "cy": 0.38,
+        "size": 0.28,
+        "shape": "circle"
+      },
+      "greeting": {
+        "cx": 0.50,
+        "cy": 0.15,
+        "fontSize": 60,
+        "color": "#FFFFFF",
+        "align": "center"
+      },
+      "name": {
+        "cx": 0.50,
+        "cy": 0.60,
+        "fontSize": 54,
+        "color": "#FFFFFF",
+        "bold": true,
+        "align": "center"
+      },
+      "quote": {
+        "cx": 0.50,
+        "cy": 0.72,
+        "fontSize": 28,
+        "color": "#FFFFFF",
+        "maxWidth": 700,
+        "align": "center"
+      }
+    },
+    {
+      "file": "template-2.png",
+      "photo": {
+        "cx": 0.36,
+        "cy": 0.49,
+        "size": 0.42,
+        "shape": "rounded"
+      },
+      "greeting": {
+        "cx": 0.73,
+        "cy": 0.22,
+        "fontSize": 56,
+        "color": "#7A1E76",
+        "align": "center"
+      },
+      "name": {
+        "cx": 0.73,
+        "cy": 0.30,
+        "fontSize": 48,
+        "color": "#7A1E76",
+        "bold": true,
+        "align": "center"
+      },
+      "quote": {
+        "cx": 0.73,
+        "cy": 0.45,
+        "fontSize": 24,
+        "color": "#444444",
+        "maxWidth": 350,
+        "align": "center"
+      }
+    },
+    {
+      "file": "template-3.png",
+      "photo": {
+        "cx": 0.50,
+        "cy": 0.25,
+        "size": 0.29,
+        "shape": "rounded"
+      },
+      "greeting": {
+        "cx": 0.50,
+        "cy": 0.55,
+        "fontSize": 60,
+        "color": "#D35400",
+        "align": "center"
+      },
+      "name": {
+        "cx": 0.50,
+        "cy": 0.64,
+        "fontSize": 52,
+        "color": "#2C3E50",
+        "bold": true,
+        "align": "center"
+      },
+      "quote": {
+        "cx": 0.50,
+        "cy": 0.75,
+        "fontSize": 26,
+        "color": "#555555",
+        "maxWidth": 700,
+        "align": "center"
+      }
+    },
+    {
+      "file": "template-4.png",
+      "description": "Birthday candles at bottom, circular photo frame at top center.",
+      "photo": {
+        "cx": 0.46,
+        "cy": 0.22,
+        "size": 0.36,
+        "shape": "circle"
+      },
+      "greeting": {
+        "text": "Happy Birthday",
+        "cx": 0.50,
+        "cy": 0.50,
+        "fontSize": 64,
+        "color": "#4A5568",
+        "align": "center"
+      },
+      "name": {
+        "cx": 0.50,
+        "cy": 0.60,
+        "fontSize": 58,
+        "color": "#2D3748",
+        "bold": true,
+        "align": "center"
+      },
+      "designation": {
+        "cx": 0.50,
+        "cy": 0.66,
+        "fontSize": 30,
+        "color": "#718096",
+        "align": "center"
+      },
+      "quote": {
+        "cx": 0.50,
+        "cy": 0.76,
+        "fontSize": 28,
+        "color": "#4A5568",
+        "maxWidth": 750,
+        "align": "center"
+      }
+    },
+    {
+      "file": "template-5.png",
+      "description": "Polaroid-style photo area already provided in center.",
+      "photo": {
+        "cx": 0.50,
+        "cy": 0.66,
+        "size": 0.42,
+        "shape": "rounded"
+      },
+      "greeting": {
+        "text": "Happy Birthday",
+        "cx": 0.50,
+        "cy": 0.14,
+        "fontSize": 64,
+        "color": "#8B6B4A",
+        "align": "center"
+      },
+      "name": {
+        "cx": 0.50,
+        "cy": 0.23,
+        "fontSize": 56,
+        "color": "#6B4F3A",
+        "bold": true,
+        "align": "center"
+      },
+      "designation": {
+        "cx": 0.50,
+        "cy": 0.29,
+        "fontSize": 28,
+        "color": "#8D7B68",
+        "align": "center"
+      },
+      "quote": {
+        "cx": 0.50,
+        "cy": 0.92,
+        "fontSize": 26,
+        "color": "#5C5C5C",
+        "maxWidth": 800,
+        "align": "center"
+      }
+    },
+    {
+      "file": "template-6.png",
+      "description": "Dark floral template with large central rectangle for photo.",
+      "photo": {
+        "cx": 0.48,
+        "cy": 0.48,
+        "size": 0.60,
+        "shape": "rounded"
+      },
+      "greeting": {
+        "text": "Happy Birthday",
+        "cx": 0.50,
+        "cy": 0.12,
+        "fontSize": 64,
+        "color": "#FFFFFF",
+        "align": "center"
+      },
+      "name": {
+        "cx": 0.50,
+        "cy": 0.82,
+        "fontSize": 58,
+        "color": "#FFFFFF",
+        "bold": true,
+        "align": "center"
+      },
+      "designation": {
+        "cx": 0.50,
+        "cy": 0.88,
+        "fontSize": 28,
+        "color": "#D6D6FF",
+        "align": "center"
+      },
+      "quote": {
+        "cx": 0.50,
+        "cy": 0.94,
+        "fontSize": 24,
+        "color": "#E8E8FF",
+        "maxWidth": 760,
+        "align": "center"
+      }
+    },
+    {
+      "file": "template-7.png",
+      "description": "Large yellow square for photo with decorative strips.",
+      "photo": {
+        "cx": 0.50,
+        "cy": 0.45,
+        "size": 0.60,
+        "shape": "square"
+      },
+      "greeting": {
+        "text": "Happy Birthday",
+        "cx": 0.50,
+        "cy": 0.10,
+        "fontSize": 62,
+        "color": "#FF5A36",
+        "align": "center"
+      },
+      "name": {
+        "cx": 0.50,
+        "cy": 0.82,
+        "fontSize": 58,
+        "color": "#2E3192",
+        "bold": true,
+        "align": "center"
+      },
+      "designation": {
+        "cx": 0.50,
+        "cy": 0.88,
+        "fontSize": 28,
+        "color": "#444444",
+        "align": "center"
+      },
+      "quote": {
+        "cx": 0.50,
+        "cy": 0.94,
+        "fontSize": 24,
+        "color": "#444444",
+        "maxWidth": 760,
+        "align": "center"
+      }
+    }
+  ]
+}
