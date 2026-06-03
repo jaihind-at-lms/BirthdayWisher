@@ -154,15 +154,10 @@ const drawName = (ctx, cfg, W, H, employeeName, accentColor) => {
   ctx.fillRect(cx * W - tw / 2, underlineY, tw, 3);
 };
 
-const drawQuote = (ctx, cfg, W, H, accentColor) => {
+const drawQuote = (ctx, cfg, W, H) => {
   const quote = getRandomItem(QUOTES);
-  const color = cfg?.color ?? "rgba(255,255,255,0.9)";
-  const fontSize = cfg?.fontSize ?? 28;
-  const cx = cfg?.cx ?? 0.5;
-  const cy = cfg?.cy ?? 0.63;
-  const maxWidth = cfg?.maxWidth ?? 750;
-
-  ctx.font = `${fontSize}px sans-serif`;
+  const { color = "rgba(255,255,255,0.9)", fontSize = 28, cx = 0.5, cy = 0.63, maxWidth = 750, bold = false } = cfg ?? {};
+  ctx.font = bold ? `bold ${fontSize}px sans-serif` : `${fontSize}px sans-serif`;
   ctx.textAlign = "center";
   ctx.textBaseline = "top";
   ctx.fillStyle = color;
@@ -240,7 +235,7 @@ export const generateBirthdayCard = async (employeeName, employeeImagePath, temp
   drawPhoto(ctx, tmplCfg?.photo, W, H, empImg);
   drawGreeting(ctx, tmplCfg?.greeting, W, H);
   drawName(ctx, tmplCfg?.name, W, H, employeeName, accentColor);
-  drawQuote(ctx, tmplCfg?.quote, W, H, accentColor);
+  drawQuote(ctx, tmplCfg?.quote, W, H);
 
   return canvas.toBuffer("image/png");
 };

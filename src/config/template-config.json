@@ -17,15 +17,14 @@
         "cy": 0.15,
         "fontSize": 60,
         "color": "#FFFFFF",
-        "align": "center"
+        "bold": true
       },
       "name": {
         "cx": 0.50,
         "cy": 0.60,
         "fontSize": 54,
         "color": "#FFFFFF",
-        "bold": true,
-        "align": "center"
+        "bold": true
       },
       "quote": {
         "cx": 0.50,
@@ -33,7 +32,7 @@
         "fontSize": 28,
         "color": "#FFFFFF",
         "maxWidth": 700,
-        "align": "center"
+        "bold": false
       }
     },
     {
@@ -49,15 +48,14 @@
         "cy": 0.22,
         "fontSize": 56,
         "color": "#7A1E76",
-        "align": "center"
+        "bold": false
       },
       "name": {
         "cx": 0.73,
         "cy": 0.30,
         "fontSize": 48,
         "color": "#7A1E76",
-        "bold": true,
-        "align": "center"
+        "bold": true
       },
       "quote": {
         "cx": 0.73,
@@ -65,7 +63,7 @@
         "fontSize": 24,
         "color": "#444444",
         "maxWidth": 350,
-        "align": "center"
+        "bold": false
       }
     },
     {
@@ -81,15 +79,14 @@
         "cy": 0.55,
         "fontSize": 60,
         "color": "#D35400",
-        "align": "center"
+        "bold": false
       },
       "name": {
         "cx": 0.50,
         "cy": 0.64,
         "fontSize": 52,
         "color": "#2C3E50",
-        "bold": true,
-        "align": "center"
+        "bold": true
       },
       "quote": {
         "cx": 0.50,
@@ -97,12 +94,11 @@
         "fontSize": 26,
         "color": "#555555",
         "maxWidth": 700,
-        "align": "center"
+        "bold": false
       }
     },
     {
       "file": "template-4.png",
-      "description": "Birthday candles at bottom, circular photo frame at top center.",
       "photo": {
         "cx": 0.46,
         "cy": 0.22,
@@ -115,22 +111,14 @@
         "cy": 0.50,
         "fontSize": 64,
         "color": "#4A5568",
-        "align": "center"
+        "bold": false
       },
       "name": {
         "cx": 0.50,
         "cy": 0.60,
         "fontSize": 58,
         "color": "#2D3748",
-        "bold": true,
-        "align": "center"
-      },
-      "designation": {
-        "cx": 0.50,
-        "cy": 0.66,
-        "fontSize": 30,
-        "color": "#718096",
-        "align": "center"
+        "bold": true
       },
       "quote": {
         "cx": 0.50,
@@ -138,12 +126,11 @@
         "fontSize": 28,
         "color": "#4A5568",
         "maxWidth": 750,
-        "align": "center"
+        "bold": false
       }
     },
     {
       "file": "template-5.png",
-      "description": "Polaroid-style photo area already provided in center.",
       "photo": {
         "cx": 0.50,
         "cy": 0.66,
@@ -156,22 +143,14 @@
         "cy": 0.14,
         "fontSize": 64,
         "color": "#8B6B4A",
-        "align": "center"
+        "bold": false
       },
       "name": {
         "cx": 0.50,
         "cy": 0.23,
         "fontSize": 56,
         "color": "#6B4F3A",
-        "bold": true,
-        "align": "center"
-      },
-      "designation": {
-        "cx": 0.50,
-        "cy": 0.29,
-        "fontSize": 28,
-        "color": "#8D7B68",
-        "align": "center"
+        "bold": true
       },
       "quote": {
         "cx": 0.50,
@@ -179,12 +158,11 @@
         "fontSize": 26,
         "color": "#5C5C5C",
         "maxWidth": 800,
-        "align": "center"
+        "bold": false
       }
     },
     {
       "file": "template-6.png",
-      "description": "Dark floral template with large central rectangle for photo.",
       "photo": {
         "cx": 0.48,
         "cy": 0.48,
@@ -197,22 +175,14 @@
         "cy": 0.12,
         "fontSize": 64,
         "color": "#FFFFFF",
-        "align": "center"
+        "bold": false
       },
       "name": {
         "cx": 0.50,
         "cy": 0.82,
         "fontSize": 58,
         "color": "#FFFFFF",
-        "bold": true,
-        "align": "center"
-      },
-      "designation": {
-        "cx": 0.50,
-        "cy": 0.88,
-        "fontSize": 28,
-        "color": "#D6D6FF",
-        "align": "center"
+        "bold": true
       },
       "quote": {
         "cx": 0.50,
@@ -220,12 +190,11 @@
         "fontSize": 24,
         "color": "#E8E8FF",
         "maxWidth": 760,
-        "align": "center"
+        "bold": false
       }
     },
     {
       "file": "template-7.png",
-      "description": "Large yellow square for photo with decorative strips.",
       "photo": {
         "cx": 0.50,
         "cy": 0.45,
@@ -238,22 +207,14 @@
         "cy": 0.10,
         "fontSize": 62,
         "color": "#FF5A36",
-        "align": "center"
+        "bold": false
       },
       "name": {
         "cx": 0.50,
         "cy": 0.82,
         "fontSize": 58,
         "color": "#2E3192",
-        "bold": true,
-        "align": "center"
-      },
-      "designation": {
-        "cx": 0.50,
-        "cy": 0.88,
-        "fontSize": 28,
-        "color": "#444444",
-        "align": "center"
+        "bold": true
       },
       "quote": {
         "cx": 0.50,
@@ -261,7 +222,7 @@
         "fontSize": 24,
         "color": "#444444",
         "maxWidth": 760,
-        "align": "center"
+        "bold": false
       }
     }
   ]
