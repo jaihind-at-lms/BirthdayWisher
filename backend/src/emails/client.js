@@ -20,7 +20,7 @@ function getTransporter() {
   return transporter;
 }
 
-export async function sendMail({ to, cc, subject, html }) {
+export async function sendMail({ to, cc, subject, html, attachments }) {
   if (!config.smtpUser || !config.smtpPassword) {
     throw new Error("SMTP credentials not configured");
   }
@@ -31,6 +31,7 @@ export async function sendMail({ to, cc, subject, html }) {
     cc,
     subject,
     html,
+    attachments,
   });
   logger.info(`Email sent: "${subject}" -> ${to}`, { messageId: info.messageId });
   return info;

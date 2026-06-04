@@ -1,5 +1,6 @@
 import { sendMail } from "./client.js";
 import { renderWelcomeEmail } from "./templates/welcome.js";
+import { renderBirthdayEmail } from "./templates/birthday.js";
 import { config } from "../config/env.js";
 
 export async function sendWelcomeEmail({
@@ -27,5 +28,24 @@ export async function sendWelcomeEmail({
     cc: email,
     subject: `Welcoming ${title}. ${name}`,
     html,
+  });
+}
+
+export async function sendBirthdayEmail({ name, email, cardBuffer }) {
+  const cid = "birthdayCard";
+  const html = renderBirthdayEmail({ name, cardCid: cid });
+
+  await sendMail({
+    to: config.welcomeEmailTo,
+    cc: email,
+    subject: `Happy Birthday, ${name}!`,
+    html,
+    attachments: [
+      {
+        filename: "birthday-card.png",
+        content: cardBuffer,
+        cid,
+      },
+    ],
   });
 }
