@@ -8,6 +8,7 @@ interface SelectOrInputProps {
   error?: FieldError | undefined
   options: string[]
   placeholder?: string
+  className?: string
 }
 
 const OTHER = 'Other'
@@ -18,6 +19,7 @@ const SelectOrInput = ({
   error,
   options,
   placeholder = 'Select…',
+  className = '',
 }: SelectOrInputProps): JSX.Element => {
   const [isOther, setIsOther] = useState(
     options.length > 0 && !options.includes(value) && value !== ''
@@ -36,7 +38,7 @@ const SelectOrInput = ({
   return (
     <div>
       <select
-        className={`form-select${error ? ' is-invalid' : ''}`}
+        className={`form-select${className ? ` ${className}` : ''}${error ? ' is-invalid' : ''}`}
         value={isOther ? OTHER : value || ''}
         onChange={(e) => { handleSelectChange(e.target.value) }}
       >
@@ -49,7 +51,7 @@ const SelectOrInput = ({
       {isOther && (
         <input
           type="text"
-          className={`form-control mt-2${error ? ' is-invalid' : ''}`}
+          className={`form-control mt-2${className ? ` ${className}` : ''}${error ? ' is-invalid' : ''}`}
           value={value}
           onChange={(e) => { onChange(e.target.value) }}
           placeholder="Enter custom value"

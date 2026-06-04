@@ -118,7 +118,7 @@ const AddEmployeeModal = ({ show, onClose }: AddEmployeeModalProps): JSX.Element
               <div className="row g-3">
                 <div className="col-md-2">
                   <label className="form-label fw-semibold small text-secondary">Title <span className="text-danger">*</span></label>
-                  <Select registration={register('title', { required: 'Title is required' })} placeholder="Select title">
+                  <Select registration={register('title', { required: 'Title is required' })} placeholder="Select title" className="form-select-sm">
                     {TITLE_OPTIONS.map((t) => (
                       <option key={t} value={t}>{t}</option>
                     ))}
@@ -173,6 +173,7 @@ const AddEmployeeModal = ({ show, onClose }: AddEmployeeModalProps): JSX.Element
                     options={departmentOptions}
                     placeholder="Select department"
                     error={errors.department ? { message: errors.department, type: 'required' } : undefined}
+                    className="form-select-sm"
                   />
                 </div>
                 <div className="col-md-3">
@@ -183,6 +184,7 @@ const AddEmployeeModal = ({ show, onClose }: AddEmployeeModalProps): JSX.Element
                     options={designationOptions}
                     placeholder="Select designation"
                     error={errors.designation ? { message: errors.designation, type: 'required' } : undefined}
+                    className="form-select-sm"
                   />
                 </div>
                 <div className="col-12">
@@ -205,6 +207,7 @@ const AddEmployeeModal = ({ show, onClose }: AddEmployeeModalProps): JSX.Element
                         registration={register('welcomeTextLine1')}
                         placeholder="First line of welcome message…"
                         rows={3}
+                        className="form-control-sm"
                       />
                     </div>
                     <div className="col-12">
@@ -213,6 +216,7 @@ const AddEmployeeModal = ({ show, onClose }: AddEmployeeModalProps): JSX.Element
                         registration={register('welcomeTextLine2')}
                         placeholder="Second line of welcome message…"
                         rows={3}
+                        className="form-control-sm"
                       />
                     </div>
                   </>
