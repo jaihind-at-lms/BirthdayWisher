@@ -132,6 +132,11 @@ export async function uploadEmployeePhoto(req, res) {
     if (!req.file) {
       return res.status(400).json({ success: false, message: "No photo file provided." });
     }
+    // Enforce max file size 1MB
+    const MAX_BYTES = 1024 * 1024
+    if (req.file.size != null && req.file.size > MAX_BYTES) {
+      return res.status(413).json({ success: false, message: "File too large. Maximum allowed size is 1MB." });
+    }
     if (!existsSync(UPLOADS_DIR)) mkdirSync(UPLOADS_DIR, { recursive: true });
     const dest = resolve(UPLOADS_DIR, `${employeeId}.png`);
     writeFileSync(dest, req.file.buffer);
@@ -167,6 +172,11 @@ export async function createEmployee(req, res) {
 
     // Save photo if provided
     if (req.file) {
+      // Enforce max file size 1MB
+      const MAX_BYTES = 1024 * 1024
+      if (req.file.size != null && req.file.size > MAX_BYTES) {
+        return res.status(413).json({ success: false, message: "Photo too large. Maximum allowed size is 1MB." });
+      }
       if (!existsSync(UPLOADS_DIR)) mkdirSync(UPLOADS_DIR, { recursive: true });
       const dest = resolve(UPLOADS_DIR, `${employeeId}.png`);
       writeFileSync(dest, req.file.buffer);

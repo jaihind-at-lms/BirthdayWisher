@@ -101,7 +101,6 @@ const EditEmployeeModal = ({
           {employee ? (<>
           <div className="modal-header border-bottom">
             <h5 className="modal-title fw-bold d-flex align-items-center gap-2">
-              <EmployeeAvatar name={name} imageUrl={imageUrl} size={28} />
               Edit — {name}
             </h5>
             <button type="button" className="btn-close" onClick={onClose} />
@@ -161,7 +160,7 @@ const EditEmployeeModal = ({
                 </div>
                 <div className="col-12">
                   <label className="form-label fw-semibold small text-secondary">Photo</label>
-                  <FileInput value={photo} onChange={setPhoto} />
+                  <FileInput value={photo} onChange={setPhoto} maxSizeBytes={1024 * 1024} compact />
                   {!photo && imageUrl && (
                     <div className="mt-2">
                       <EmployeeAvatar name={name} imageUrl={imageUrl} size={40} />

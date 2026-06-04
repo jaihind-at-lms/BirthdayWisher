@@ -186,7 +186,7 @@ const AddEmployeeModal = ({ show, onClose }: AddEmployeeModalProps): JSX.Element
                 </div>
                 <div className="col-12">
                   <label className="form-label fw-semibold small text-secondary">Photo <span className="text-danger">*</span></label>
-                  <FileInput value={photo} onChange={(f) => { setPhoto(f); setPhotoError(null) }} />
+                  <FileInput value={photo} onChange={(f) => { setPhoto(f); setPhotoError(null) }} compact />
                   {photoError && <div className="invalid-feedback d-block">{photoError}</div>}
                 </div>
                 <div className="col-12">

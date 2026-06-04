@@ -2,6 +2,7 @@ import { useCallback, useState, useEffect, useRef } from 'react'
 import { Modal as BsModal } from 'bootstrap'
 import type { JSX } from 'react'
 
+import FileInput from '@project/Components/Form/FileInput'
 import { useUploadEmployeePhotoMutation } from '@project/Store/Api'
 import type { Employee } from '@project/Types/Features/employee'
 
@@ -16,7 +17,6 @@ const ChangeImageModal = ({ employee, onClose }: ChangeImageModalProps): JSX.Ele
   const [uploadPhoto, { isLoading }] = useUploadEmployeePhotoMutation()
   const [file, setFile] = useState<File | null>(null)
   const modalRef = useRef<HTMLDivElement>(null)
-  const previewUrl = file ? URL.createObjectURL(file) : null
 
   useEffect(() => {
     if (!modalRef.current) return
@@ -46,29 +46,15 @@ const ChangeImageModal = ({ employee, onClose }: ChangeImageModalProps): JSX.Ele
                 <button type="button" className="btn-close" onClick={onClose} />
               </div>
               <div className="modal-body">
-                {(previewUrl || file) && (
-                  <div className="text-center mb-3">
-                    <img
-                      src={previewUrl!}
-                      alt={name}
-                      className="rounded-3 border object-fit-cover"
-                      width={80}
-                      height={80}
-                    />
-                  </div>
-                )}
                 <p className="text-secondary mb-3">
                   Upload new photo for <strong>{name}</strong>
                 </p>
                 <div className="mb-3">
-                  <label className="form-label fw-semibold">Photo</label>
-                  <input
-                    type="file"
-                    className="form-control"
+                  <FileInput
+                    value={file}
+                    onChange={setFile}
                     accept="image/png,image/jpeg,image/jpg"
-                    onChange={(e) => {
-                      setFile(e.target.files?.[0] ?? null)
-                    }}
+                    maxSizeBytes={1024 * 1024}
                   />
                 </div>
                 <div className="d-flex gap-2 justify-content-end">
@@ -79,7 +65,7 @@ const ChangeImageModal = ({ employee, onClose }: ChangeImageModalProps): JSX.Ele
                     type="button"
                     className="btn btn-info btn-sm text-white d-flex align-items-center gap-1"
                     disabled={isLoading || !file}
-                    onClick={handleSubmit}
+                    onClick={() => { void handleSubmit() }}
                   >
                     {isLoading ? (
                       <>
