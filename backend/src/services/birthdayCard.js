@@ -128,11 +128,8 @@ const drawName = (ctx, cfg, W, H, employeeName) => {
 };
 
 const drawQuote = async (ctx, cfg, W, H) => {
-  const quote = await WishModel.random() || getRandomItem([
-    "Another year, another adventure — go make it legendary!",
-    "Age is just a number, but your vibe is timeless.",
-    "You don't get older, you level up. Happy Birthday!",
-  ]);
+  const quote = await WishModel.random();
+  if (!quote) return;
   const { color = "rgba(255,255,255,0.9)", fontSize = 28, cy = 0.63, maxWidth = 750, bold = false, align = "center" } = cfg ?? {};
   const cx = cfg?.cx ?? (align === "right" ? 0.95 : align === "left" ? 0.05 : 0.5);
   ctx.font = bold ? `bold ${fontSize}px sans-serif` : `${fontSize}px sans-serif`;
