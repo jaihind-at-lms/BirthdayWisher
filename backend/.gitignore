@@ -4,6 +4,9 @@ birthday-cards/
 # Temp downloaded images
 src/temp/
 
+# Uploaded employee images
+uploads/
+
 # Logs
 logs
 *.log

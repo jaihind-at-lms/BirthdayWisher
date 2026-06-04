@@ -125,6 +125,21 @@ export const appendSheetRow = async (range, values) => {
   return res.data;
 };
 
+export const getSheetHeaders = async (range) => {
+  const sheetId = config.googleSheetId;
+  if (!sheetId) throw new Error("GOOGLE_SHEET_ID is not set in .env");
+
+  const auth = getAuth(false);
+  const sheets = google.sheets({ version: "v4", auth });
+  // Read only the first row to get headers
+  const tabName = range.split("!")[0];
+  const res = await sheets.spreadsheets.values.get({
+    spreadsheetId: sheetId,
+    range: `${tabName}!1:1`,
+  });
+  return res.data.values?.[0] || [];
+};
+
 export const clearSheetRow = async (range) => {
   const sheetId = config.googleSheetId;
   if (!sheetId) throw new Error("GOOGLE_SHEET_ID is not set in .env");

@@ -72,7 +72,6 @@ export const apiClient: AxiosInstance = axios.create({
   timeout: 30_000,
   headers: {
     Accept: '*/*',
-    'Content-Type': 'application/json',
     'Access-Control-Expose-Headers':
       'X-Pagination-Current-Page, X-Pagination-Total-Count',
   },
@@ -273,7 +272,8 @@ const axiosBaseQuery =
       if (args.showResultMessage) {
         const payload = result.data as ApiResponse<{ message?: string }>
         if (result.status === HttpStatus.OK) {
-          showSuccessToast(payload.data.message ?? 'Operation was successful.')
+          const successMessage = payload.data?.message ?? payload.message ?? 'Operation was successful.'
+          showSuccessToast(successMessage)
         } else if (result.status === HttpStatus.NO_CONTENT) {
           showSuccessToast('No content found.')
         }

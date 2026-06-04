@@ -1,7 +1,13 @@
-import { getSheetRecords, updateSheetCell } from "../services/index.js";
+import { writeFileSync, existsSync, mkdirSync } from "fs";
+import { resolve, dirname } from "path";
+import { fileURLToPath } from "url";
+
+import { getSheetRecords, updateSheetCell, appendSheetRow, getSheetHeaders } from "../services/index.js";
 import { config } from "../config/env.js";
 import { trimKeys, parseDate } from "../utils/helpers.js";
 
+const __dirname = dirname(fileURLToPath(import.meta.url));
+const UPLOADS_DIR = resolve(__dirname, "../../uploads");
 const RANGE = `${config.googleSheetEmployeeTab}!A:Z`;
 
 export async function getEmployees(req, res) {
@@ -118,6 +124,86 @@ export async function updateEmployee(req, res) {
     await updateSheetCell(range, [cellValues]);
 
     res.json({ success: true, message: "Employee updated successfully." });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+}
+
+export async function uploadEmployeePhoto(req, res) {
+  try {
+    const { id: employeeId } = req.params;
+    if (!req.file) {
+      return res.status(400).json({ success: false, message: "No photo file provided." });
+    }
+    if (!existsSync(UPLOADS_DIR)) mkdirSync(UPLOADS_DIR, { recursive: true });
+    const dest = resolve(UPLOADS_DIR, `${employeeId}.png`);
+    writeFileSync(dest, req.file.buffer);
+    res.json({ success: true, message: "Photo updated successfully." });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+}
+
+export async function createEmployee(req, res) {
+  try {
+    const { title, name, email, employeeId, department, designation, dateOfBirth } = req.body;
+
+    if (!name || !email || !employeeId) {
+      return res.status(400).json({
+        success: false,
+        message: "name, email, and employeeId are required.",
+      });
+    }
+
+    // Save photo if provided
+    if (req.file) {
+      if (!existsSync(UPLOADS_DIR)) mkdirSync(UPLOADS_DIR, { recursive: true });
+      const dest = resolve(UPLOADS_DIR, `${employeeId}.png`);
+      writeFileSync(dest, req.file.buffer);
+    }
+
+    // Read sheet headers and append row
+    const rows = await getSheetRecords(RANGE);
+    let headers = Object.keys(rows[0] || {});
+    if (!headers.length) {
+      headers = await getSheetHeaders(RANGE);
+    }
+
+    let formattedDob = dateOfBirth || "";
+    if (formattedDob) {
+      const d = new Date(formattedDob);
+      if (!isNaN(d.getTime())) {
+        formattedDob = d.toISOString().slice(0, 10);
+      }
+    }
+
+    const fieldMap = { title, name, email, employeeId, department, designation, dateOfBirth: formattedDob };
+    const lookup = {
+      name: ["Employee Name", "Name", "name"],
+      employeeId: ["Employee ID", "Employee Id", "employee id", "ID", "id"],
+      email: ["Email", "email"],
+      department: ["Department", "department"],
+      designation: ["Designation", "designation"],
+      title: ["Title", "title"],
+      dateOfBirth: ["Date of Birth", "Date of birth", "date of birth", "Birthday", "birthday", "DOB", "dob"],
+    };
+
+    const values = headers.map((h) => {
+      const lower = h.trim().toLowerCase();
+      for (const [field, aliases] of Object.entries(lookup)) {
+        if (aliases.some((a) => a.toLowerCase() === lower)) {
+          return fieldMap[field] ?? "";
+        }
+      }
+      return "";
+    });
+
+    console.log("[createEmployee] headers found:", headers);
+    console.log("[createEmployee] values to append:", values);
+
+    await appendSheetRow(RANGE, [values]);
+
+    res.json({ success: true, message: "Employee created successfully." });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }

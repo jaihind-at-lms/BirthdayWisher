@@ -10,13 +10,14 @@ interface EmployeeAvatarProps {
 }
 
 const EmployeeAvatar = ({ name, imageUrl, size = 36 }: EmployeeAvatarProps): JSX.Element => {
-  const thumb = getDriveThumbnail(imageUrl, size * 2)
   const [failed, setFailed] = useState(false)
+  const thumb = getDriveThumbnail(imageUrl, size * 2)
+  const src = thumb || imageUrl
 
-  if (thumb && !failed) {
+  if (src && !failed) {
     return (
       <img
-        src={thumb}
+        src={src}
         alt={name}
         className="rounded-circle border object-fit-cover flex-shrink-0"
         width={size}

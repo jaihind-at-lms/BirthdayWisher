@@ -43,6 +43,15 @@ export const pastDate = (): Date => {
  *
  * @example generateYears(50, 5) // [{ id: 1974, name: '1974' }, ..., { id: 2029, name: '2029' }]
  */
+import dayjs from 'dayjs'
+
+export function formatBirthday(dateStr: string | null): string {
+  if (!dateStr) return '-'
+  const d = dayjs(dateStr)
+  if (!d.isValid()) return dateStr
+  return d.format('DD-MMMM')
+}
+
 export const generateYears = (
   pastYears = 50,
   futureYears = 5

@@ -3,10 +3,14 @@ import { BirthdayWisher } from "../jobs/birthdayWisher.js";
 import { generatePreviewCards } from "../services/testService.js";
 
 import { login, logout, me } from "../controllers/authController.js";
+import multer from "multer";
+
 import {
   getEmployees,
   getDashboardStats,
   updateEmployee,
+  createEmployee,
+  uploadEmployeePhoto,
 } from "../controllers/employeeController.js";
 import { createSheetController } from "../controllers/sheetController.js";
 
@@ -22,8 +26,12 @@ router.get("/auth/me", me);
 
 // ── Employee routes ──────────────────────────────────────────────────────────
 
+const upload = multer({ storage: multer.memoryStorage() });
+
 router.get("/employees", getEmployees);
+router.post("/employees", upload.single("photo"), createEmployee);
 router.put("/employees/:id", updateEmployee);
+router.put("/employees/:id/photo", upload.single("photo"), uploadEmployeePhoto);
 
 // ── Dashboard routes ─────────────────────────────────────────────────────────
 

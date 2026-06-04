@@ -63,6 +63,38 @@ const employeeApi = createApi({
 
       invalidatesTags: ['Employees', 'DashboardStats'],
     }),
+
+    createEmployee: builder.mutation<undefined, FormData>({
+      query: (formData) => ({
+        url: 'employees',
+        method: 'POST',
+        data: formData,
+        showErrorMessage: true,
+        showResultMessage: true,
+      }),
+
+      transformResponse: () => undefined,
+
+      invalidatesTags: ['Employees', 'DashboardStats'],
+    }),
+
+    uploadEmployeePhoto: builder.mutation<undefined, { id: string; photo: File }>({
+      query: ({ id, photo }) => {
+        const fd = new FormData()
+        fd.append('photo', photo)
+        return {
+          url: `employees/${id}/photo`,
+          method: 'PUT',
+          data: fd,
+          showErrorMessage: true,
+          showResultMessage: true,
+        }
+      },
+
+      transformResponse: () => undefined,
+
+      invalidatesTags: ['Employees', 'DashboardStats'],
+    }),
   }),
 })
 
@@ -70,6 +102,8 @@ export const {
   useGetEmployeesQuery,
   useGetDashboardStatsQuery,
   useUpdateEmployeeMutation,
+  useCreateEmployeeMutation,
+  useUploadEmployeePhotoMutation,
 } = employeeApi
 
 export default employeeApi

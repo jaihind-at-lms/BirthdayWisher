@@ -25,6 +25,9 @@ app.use(limiter);
   startBirthdayWisherJob();
 })();
 
+// Serve uploaded employee images
+app.use("/uploads", express.static("uploads"));
+
 // Routes
 app.get("/health", (_, res) => res.json({ status: "ok" }));
 app.use("/api", routes);

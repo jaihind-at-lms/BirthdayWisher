@@ -7,12 +7,11 @@ import Spinner from '@project/Components/UI/Spinner'
 import EmployeeAvatar from '@project/Components/UI/EmployeeAvatar'
 import {
   useGetDashboardStatsQuery,
-  useUpdateEmployeeMutation,
+  useUploadEmployeePhotoMutation,
 } from '@project/Store/Api'
 import type { Employee } from '@project/Types/Features/employee'
-import Input from '@project/Components/Form/Input'
-import { useForm } from 'react-hook-form'
-import { getDriveThumbnail } from '@project/Utils/imageHelper'
+import { getEmployeeImageUrl } from '@project/Utils/imageHelper'
+import { formatBirthday } from '@project/Utils/dateUtils'
 
 const STAT_CARDS = [
   { key: 'totalEmployees', label: 'Total Employees', icon: Users, color: 'primary', bg: 'primary' },
@@ -24,72 +23,65 @@ const STAT_CARDS = [
 const CHANGE_IMAGE_MODAL_ID = 'changeImageModal'
 
 const ChangeImageModal = ({ employee, onClose }: { employee: Employee | null; onClose: () => void }) => {
-  const [updateEmployee, { isLoading }] = useUpdateEmployeeMutation()
+  const [uploadPhoto, { isLoading }] = useUploadEmployeePhotoMutation()
+  const [file, setFile] = useState<File | null>(null)
   const modalRef = useRef<HTMLDivElement>(null)
-
-  const { register, handleSubmit, formState: { errors } } = useForm<{ imageUrl: string }>({
-    defaultValues: { imageUrl: '' },
-  })
+  const previewUrl = file ? URL.createObjectURL(file) : null
 
   useEffect(() => {
     if (!modalRef.current) return
     const modal = BsModal.getOrCreateInstance(modalRef.current)
-    if (employee) {
-      modal.show()
-    } else {
-      modal.hide()
-    }
+    if (employee) modal.show()
+    else modal.hide()
     return () => { modal.dispose() }
   }, [employee])
 
-  const onSubmit = useCallback(async (values: { imageUrl: string }) => {
-    if (!employee) return
+  const handleSubmit = useCallback(async () => {
+    if (!employee || !file) return
     const empId = employee['Employee ID'] || employee['Employee Id'] || employee['employee id'] || ''
-    await updateEmployee({ id: empId, data: { 'Employee Image': values.imageUrl } })
+    await uploadPhoto({ id: empId, photo: file })
+    setFile(null)
     onClose()
-  }, [employee, updateEmployee, onClose])
+  }, [employee, file, uploadPhoto, onClose])
 
   if (!employee) return null
 
   const name = employee['Employee Name'] || employee['Employee name'] || ''
-  const currentImage = employee['Employee Image'] || employee['Employee image'] || null
-  const thumb = getDriveThumbnail(currentImage, 120)
 
   return (
     <div ref={modalRef} className="modal fade" id={CHANGE_IMAGE_MODAL_ID} tabIndex={-1}>
       <div className="modal-dialog">
         <div className="modal-content border-0 shadow">
           <div className="modal-header border-bottom">
-            <h5 className="modal-title fw-bold">Change Image</h5>
-            <button type="button" className="btn-close" data-bs-dismiss="modal" onClick={onClose} />
+            <h5 className="modal-title fw-bold">Change Photo</h5>
+            <button type="button" className="btn-close" onClick={onClose} />
           </div>
           <div className="modal-body">
-            {thumb && (
+            {(previewUrl || file) && (
               <div className="text-center mb-3">
-                <img src={thumb} alt={name} className="rounded-3 border object-fit-cover"
+                <img src={previewUrl!} alt={name} className="rounded-3 border object-fit-cover"
                   width={80} height={80} />
               </div>
             )}
             <p className="text-secondary mb-3">
-              Update image for <strong>{name}</strong>
+              Upload new photo for <strong>{name}</strong>
             </p>
-            <form onSubmit={(e) => { void handleSubmit(onSubmit)(e) }}>
-              <div className="mb-3">
-                <label className="form-label fw-semibold">Image URL</label>
-                <Input
-                  type="text"
-                  placeholder="Paste Google Drive image URL"
-                  registration={register('imageUrl', { required: 'Image URL is required' })}
-                  error={errors.imageUrl}
-                />
-              </div>
-              <div className="d-flex gap-2 justify-content-end">
-                <button type="button" className="btn btn-outline-secondary btn-sm" data-bs-dismiss="modal" onClick={onClose}>Cancel</button>
-                <button type="submit" className="btn btn-info btn-sm text-white d-flex align-items-center gap-1" disabled={isLoading}>
-                  {isLoading ? <><span className="spinner-border spinner-border-sm" /> Saving…</> : 'Save'}
-                </button>
-              </div>
-            </form>
+            <div className="mb-3">
+              <label className="form-label fw-semibold">Photo</label>
+              <input
+                type="file"
+                className="form-control"
+                accept="image/png,image/jpeg,image/jpg"
+                onChange={(e) => { setFile(e.target.files?.[0] ?? null) }}
+              />
+            </div>
+            <div className="d-flex gap-2 justify-content-end">
+              <button type="button" className="btn btn-outline-secondary btn-sm" onClick={onClose}>Cancel</button>
+              <button type="button" className="btn btn-info btn-sm text-white d-flex align-items-center gap-1"
+                disabled={isLoading || !file} onClick={handleSubmit}>
+                {isLoading ? <><span className="spinner-border spinner-border-sm" /> Uploading…</> : 'Upload'}
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -97,25 +89,18 @@ const ChangeImageModal = ({ employee, onClose }: { employee: Employee | null; on
   )
 }
 
-const getEmployeeNameCol = (emp: Employee): string =>
-  emp['Employee Name'] || emp['Employee name'] || emp['Name'] || emp['name'] || '-'
+const getEmployeeNameCol = (emp: Employee): string => {
+  const title = emp['Title'] || emp['title'] || ''
+  const name = emp['Employee Name'] || emp['Employee name'] || emp['Name'] || emp['name'] || '-'
+  return title ? `${title}. ${name}` : name
+}
 
 const getEmployeeIdCol = (emp: Employee): string =>
   emp['Employee ID'] || emp['Employee Id'] || emp['employee id'] || emp['ID'] || emp['id'] || ''
 
-const getEmployeeImageCol = (emp: Employee): string | null =>
-  emp['Employee Image'] || emp['Employee image'] || null
-
 const AdminDashboardPage = (): JSX.Element => {
   const { data: stats, isLoading, isError, error } = useGetDashboardStatsQuery(undefined)
   const [selectedEmployee, setSelectedEmployee] = useState<Employee | null>(null)
-  const [previewImage, setPreviewImage] = useState<string | null>(null)
-
-  const handlePreviewChange = useCallback((emp: Employee) => {
-    setSelectedEmployee(emp)
-    const url = getEmployeeImageCol(emp)
-    setPreviewImage(url)
-  }, [])
 
   if (isLoading) return <Spinner />
 
@@ -187,7 +172,7 @@ const AdminDashboardPage = (): JSX.Element => {
                     stats.upcomingBirthdays.map((emp, i) => {
                       const name = getEmployeeNameCol(emp)
                       const empId = getEmployeeIdCol(emp)
-                      const imageUrl = getEmployeeImageCol(emp)
+                      const imageUrl = getEmployeeImageUrl(emp)
                       return (
                         <tr key={empId || i} className="border-bottom border-light">
                           <td className="ps-4 py-3">
@@ -200,13 +185,13 @@ const AdminDashboardPage = (): JSX.Element => {
                           <td className="text-secondary py-3">{emp['Department'] || emp['department'] || '-'}</td>
                           <td className="py-3">
                             <span className="badge bg-info bg-opacity-10 text-info rounded-pill px-3 py-2">
-                              {(emp['Birthday'] || emp['birthday'] || emp['DOB'] || emp['dob'] || '-')}
+                              {formatBirthday(emp['Birthday'] || emp['birthday'] || emp['DOB'] || emp['dob'] || emp['Date of Birth'] || emp['date of birth'] || null)}
                             </span>
                           </td>
                           <td className="text-end pe-4 py-3">
                             <button
                               className="btn btn-outline-info btn-sm d-inline-flex align-items-center gap-1 rounded-pill px-3"
-                              onClick={() => { handlePreviewChange(emp) }}
+                              onClick={() => { setSelectedEmployee(emp) }}
                             >
                               <Camera size={14} />
                               Change Photo
@@ -232,7 +217,7 @@ const AdminDashboardPage = (): JSX.Element => {
 
       <ChangeImageModal
         employee={selectedEmployee}
-        onClose={() => { setSelectedEmployee(null); setPreviewImage(null) }}
+        onClose={() => { setSelectedEmployee(null) }}
       />
     </div>
   )

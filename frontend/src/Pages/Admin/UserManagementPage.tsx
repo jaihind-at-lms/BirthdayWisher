@@ -1,5 +1,5 @@
 import { useCallback, useState, useEffect, useRef } from 'react'
-import { Pencil, Search, Eye, X } from 'lucide-react'
+import { Pencil, Plus, Search, X } from 'lucide-react'
 import { Modal as BsModal } from 'bootstrap'
 import { useForm } from 'react-hook-form'
 import type { JSX } from 'react'
@@ -8,6 +8,8 @@ import Spinner from '@project/Components/UI/Spinner'
 import Input from '@project/Components/Form/Input'
 import Button from '@project/Components/Form/Button'
 import EmployeeAvatar from '@project/Components/UI/EmployeeAvatar'
+import AddEmployeeModal from '@project/Components/Employee/AddEmployeeModal'
+import { getEmployeeImageUrl } from '@project/Utils/imageHelper'
 import {
   useGetEmployeesQuery,
   useUpdateEmployeeMutation,
@@ -24,15 +26,10 @@ function getEditableFields(emp: Employee): [string, string][] {
   return Object.entries(emp).filter(([k]) => !IMG_KEYS.has(k.toLowerCase().trim()))
 }
 
-function getEmployeeImageUrl(emp: Employee): string | null {
-  const key = Object.keys(emp).find(
-    (k) => k.toLowerCase().includes('image') || k.toLowerCase().includes('photo')
-  )
-  return key ? emp[key] : null
-}
-
 function getEmployeeName(emp: Employee): string {
-  return emp['Employee Name'] || emp['Employee name'] || emp['Name'] || emp['name'] || '-'
+  const title = emp['Title'] || emp['title'] || ''
+  const name = emp['Employee Name'] || emp['Employee name'] || emp['Name'] || emp['name'] || '-'
+  return title ? `${title}. ${name}` : name
 }
 
 function getEmployeeId(emp: Employee): string {
@@ -136,6 +133,7 @@ const UserManagementPage = (): JSX.Element => {
   const { data: rawEmployees, isLoading, isError, error } = useGetEmployeesQuery(undefined)
   const [searchTerm, setSearchTerm] = useState('')
   const [selectedEmployee, setSelectedEmployee] = useState<Employee | null>(null)
+  const [showAddModal, setShowAddModal] = useState(false)
 
   const employees = rawEmployees ?? []
 
@@ -164,22 +162,31 @@ const UserManagementPage = (): JSX.Element => {
             {employees.length} employee{employees.length !== 1 ? 's' : ''} total
           </p>
         </div>
-        <div className="position-relative">
-          <Search size={16} className="position-absolute top-50 start-0 translate-middle-y ms-3 text-secondary" />
-          <input
-            type="text"
-            className="form-control form-control-sm ps-5 rounded-pill border-light"
-            style={{ width: 260 }}
-            placeholder="Search by name, email, department…"
-            value={searchTerm}
-            onChange={(e) => { setSearchTerm(e.target.value) }}
-          />
-          {searchTerm && (
-            <button className="btn position-absolute end-0 top-50 translate-middle-y border-0 text-secondary pe-3 py-0"
-              onClick={() => { setSearchTerm('') }}>
-              <X size={14} />
-            </button>
-          )}
+        <div className="d-flex align-items-center gap-2">
+          <div className="position-relative">
+            <Search size={16} className="position-absolute top-50 start-0 translate-middle-y ms-3 text-secondary" />
+            <input
+              type="text"
+              className="form-control form-control-sm ps-5 rounded-pill border-light"
+              style={{ width: 260 }}
+              placeholder="Search by name, email, department…"
+              value={searchTerm}
+              onChange={(e) => { setSearchTerm(e.target.value) }}
+            />
+            {searchTerm && (
+              <button className="btn position-absolute end-0 top-50 translate-middle-y border-0 text-secondary pe-3 py-0"
+                onClick={() => { setSearchTerm('') }}>
+                <X size={14} />
+              </button>
+            )}
+          </div>
+          <button
+            className="btn btn-info btn-sm text-white d-flex align-items-center gap-1 rounded-pill px-3"
+            onClick={() => { setShowAddModal(true) }}
+          >
+            <Plus size={16} />
+            Add New
+          </button>
         </div>
       </div>
 
@@ -259,6 +266,11 @@ const UserManagementPage = (): JSX.Element => {
       <EditEmployeeModal
         employee={selectedEmployee}
         onClose={() => { setSelectedEmployee(null) }}
+      />
+
+      <AddEmployeeModal
+        show={showAddModal}
+        onClose={() => { setShowAddModal(false) }}
       />
     </div>
   )
