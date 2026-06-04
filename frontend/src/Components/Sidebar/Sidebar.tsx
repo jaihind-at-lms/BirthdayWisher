@@ -32,7 +32,7 @@ const Sidebar = ({ onNavClick }: { onNavClick?: () => void }): JSX.Element => (
   <div className="d-flex flex-column h-100 py-3">
     <div className="d-flex align-items-center gap-2 px-3 pb-3 mb-2 border-bottom">
       <img
-        src="https://lmsin.com/images/lms-logo.png"
+        src="/lms-logo.png"
         alt="LMS"
         height={28}
       />

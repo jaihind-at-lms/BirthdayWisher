@@ -38,7 +38,7 @@ const LoginPage = (): JSX.Element => {
     <div className="container-fluid vh-100 d-flex flex-column overflow-hidden">
       <div className="row py-3 px-lg-5 px-3">
         <div className="col">
-          <img src="https://lmsin.com/images/lms-logo.png" alt="Logo" height={45} />
+          <img src="/lms-logo.png" alt="Logo" height={45} />
         </div>
       </div>
 

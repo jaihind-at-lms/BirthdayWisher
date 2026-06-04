@@ -34,7 +34,7 @@ const Header = (): JSX.Element => {
           <Menu size={22} />
         </button>
         <img
-          src="https://lmsin.com/images/lms-logo.png"
+          src="/lms-logo.png"
           alt="LMS"
           height={28}
           className="d-lg-none"
