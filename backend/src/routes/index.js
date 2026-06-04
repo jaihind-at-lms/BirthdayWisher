@@ -12,9 +12,10 @@ import {
   createEmployee,
   uploadEmployeePhoto,
 } from "../controllers/employeeController.js";
-import { createSheetController } from "../controllers/sheetController.js";
 
-import { config } from "../config/env.js";
+import { wishController } from "../controllers/wishController.js";
+import { departmentController } from "../controllers/departmentController.js";
+import { designationController } from "../controllers/designationController.js";
 
 const router = Router();
 
@@ -37,21 +38,26 @@ router.put("/employees/:id/photo", upload.single("photo"), uploadEmployeePhoto);
 
 router.get("/dashboard/stats", getDashboardStats);
 
-// ── Sheet CRUD routes ────────────────────────────────────────────────────────
+// ── Wishes ───────────────────────────────────────────────────────────────────
 
-const sheetTabs = [
-  { name: config.googleSheetWishesTab, path: "wishes" },
-  { name: config.googleSheetDepartmentTab, path: "departments" },
-  { name: config.googleSheetDesignationTab, path: "designations" },
-];
+router.get("/wishes", wishController.list);
+router.post("/wishes", wishController.create);
+router.put("/wishes/:id", wishController.update);
+router.delete("/wishes/:id", wishController.remove);
 
-for (const { name, path } of sheetTabs) {
-  const ctrl = createSheetController(name);
-  router.get(`/sheet/${path}`, ctrl.list);
-  router.post(`/sheet/${path}`, ctrl.create);
-  router.put(`/sheet/${path}/:row`, ctrl.update);
-  router.delete(`/sheet/${path}/:row`, ctrl.remove);
-}
+// ── Departments ──────────────────────────────────────────────────────────────
+
+router.get("/departments", departmentController.list);
+router.post("/departments", departmentController.create);
+router.put("/departments/:id", departmentController.update);
+router.delete("/departments/:id", departmentController.remove);
+
+// ── Designations ─────────────────────────────────────────────────────────────
+
+router.get("/designations", designationController.list);
+router.post("/designations", designationController.create);
+router.put("/designations/:id", designationController.update);
+router.delete("/designations/:id", designationController.remove);
 
 // ── Birthday wisher routes ───────────────────────────────────────────────────
 

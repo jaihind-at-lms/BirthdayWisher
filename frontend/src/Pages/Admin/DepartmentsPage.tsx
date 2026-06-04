@@ -1,9 +1,8 @@
 import type { JSX } from 'react'
 
-import { env } from '@project/Utils/envValidation'
-import SheetPage from './SheetPage'
+import MasterPage from '@project/Components/Admin/MasterPage'
 
 const DepartmentsPage = (): JSX.Element => (
-  <SheetPage tab={env.VITE_SHEET_DEPARTMENTS_TAB} title="Departments" />
+  <MasterPage tab="departments" title="Departments" />
 )
 export default DepartmentsPage

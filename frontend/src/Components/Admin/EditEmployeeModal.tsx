@@ -10,7 +10,6 @@ import Button from '@project/Components/Form/Button'
 import SelectOrInput from '@project/Components/Form/SelectOrInput'
 import EmployeeAvatar from '@project/Components/UI/EmployeeAvatar'
 import { getEmployeeImageUrl } from '@project/Utils/imageHelper'
-import { env } from '@project/Utils/envValidation'
 import {
   useUpdateEmployeeMutation,
   useUploadEmployeePhotoMutation,
@@ -41,8 +40,8 @@ const EditEmployeeModal = ({
   const [photo, setPhoto] = useState<File | null>(null)
   const modalRef = useRef<HTMLDivElement>(null)
 
-  const { data: deptRecords } = useGetSheetRecordsQuery(env.VITE_SHEET_DEPARTMENTS_TAB)
-  const { data: desigRecords } = useGetSheetRecordsQuery(env.VITE_SHEET_DESIGNATIONS_TAB)
+  const { data: deptRecords } = useGetSheetRecordsQuery('departments')
+  const { data: desigRecords } = useGetSheetRecordsQuery('designations')
 
   const departmentOptions = [...new Set((deptRecords ?? []).map((r) => Object.values(r).find(Boolean) ?? '').filter(Boolean))]
   const designationOptions = [...new Set((desigRecords ?? []).map((r) => Object.values(r).find(Boolean) ?? '').filter(Boolean))]

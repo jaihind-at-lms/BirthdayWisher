@@ -9,23 +9,7 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 const TEMPLATES_DIR = resolve(__dirname, "../templates");
 const CONFIG_PATH = resolve(__dirname, "../config/template-config.json");
 
-const QUOTES = [
-  "Another year, another adventure — go make it legendary!",
-  "Age is just a number, but your vibe is timeless.",
-  "You don't get older, you level up. Happy Birthday!",
-  "Cheers to the amazing person you are and the journey ahead.",
-  "May your day be filled with cake, laughter, and good vibes.",
-  "The world is brighter because you're in it. Happy Birthday!",
-  "Celebrate today like the superstar you are!",
-  "Here's to you — may your year be as awesome as you are.",
-  "Another chapter, another win. Keep shining!",
-  "Happy Birthday — you're the main character, act like it!",
-  "Sending you good wishes, good vibes, and good cake.",
-  "You're not getting older, you're becoming a classic.",
-  "It's your day — eat cake, be happy, and let others sing.",
-  "Born to stand out. Happy Birthday, legend!",
-  "May your day be as wonderful as the joy you bring to others.",
-];
+import { WishModel } from "../models/wish.js";
 
 const getRandomItem = (arr) => arr[Math.floor(Math.random() * arr.length)];
 
@@ -143,8 +127,12 @@ const drawName = (ctx, cfg, W, H, employeeName) => {
   ctx.fillText(employeeName, cx * W, cy * H);
 };
 
-const drawQuote = (ctx, cfg, W, H) => {
-  const quote = getRandomItem(QUOTES);
+const drawQuote = async (ctx, cfg, W, H) => {
+  const quote = await WishModel.random() || getRandomItem([
+    "Another year, another adventure — go make it legendary!",
+    "Age is just a number, but your vibe is timeless.",
+    "You don't get older, you level up. Happy Birthday!",
+  ]);
   const { color = "rgba(255,255,255,0.9)", fontSize = 28, cy = 0.63, maxWidth = 750, bold = false, align = "center" } = cfg ?? {};
   const cx = cfg?.cx ?? (align === "right" ? 0.95 : align === "left" ? 0.05 : 0.5);
   ctx.font = bold ? `bold ${fontSize}px sans-serif` : `${fontSize}px sans-serif`;
@@ -230,7 +218,7 @@ export const generateBirthdayCard = async (employeeName, employeeImagePath, temp
 
   drawGreeting(ctx, tmplCfg?.greeting, W, H);
   drawName(ctx, tmplCfg?.name, W, H, employeeName);
-  drawQuote(ctx, tmplCfg?.quote, W, H);
+  await drawQuote(ctx, tmplCfg?.quote, W, H);
 
   return canvas.toBuffer("image/png");
 };

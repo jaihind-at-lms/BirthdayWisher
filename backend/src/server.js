@@ -3,6 +3,8 @@ import cors from "cors";
 import expressRateLimit from "express-rate-limit";
 import routes from "./routes/index.js";
 import { startBirthdayWisherJob } from "./jobs/index.js";
+import { runMigrations } from "./db/migrate.js";
+import { seedDefaultData } from "./db/seed.js";
 
 const app = express();
 
@@ -22,6 +24,8 @@ const limiter = expressRateLimit({
 app.use(limiter);
 
 (async () => {
+  await runMigrations();
+  await seedDefaultData();
   startBirthdayWisherJob();
 })();
 

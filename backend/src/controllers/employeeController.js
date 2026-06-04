@@ -2,21 +2,19 @@ import { writeFileSync, existsSync, mkdirSync } from "fs";
 import { resolve, dirname } from "path";
 import { fileURLToPath } from "url";
 
-import { getSheetRecords, updateSheetCell, appendSheetRow, getSheetHeaders } from "../services/index.js";
 import { config } from "../config/env.js";
-import { trimKeys, parseDate } from "../utils/helpers.js";
+import { EmployeeModel } from "../models/employee.js";
+import { parseDate } from "../utils/helpers.js";
 import logger from "../utils/logger.js";
 import { sendWelcomeEmail } from "../emails/index.js";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const UPLOADS_DIR = resolve(__dirname, "../../uploads");
-const RANGE = `${config.googleSheetEmployeeTab}!A:Z`;
 
 export async function getEmployees(req, res) {
   try {
-    const rows = await getSheetRecords(RANGE);
-    const employees = rows.map(trimKeys);
-    res.json({ success: true, data: employees, totalRecords: employees.length });
+    const data = await EmployeeModel.findAll();
+    res.json({ success: true, data, totalRecords: data.length });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }
@@ -24,14 +22,9 @@ export async function getEmployees(req, res) {
 
 export async function getDashboardStats(req, res) {
   try {
-    const rows = await getSheetRecords(RANGE);
-    const employees = rows.map(trimKeys);
+    const employees = await EmployeeModel.findAll();
 
     const dateKeys = ["birthday", "dob", "date of birth", "birth date", "birth day"];
-    const first = employees[0] || {};
-    const dateCol = Object.keys(first).find(
-      (k) => dateKeys.includes(k.toLowerCase())
-    );
 
     const today = new Date();
     const currentMonth = today.getMonth();
@@ -43,22 +36,17 @@ export async function getDashboardStats(req, res) {
     const upcomingBirthdays = [];
 
     for (const emp of employees) {
-      if (dateCol && emp[dateCol]) {
-        const bd = parseDate(emp[dateCol]);
+      if (emp.dateOfBirth) {
+        const bd = parseDate(emp.dateOfBirth);
         if (bd) {
           if (bd.getMonth() === currentMonth) {
             birthdaysThisMonth++;
           }
-          if (
-            bd.getMonth() === currentMonth &&
-            bd.getDate() === currentDate
-          ) {
+          if (bd.getMonth() === currentMonth && bd.getDate() === currentDate) {
             todayBirthdays.push(emp);
           }
           const thisYearBd = new Date(currentYear, bd.getMonth(), bd.getDate());
-          const diffDays = Math.ceil(
-            (thisYearBd - today) / (1000 * 60 * 60 * 24)
-          );
+          const diffDays = Math.ceil((thisYearBd - today) / (1000 * 60 * 60 * 24));
           if (diffDays >= 0 && diffDays <= 7) {
             upcomingBirthdays.push({ ...emp, _nextBirthday: thisYearBd });
           }
@@ -66,16 +54,9 @@ export async function getDashboardStats(req, res) {
       }
     }
 
-    upcomingBirthdays.sort(
-      (a, b) => a._nextBirthday - b._nextBirthday
-    );
+    upcomingBirthdays.sort((a, b) => a._nextBirthday - b._nextBirthday);
 
-    const imageCol = Object.keys(first).find(
-      (k) => k.toLowerCase().includes("image") || k.toLowerCase().includes("photo")
-    );
-    const withImage = imageCol
-      ? employees.filter((e) => e[imageCol])
-      : [];
+    const withImage = employees.filter((e) => e.photoUrl);
 
     res.json({
       success: true,
@@ -100,25 +81,15 @@ export async function updateEmployee(req, res) {
     const { id } = req.params;
     const updates = req.body;
 
-    const rows = await getSheetRecords(RANGE);
-    const headers = Object.keys(rows[0]);
-
-    const index = rows.findIndex(
-      (r) => r[headers.find((h) => h.trim().toLowerCase() === "employee id")]?.trim() === id
-    );
-    if (index === -1) {
-      return res
-        .status(404)
-        .json({ success: false, message: "Employee not found in sheet." });
+    const existing = await EmployeeModel.findById(id);
+    if (!existing) {
+      return res.status(404).json({ success: false, message: "Employee not found." });
     }
 
-    // Check for duplicate email if being updated
-    const emailCol = headers.find((h) => h.trim().toLowerCase() === "email");
-    const newEmail = updates[emailCol]?.trim();
-    if (newEmail) {
-      const dup = rows.find(
-        (r, i) => i !== index && r[emailCol]?.trim().toLowerCase() === newEmail.toLowerCase()
-      );
+    // Check duplicate email if being changed
+    const newEmail = updates["Email"]?.trim();
+    if (newEmail && newEmail.toLowerCase() !== existing.email.toLowerCase()) {
+      const dup = await EmployeeModel.findByEmail(newEmail);
       if (dup) {
         return res.status(409).json({
           success: false,
@@ -127,19 +98,24 @@ export async function updateEmployee(req, res) {
       }
     }
 
-    const rowNumber = index + 2;
-    const cellValues = headers.map((h) => {
-      const key = h.trim();
-      if (key.toLowerCase() === "employee id") return id;
-      const matchedKey = Object.keys(updates).find(
-        (k) => key.toLowerCase() === k.toLowerCase()
-      );
-      return matchedKey ? updates[matchedKey] : rows[index][h];
-    });
+    const mapped = {
+      title: updates["Title"] ?? existing.title,
+      name: updates["Employee Name"] ?? updates["Name"] ?? existing.name,
+      email: newEmail ?? existing.email,
+      department: updates["Department"] ?? existing.department,
+      designation: updates["Designation"] ?? existing.designation,
+      dateOfBirth: updates["Date of Birth"] ?? updates["Birthday"] ?? updates["DOB"] ?? existing.dateOfBirth,
+      photoUrl: updates["Employee Image"] ?? existing.photoUrl,
+    };
 
-    const range = `${config.googleSheetEmployeeTab}!A${rowNumber}:${String.fromCharCode(64 + headers.length)}${rowNumber}`;
-    await updateSheetCell(range, [cellValues]);
+    if (mapped.dateOfBirth && typeof mapped.dateOfBirth === "string") {
+      const d = new Date(mapped.dateOfBirth);
+      if (!isNaN(d.getTime())) {
+        mapped.dateOfBirth = d.toISOString().slice(0, 10);
+      }
+    }
 
+    await EmployeeModel.update(id, mapped);
     res.json({ success: true, message: "Employee updated successfully." });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
@@ -172,36 +148,20 @@ export async function createEmployee(req, res) {
       });
     }
 
+    // Check duplicates
+    const dup = await EmployeeModel.isDuplicate({ employeeId, email });
+    if (dup) {
+      if (dup.employeeId === employeeId) {
+        return res.status(409).json({ success: false, message: `Employee ID "${employeeId}" already exists.` });
+      }
+      return res.status(409).json({ success: false, message: `Email "${email}" is already in use.` });
+    }
+
     // Save photo if provided
     if (req.file) {
       if (!existsSync(UPLOADS_DIR)) mkdirSync(UPLOADS_DIR, { recursive: true });
       const dest = resolve(UPLOADS_DIR, `${employeeId}.png`);
       writeFileSync(dest, req.file.buffer);
-    }
-
-    // Read sheet headers and append row
-    const rows = await getSheetRecords(RANGE);
-    let headers = Object.keys(rows[0] || {});
-    if (!headers.length) {
-      headers = await getSheetHeaders(RANGE);
-    }
-
-    // Check for duplicate employee ID or email
-    const idCol = headers.find((h) => h.trim().toLowerCase() === "employee id");
-    const emailCol = headers.find((h) => h.trim().toLowerCase() === "email");
-    for (const row of rows) {
-      if (idCol && row[idCol]?.trim() === employeeId) {
-        return res.status(409).json({
-          success: false,
-          message: `Employee ID "${employeeId}" already exists.`,
-        });
-      }
-      if (emailCol && row[emailCol]?.trim().toLowerCase() === email.trim().toLowerCase()) {
-        return res.status(409).json({
-          success: false,
-          message: `Email "${email}" is already in use.`,
-        });
-      }
     }
 
     let formattedDob = dateOfBirth || "";
@@ -212,31 +172,16 @@ export async function createEmployee(req, res) {
       }
     }
 
-    const fieldMap = { title, name, email, employeeId, department, designation, dateOfBirth: formattedDob };
-    const lookup = {
-      name: ["Employee Name", "Name", "name"],
-      employeeId: ["Employee ID", "Employee Id", "employee id", "ID", "id"],
-      email: ["Email", "email"],
-      department: ["Department", "department"],
-      designation: ["Designation", "designation"],
-      title: ["Title", "title"],
-      dateOfBirth: ["Date of Birth", "Date of birth", "date of birth", "Birthday", "birthday", "DOB", "dob"],
-    };
-
-    const values = headers.map((h) => {
-      const lower = h.trim().toLowerCase();
-      for (const [field, aliases] of Object.entries(lookup)) {
-        if (aliases.some((a) => a.toLowerCase() === lower)) {
-          return fieldMap[field] ?? "";
-        }
-      }
-      return "";
+    const record = await EmployeeModel.create({
+      employeeId,
+      title: title ?? "",
+      name,
+      email,
+      department: department ?? "",
+      designation: designation ?? "",
+      dateOfBirth: formattedDob || null,
+      photoUrl: `${config.appUrl}/uploads/${employeeId}.png`,
     });
-
-    console.log("[createEmployee] headers found:", headers);
-    console.log("[createEmployee] values to append:", values);
-
-    await appendSheetRow(RANGE, [values]);
 
     // Send welcome email if opted in
     if (sendWelcome === "true" || sendWelcome === true) {
@@ -255,7 +200,7 @@ export async function createEmployee(req, res) {
       });
     }
 
-    res.json({ success: true, message: "Employee created successfully." });
+    res.json({ success: true, message: "Employee created successfully.", data: record });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }

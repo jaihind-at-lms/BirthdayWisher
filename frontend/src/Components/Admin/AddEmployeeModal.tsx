@@ -12,7 +12,6 @@ import Checkbox from '@project/Components/Form/Checkbox'
 import FileInput from '@project/Components/Form/FileInput'
 import Button from '@project/Components/Form/Button'
 import SelectOrInput from '@project/Components/Form/SelectOrInput'
-import { env } from '@project/Utils/envValidation'
 import {
   useCreateEmployeeMutation,
   useGetSheetRecordsQuery,
@@ -35,8 +34,8 @@ const AddEmployeeModal = ({ show, onClose }: AddEmployeeModalProps): JSX.Element
   const [photoError, setPhotoError] = useState<string | null>(null)
   const modalRef = useRef<HTMLDivElement>(null)
 
-  const { data: deptRecords } = useGetSheetRecordsQuery(env.VITE_SHEET_DEPARTMENTS_TAB)
-  const { data: desigRecords } = useGetSheetRecordsQuery(env.VITE_SHEET_DESIGNATIONS_TAB)
+  const { data: deptRecords } = useGetSheetRecordsQuery('departments')
+  const { data: desigRecords } = useGetSheetRecordsQuery('designations')
 
   const departmentOptions = [...new Set((deptRecords ?? []).map((r) => Object.values(r).find(Boolean) ?? '').filter(Boolean))]
   const designationOptions = [...new Set((desigRecords ?? []).map((r) => Object.values(r).find(Boolean) ?? '').filter(Boolean))]

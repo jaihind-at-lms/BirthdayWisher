@@ -3,11 +3,11 @@ import { readdirSync, existsSync } from "fs";
 import { resolve, dirname } from "path";
 import { fileURLToPath } from "url";
 import logger from "../utils/logger.js";
-import { getSheetRecords, downloadEmployeeImage } from "../services/index.js";
+import { downloadEmployeeImage } from "../services/index.js";
 import { generateBirthdayCard } from "../services/birthdayCard.js";
 import { sendBirthdayEmail } from "../emails/index.js";
+import { EmployeeModel } from "../models/employee.js";
 import { parseDate } from "../utils/helpers.js";
-import { config } from "../config/env.js";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const UPLOADS_DIR = resolve(__dirname, "../../uploads");
@@ -22,32 +22,19 @@ const shuffle = (arr) => {
   return a;
 };
 
-const findColumn = (record, candidates) =>
-  Object.keys(record).find((k) =>
-    candidates.includes(k.toLowerCase())
-  );
-
 export const BirthdayWisher = async () => {
-  const range = `${config.googleSheetEmployeeTab}!A:Z`;
-  const employees = await getSheetRecords(range);
-  logger.info(`Fetched ${employees.length} employees from sheet`);
+  const employees = await EmployeeModel.findAll();
+  logger.info(`Fetched ${employees.length} employees from database`);
 
   if (!employees.length) return [];
-
-  const dateCol = findColumn(employees[0], [
-    "birthday", "dob", "date of birth", "birth date", "birth day",
-  ]);
-  const emailCol = findColumn(employees[0], ["email"]);
-  const idCol = findColumn(employees[0], ["employee id"]);
-  const nameCol = findColumn(employees[0], ["employee name", "name"]);
 
   const today = new Date();
   const todayMonth = today.getMonth();
   const todayDate = today.getDate();
 
   const matches = employees.filter((emp) => {
-    if (!dateCol || !emp[dateCol]) return false;
-    const bd = parseDate(emp[dateCol]);
+    if (!emp.dateOfBirth) return false;
+    const bd = parseDate(emp.dateOfBirth);
     return bd && bd.getMonth() === todayMonth && bd.getDate() === todayDate;
   });
 
@@ -58,9 +45,9 @@ export const BirthdayWisher = async () => {
   let ti = 0;
 
   for (const emp of matches) {
-    const id = emp[idCol]?.trim() || "unknown";
-    const name = emp[nameCol] || "Unknown";
-    const email = emp[emailCol] || "";
+    const id = emp.employeeId;
+    const name = emp.name;
+    const email = emp.email;
 
     if (!email) {
       logger.warn(`No email for "${name}" (${id}), skipping`);
@@ -77,9 +64,8 @@ export const BirthdayWisher = async () => {
 
     if (existsSync(localPhoto)) {
       photoPath = localPhoto;
-    } else {
-      const imageUrl = emp["Employee Image"] ?? "";
-      photoPath = await downloadEmployeeImage(imageUrl, id);
+    } else if (emp.photoUrl) {
+      photoPath = await downloadEmployeeImage(emp.photoUrl, id);
     }
 
     if (!photoPath) {

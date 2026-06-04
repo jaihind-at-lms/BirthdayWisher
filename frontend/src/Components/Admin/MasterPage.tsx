@@ -17,7 +17,7 @@ import {
 } from '@project/Store/Api'
 import { masterRecordSchema } from '@project/Schemas/master.schema'
 
-interface SheetPageProps {
+interface MasterPageProps {
   tab: string
   title: string
   icon?: JSX.Element
@@ -26,11 +26,13 @@ interface SheetPageProps {
 const FORM_MODAL_ID = 'sheetFormModal'
 const DELETE_MODAL_ID = 'sheetDeleteModal'
 
+const HIDDEN_COLS = new Set(['id', 'createdAt', 'updatedAt'])
+
 function columnLabel(key: string): string {
   return key.replace(/\s+/g, ' ').trim()
 }
 
-function SheetPage({ tab, title, icon }: SheetPageProps): JSX.Element {
+function MasterPage({ tab, title, icon }: MasterPageProps): JSX.Element {
   const { data: rawRecords, isLoading, isError, error } = useGetSheetRecordsQuery(tab)
   const [createRecord, { isLoading: isCreating }] = useCreateSheetRecordMutation()
   const [updateRecord, { isLoading: isUpdating }] = useUpdateSheetRecordMutation()
@@ -38,8 +40,8 @@ function SheetPage({ tab, title, icon }: SheetPageProps): JSX.Element {
 
   const records = rawRecords ?? []
   const [searchTerm, setSearchTerm] = useState('')
-  const [editTarget, setEditTarget] = useState<{ row: number; data: SheetRecord } | null>(null)
-  const [deleteTarget, setDeleteTarget] = useState<{ row: number; name: string } | null>(null)
+  const [editTarget, setEditTarget] = useState<{ id: number; data: SheetRecord } | null>(null)
+  const [deleteTarget, setDeleteTarget] = useState<{ id: number; name: string } | null>(null)
 
   const filtered = records.filter((rec) => {
     if (!searchTerm.trim()) return true
@@ -47,25 +49,25 @@ function SheetPage({ tab, title, icon }: SheetPageProps): JSX.Element {
     return Object.values(rec).some((v) => v?.toLowerCase().includes(q))
   })
 
-  // Determine columns from first record
-  const columns = records.length > 0 ? Object.keys(records[0]) : []
-
-  // ── Form modal ──────────────────────────────────────────────────────────
+  const firstRecord: SheetRecord = records[0] ?? ({} as SheetRecord)
+  const allColumns = Object.keys(firstRecord)
+  const visibleColumns = allColumns.filter((c) => !HIDDEN_COLS.has(c))
 
   const formModalRef = useRef<HTMLDivElement>(null)
 
   const getFormDefaults = useCallback(() => {
-    if (editTarget && editTarget.row >= 0) {
-      return Object.fromEntries(columns.map((c) => [c, editTarget.data[c] ?? '']))
+    if (editTarget && editTarget.id >= 0) {
+      return Object.fromEntries(visibleColumns.map((c) => [c, editTarget.data[c] ?? '']))
     }
-    return Object.fromEntries(columns.map((c) => [c, '']))
-  }, [editTarget, columns])
+    return Object.fromEntries(visibleColumns.map((c) => [c, '']))
+  }, [editTarget, visibleColumns])
 
-  const masterSchema = useMemo(() => columns.length > 0 ? masterRecordSchema : undefined, [columns])
+  const masterSchema = useMemo(() => visibleColumns.length > 0 ? masterRecordSchema : undefined, [visibleColumns])
 
+  const formDefaultValues: Record<string, string> = getFormDefaults()
   const { register, handleSubmit, reset, formState: { errors } } = useForm<Record<string, string>>({
-    resolver: masterSchema ? zodResolver(masterSchema) : undefined,
-    defaultValues: getFormDefaults(),
+    ...(masterSchema ? { resolver: zodResolver(masterSchema) } : {}),
+    defaultValues: formDefaultValues,
   })
 
   useEffect(() => {
@@ -80,12 +82,11 @@ function SheetPage({ tab, title, icon }: SheetPageProps): JSX.Element {
   }, [editTarget])
 
   const openCreateModal = () => {
-    reset(Object.fromEntries(columns.map((c) => [c, ''])))
-    setEditTarget({ row: -1, data: {} })
+    setEditTarget({ id: -1, data: {} })
   }
 
-  const openEditModal = (row: number, data: SheetRecord) => {
-    setEditTarget({ row, data })
+  const openEditModal = (id: number, data: SheetRecord) => {
+    setEditTarget({ id, data })
   }
 
   const closeFormModal = () => {
@@ -93,15 +94,15 @@ function SheetPage({ tab, title, icon }: SheetPageProps): JSX.Element {
   }
 
   const onFormSubmit = useCallback(async (values: Record<string, string>) => {
-    if (editTarget && editTarget.row >= 0) {
-      await updateRecord({ tab, row: editTarget.row, data: values })
+    if (editTarget && editTarget.id >= 0) {
+      const result = await updateRecord({ tab, id: editTarget.id, data: values })
+      if (result.error) return
     } else {
-      await createRecord({ tab, data: values })
+      const result = await createRecord({ tab, data: values })
+      if (result.error) return
     }
     closeFormModal()
   }, [tab, editTarget, createRecord, updateRecord])
-
-  // ── Delete modal ────────────────────────────────────────────────────────
 
   const deleteModalRef = useRef<HTMLDivElement>(null)
 
@@ -114,7 +115,8 @@ function SheetPage({ tab, title, icon }: SheetPageProps): JSX.Element {
 
   const confirmDelete = useCallback(async () => {
     if (!deleteTarget) return
-    await deleteRecord({ tab, row: deleteTarget.row })
+    const result = await deleteRecord({ tab, id: deleteTarget.id })
+    if (result.error) return
     setDeleteTarget(null)
   }, [tab, deleteTarget, deleteRecord])
 
@@ -130,7 +132,6 @@ function SheetPage({ tab, title, icon }: SheetPageProps): JSX.Element {
 
   return (
     <div className="h-100 d-flex flex-column overflow-hidden">
-      {/* Header — fixed */}
       <div className="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-4 flex-shrink-0">
         <div className="d-flex align-items-center gap-2">
           {icon}
@@ -170,7 +171,6 @@ function SheetPage({ tab, title, icon }: SheetPageProps): JSX.Element {
         </div>
       </div>
 
-      {/* Table — scrollable */}
       <div className="flex-grow-1 overflow-y-auto">
         <div className="card border-0 shadow-sm">
           <div className="card-body p-0">
@@ -179,7 +179,7 @@ function SheetPage({ tab, title, icon }: SheetPageProps): JSX.Element {
                 <thead className="table-light border-bottom">
                   <tr>
                     <th className="ps-4 py-3 small fw-semibold text-uppercase text-secondary" style={{ width: 40 }}>#</th>
-                    {columns.map((col) => (
+                    {visibleColumns.map((col) => (
                       <th key={col} className="py-3 small fw-semibold text-uppercase text-secondary">
                         {columnLabel(col)}
                       </th>
@@ -194,7 +194,7 @@ function SheetPage({ tab, title, icon }: SheetPageProps): JSX.Element {
                     filtered.map((rec, i) => (
                       <tr key={i} className="border-bottom border-light">
                         <td className="ps-4 py-3 text-secondary">{i + 1}</td>
-                        {columns.map((col) => (
+                        {visibleColumns.map((col) => (
                           <td key={col} className="py-3">
                             {col.toLowerCase().includes('image') || col.toLowerCase().includes('photo')
                               ? rec[col]
@@ -208,7 +208,7 @@ function SheetPage({ tab, title, icon }: SheetPageProps): JSX.Element {
                           <div className="d-flex gap-1 justify-content-end">
                             <button
                               className="btn btn-outline-info btn-sm d-inline-flex align-items-center gap-1 rounded-pill px-2"
-                              onClick={() => openEditModal(i, rec)}
+                              onClick={() => openEditModal(Number(rec['id']) || i, rec)}
                               title="Edit"
                             >
                               <Pencil size={13} />
@@ -216,8 +216,8 @@ function SheetPage({ tab, title, icon }: SheetPageProps): JSX.Element {
                             <button
                               className="btn btn-outline-danger btn-sm d-inline-flex align-items-center gap-1 rounded-pill px-2"
                               onClick={() => {
-                                const name = rec[columns[1]] || rec[columns[0]] || `#${i + 1}`
-                                setDeleteTarget({ row: i, name: String(name) })
+                                  const firstCol = visibleColumns[0] ?? ''
+                                setDeleteTarget({ id: Number(rec['id']) || i, name: String(rec[firstCol] ?? `#${i + 1}`) })
                               }}
                               title="Delete"
                             >
@@ -229,7 +229,7 @@ function SheetPage({ tab, title, icon }: SheetPageProps): JSX.Element {
                     ))
                   ) : (
                     <tr>
-                      <td colSpan={columns.length + 2} className="text-center text-secondary py-5">
+                      <td colSpan={visibleColumns.length + 2} className="text-center text-secondary py-5">
                         <p className="mb-0">{searchTerm ? 'No records match your search.' : 'No records found.'}</p>
                       </td>
                     </tr>
@@ -241,7 +241,6 @@ function SheetPage({ tab, title, icon }: SheetPageProps): JSX.Element {
         </div>
       </div>
 
-      {/* ── Create / Edit modal ─────────────────────────────────────────────── */}
       <div ref={formModalRef} className="modal fade" id={FORM_MODAL_ID} tabIndex={-1}>
         <div className="modal-dialog modal-dialog-scrollable">
           <div className="modal-content border-0 shadow">
@@ -254,7 +253,7 @@ function SheetPage({ tab, title, icon }: SheetPageProps): JSX.Element {
             <form onSubmit={(e) => { void handleSubmit(onFormSubmit)(e) }}>
               <div className="modal-body">
                 <div className="row g-3">
-                  {columns.map((col) => (
+                  {visibleColumns.map((col) => (
                     <div className="col-12" key={col}>
                       <label className="form-label fw-semibold small text-secondary">{columnLabel(col)}</label>
                       <Input
@@ -273,7 +272,7 @@ function SheetPage({ tab, title, icon }: SheetPageProps): JSX.Element {
                   Cancel
                 </button>
                 <Button type="submit" loading={isCreating || isUpdating} variant="btn-info" className="px-4" style={{ minWidth: 120 }}>
-                  <span className="text-white">{editTarget && editTarget.row >= 0 ? 'Update' : 'Create'}</span>
+                  <span className="text-white">{editTarget && editTarget.id >= 0 ? 'Update' : 'Create'}</span>
                 </Button>
               </div>
             </form>
@@ -281,7 +280,6 @@ function SheetPage({ tab, title, icon }: SheetPageProps): JSX.Element {
         </div>
       </div>
 
-      {/* ── Delete confirmation modal ────────────────────────────────────────── */}
       <div ref={deleteModalRef} className="modal fade" id={DELETE_MODAL_ID} tabIndex={-1}>
         <div className="modal-dialog modal-sm">
           <div className="modal-content border-0 shadow">
@@ -307,4 +305,4 @@ function SheetPage({ tab, title, icon }: SheetPageProps): JSX.Element {
   )
 }
 
-export default SheetPage
+export default MasterPage

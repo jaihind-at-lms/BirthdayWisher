@@ -1,7 +1,6 @@
 import { createApi } from '@reduxjs/toolkit/query/react'
 
 import type { ApiResponse } from '@project/Types/Api'
-import { env } from '@project/Utils/envValidation'
 
 import axiosBaseQuery from './baseQuery'
 
@@ -13,11 +12,7 @@ const sheetApi = createApi({
   reducerPath: 'sheetApi',
   baseQuery: axiosBaseQuery(),
 
-  tagTypes: [
-    `Sheet_${env.VITE_SHEET_WISHES_TAB}`,
-    `Sheet_${env.VITE_SHEET_DEPARTMENTS_TAB}`,
-    `Sheet_${env.VITE_SHEET_DESIGNATIONS_TAB}`,
-  ],
+  tagTypes: ['Sheet_wishes', 'Sheet_departments', 'Sheet_designations'],
 
   keepUnusedDataFor: 120,
   refetchOnMountOrArgChange: true,
@@ -26,7 +21,7 @@ const sheetApi = createApi({
 
   endpoints: (builder) => ({
     getSheetRecords: builder.query<SheetRecord[], string>({
-      query: (tab) => ({ url: `sheet/${tab}`, method: 'GET', showErrorMessage: true }),
+      query: (tab) => ({ url: `${tab}`, method: 'GET', showErrorMessage: true }),
       transformResponse: (response: ApiResponse<SheetRecord[]>): SheetRecord[] =>
         response.data,
       providesTags: (_result, _error, tab) => [{ type: `Sheet_${tab}` as const }],
@@ -34,7 +29,7 @@ const sheetApi = createApi({
 
     createSheetRecord: builder.mutation<undefined, { tab: string; data: Record<string, string> }>({
       query: ({ tab, data }) => ({
-        url: `sheet/${tab}`,
+        url: `${tab}`,
         method: 'POST',
         data,
         showErrorMessage: true,
@@ -44,9 +39,9 @@ const sheetApi = createApi({
       invalidatesTags: (_result, _error, { tab }) => [{ type: `Sheet_${tab}` as const }],
     }),
 
-    updateSheetRecord: builder.mutation<undefined, { tab: string; row: number; data: Record<string, string> }>({
-      query: ({ tab, row, data }) => ({
-        url: `sheet/${tab}/${row}`,
+    updateSheetRecord: builder.mutation<undefined, { tab: string; id: number; data: Record<string, string> }>({
+      query: ({ tab, id, data }) => ({
+        url: `${tab}/${id}`,
         method: 'PUT',
         data,
         showErrorMessage: true,
@@ -56,9 +51,9 @@ const sheetApi = createApi({
       invalidatesTags: (_result, _error, { tab }) => [{ type: `Sheet_${tab}` as const }],
     }),
 
-    deleteSheetRecord: builder.mutation<undefined, { tab: string; row: number }>({
-      query: ({ tab, row }) => ({
-        url: `sheet/${tab}/${row}`,
+    deleteSheetRecord: builder.mutation<undefined, { tab: string; id: number }>({
+      query: ({ tab, id }) => ({
+        url: `${tab}/${id}`,
         method: 'DELETE',
         showErrorMessage: true,
         showResultMessage: true,
