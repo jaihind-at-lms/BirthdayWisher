@@ -7,6 +7,7 @@ interface TextAreaProps {
   className?: string
   placeholder?: string
   rows?: number
+  maxLength?: number
 }
 
 const TextArea = ({
@@ -15,12 +16,14 @@ const TextArea = ({
   className = '',
   placeholder,
   rows = 3,
+  maxLength,
 }: TextAreaProps): JSX.Element => (
   <div>
     <textarea
       {...registration}
       rows={rows}
       placeholder={placeholder}
+      maxLength={maxLength}
       className={`form-control${error ? ' is-invalid' : ''}${className ? ` ${className}` : ''}`}
     />
     {error && (

@@ -124,6 +124,7 @@ const AddEmployeeModal = ({ show, onClose }: AddEmployeeModalProps): JSX.Element
                     className="form-control-sm"
                     placeholder="Full name"
                     error={errors.name}
+                    maxLength={10}
                   />
                 </div>
                 <div className="col-md-5">
@@ -136,6 +137,7 @@ const AddEmployeeModal = ({ show, onClose }: AddEmployeeModalProps): JSX.Element
                     className="form-control-sm"
                     placeholder="Email address"
                     error={errors.email}
+                    maxLength={60}
                   />
                 </div>
                 <div className="col-md-3">
@@ -148,6 +150,7 @@ const AddEmployeeModal = ({ show, onClose }: AddEmployeeModalProps): JSX.Element
                     className="form-control-sm text-uppercase"
                     placeholder="Employee ID"
                     error={errors.employeeId}
+                    maxLength={10}
                   />
                 </div>
                 <div className="col-md-3">
@@ -157,6 +160,7 @@ const AddEmployeeModal = ({ show, onClose }: AddEmployeeModalProps): JSX.Element
                     registration={register('dateOfBirth')}
                     className="form-control-sm"
                     error={errors.dateOfBirth}
+                    maxLength={10}
                   />
                 </div>
                 <div className="col-md-3">
@@ -168,6 +172,7 @@ const AddEmployeeModal = ({ show, onClose }: AddEmployeeModalProps): JSX.Element
                     placeholder="Select department"
                     error={errors.department}
                     className="form-select-sm"
+                    maxLength={100}
                   />
                 </div>
                 <div className="col-md-3">
@@ -179,6 +184,7 @@ const AddEmployeeModal = ({ show, onClose }: AddEmployeeModalProps): JSX.Element
                     placeholder="Select designation"
                     error={errors.designation}
                     className="form-select-sm"
+                    maxLength={100}
                   />
                 </div>
                 <div className="col-12">
@@ -202,6 +208,7 @@ const AddEmployeeModal = ({ show, onClose }: AddEmployeeModalProps): JSX.Element
                         placeholder="First line of welcome message…"
                         rows={3}
                         className="form-control-sm"
+                        maxLength={500}
                       />
                     </div>
                     <div className="col-12">
@@ -211,6 +218,7 @@ const AddEmployeeModal = ({ show, onClose }: AddEmployeeModalProps): JSX.Element
                         placeholder="Second line of welcome message…"
                         rows={3}
                         className="form-control-sm"
+                        maxLength={500}
                       />
                     </div>
                   </>

@@ -9,6 +9,7 @@ interface SelectOrInputProps {
   options: string[]
   placeholder?: string
   className?: string
+  maxLength?: number
 }
 
 const OTHER = 'Other'
@@ -20,6 +21,7 @@ const SelectOrInput = ({
   options,
   placeholder = 'Select…',
   className = '',
+  maxLength,
 }: SelectOrInputProps): JSX.Element => {
   const [isOther, setIsOther] = useState(
     options.length > 0 && !options.includes(value) && value !== ''
@@ -55,6 +57,7 @@ const SelectOrInput = ({
           value={value}
           onChange={(e) => { onChange(e.target.value) }}
           placeholder="Enter custom value"
+          maxLength={maxLength}
           autoFocus
         />
       )}

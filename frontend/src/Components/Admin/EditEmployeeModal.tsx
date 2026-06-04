@@ -122,22 +122,22 @@ const EditEmployeeModal = ({
                 <div className="col-md-5">
                   <label className="form-label fw-semibold small text-secondary">Name <span className="text-danger">*</span></label>
                   <Input type="text" registration={register('name')}
-                    className="form-control-sm" placeholder="Full name" error={errors.name} />
+                    className="form-control-sm" placeholder="Full name" error={errors.name} maxLength={50} />
                 </div>
                 <div className="col-md-5">
                   <label className="form-label fw-semibold small text-secondary">Email <span className="text-danger">*</span></label>
                   <Input type="email" registration={register('email')}
-                    className="form-control-sm" placeholder="Email address" error={errors.email} />
+                    className="form-control-sm" placeholder="Email address" error={errors.email} maxLength={60} />
                 </div>
                 <div className="col-md-3">
                   <label className="form-label fw-semibold small text-secondary">Employee ID <span className="text-danger">*</span></label>
                   <Input type="text" registration={register('employeeId', { setValueAs: (v: string) => v.toUpperCase() })}
-                    className="form-control-sm text-uppercase" placeholder="Employee ID" error={errors.employeeId} />
+                    className="form-control-sm text-uppercase" placeholder="Employee ID" error={errors.employeeId} maxLength={10} />
                 </div>
                 <div className="col-md-3">
                   <label className="form-label fw-semibold small text-secondary">Date of Birth <span className="text-danger">*</span></label>
                   <Input type="date" registration={register('dateOfBirth')}
-                    className="form-control-sm" error={errors.dateOfBirth} />
+                    className="form-control-sm" error={errors.dateOfBirth} maxLength={10} />
                 </div>
                 <div className="col-md-3">
                   <label className="form-label fw-semibold small text-secondary">Department <span className="text-danger">*</span></label>
@@ -147,7 +147,8 @@ const EditEmployeeModal = ({
                     options={departmentOptions}
                     placeholder="Select department"
                     error={errors.department}
-                    className="form-select-sm" />
+                    className="form-select-sm"
+                    maxLength={100} />
                 </div>
                 <div className="col-md-3">
                   <label className="form-label fw-semibold small text-secondary">Designation <span className="text-danger">*</span></label>
@@ -157,7 +158,8 @@ const EditEmployeeModal = ({
                     options={designationOptions}
                     placeholder="Select designation"
                     error={errors.designation}
-                    className="form-select-sm" />
+                    className="form-select-sm"
+                    maxLength={100} />
                 </div>
                 <div className="col-12">
                   <label className="form-label fw-semibold small text-secondary">Photo</label>

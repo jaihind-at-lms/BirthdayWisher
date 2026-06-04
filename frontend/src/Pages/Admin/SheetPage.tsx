@@ -262,6 +262,7 @@ function SheetPage({ tab, title, icon }: SheetPageProps): JSX.Element {
                         registration={register(col)}
                         error={errors[col]}
                         placeholder={`Enter ${columnLabel(col).toLowerCase()}`}
+                        maxLength={100}
                       />
                     </div>
                   ))}
