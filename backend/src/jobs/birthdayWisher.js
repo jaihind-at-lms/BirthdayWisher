@@ -32,15 +32,14 @@ export const BirthdayWisher = async () => {
   for (const emp of employees) {
     const id = emp["Employee ID "] ?? "unknown";
     const name = emp["Employee Name "] ?? "Unknown";
-    const image = emp["Employee Image "] ?? "./employee.jpeg";
+    const image = emp["Employee Image "] ?? "";
 
     if (ti >= templateCycle.length) {
       templateCycle = shuffle(templates);
       ti = 0;
     }
 
-    const tempPath = await downloadEmployeeImage(image, id);
-    const imgPath = tempPath ?? "./employee.jpeg";
+    const imgPath = await downloadEmployeeImage(image, id);
     const card = await generateBirthdayCard(name, imgPath, templateCycle[ti]);
     ti++;
     writeFileSync(`birthday-cards/${id}.png`, card);
