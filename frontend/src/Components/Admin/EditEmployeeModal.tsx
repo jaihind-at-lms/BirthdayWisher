@@ -131,8 +131,8 @@ const EditEmployeeModal = ({
                 </div>
                 <div className="col-md-3">
                   <label className="form-label fw-semibold small text-secondary">Employee ID <span className="text-danger">*</span></label>
-                  <Input type="text" registration={register('employeeId')}
-                    className="form-control-sm" placeholder="Employee ID" error={errors.employeeId} />
+                  <Input type="text" registration={register('employeeId', { setValueAs: (v: string) => v.toUpperCase() })}
+                    className="form-control-sm text-uppercase" placeholder="Employee ID" error={errors.employeeId} />
                 </div>
                 <div className="col-md-3">
                   <label className="form-label fw-semibold small text-secondary">Date of Birth <span className="text-danger">*</span></label>

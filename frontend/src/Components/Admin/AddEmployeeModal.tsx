@@ -144,8 +144,8 @@ const AddEmployeeModal = ({ show, onClose }: AddEmployeeModalProps): JSX.Element
                   </label>
                   <Input
                     type="text"
-                    registration={register('employeeId')}
-                    className="form-control-sm"
+                    registration={register('employeeId', { setValueAs: (v: string) => v.toUpperCase() })}
+                    className="form-control-sm text-uppercase"
                     placeholder="Employee ID"
                     error={errors.employeeId}
                   />
