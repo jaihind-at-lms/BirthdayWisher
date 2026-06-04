@@ -1,7 +1,8 @@
-import { useState, useEffect, useRef, useCallback } from 'react'
+import { useState, useEffect, useRef, useCallback, useMemo } from 'react'
 import { Plus, Pencil, Trash2, Search, X } from 'lucide-react'
 import { Modal as BsModal } from 'bootstrap'
 import { useForm } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
 import type { JSX } from 'react'
 
 import Spinner from '@project/Components/UI/Spinner'
@@ -14,6 +15,7 @@ import {
   useDeleteSheetRecordMutation,
   type SheetRecord,
 } from '@project/Store/Api'
+import { masterRecordSchema } from '@project/Schemas/master.schema'
 
 interface SheetPageProps {
   tab: string
@@ -59,7 +61,10 @@ function SheetPage({ tab, title, icon }: SheetPageProps): JSX.Element {
     return Object.fromEntries(columns.map((c) => [c, '']))
   }, [editTarget, columns])
 
+  const masterSchema = useMemo(() => columns.length > 0 ? masterRecordSchema : undefined, [columns])
+
   const { register, handleSubmit, reset, formState: { errors } } = useForm<Record<string, string>>({
+    resolver: masterSchema ? zodResolver(masterSchema) : undefined,
     defaultValues: getFormDefaults(),
   })
 
@@ -254,7 +259,7 @@ function SheetPage({ tab, title, icon }: SheetPageProps): JSX.Element {
                       <label className="form-label fw-semibold small text-secondary">{columnLabel(col)}</label>
                       <Input
                         type="text"
-                        registration={register(col, { required: `${columnLabel(col)} is required` })}
+                        registration={register(col)}
                         error={errors[col]}
                         placeholder={`Enter ${columnLabel(col).toLowerCase()}`}
                       />

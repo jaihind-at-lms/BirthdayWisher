@@ -1,6 +1,7 @@
 import { useCallback, useState, useEffect, useRef } from 'react'
 import { Modal as BsModal } from 'bootstrap'
 import { useForm } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
 
 import Input from '@project/Components/Form/Input'
 import Select from '@project/Components/Form/Select'
@@ -16,19 +17,11 @@ import {
   useGetSheetRecordsQuery,
 } from '@project/Store/Api'
 import type { Employee } from '@project/Types/Features/employee'
+import { editEmployeeSchema } from '@project/Schemas/employee.schema'
+import type { EditEmployeeFormValues } from '@project/Schemas/employee.schema'
 
 export const EDIT_MODAL_ID = 'editEmployeeModal'
 const TITLE_OPTIONS = ['Mr', 'Ms']
-
-interface EditFormValues {
-  title: string
-  name: string
-  email: string
-  employeeId: string
-  department: string
-  designation: string
-  dateOfBirth: string
-}
 
 function getEmployeeName(emp: Employee): string {
   const title = emp['Title'] || emp['title'] || ''
@@ -54,7 +47,7 @@ const EditEmployeeModal = ({
   const departmentOptions = [...new Set((deptRecords ?? []).map((r) => Object.values(r).find(Boolean) ?? '').filter(Boolean))]
   const designationOptions = [...new Set((desigRecords ?? []).map((r) => Object.values(r).find(Boolean) ?? '').filter(Boolean))]
 
-  const getDefaults = useCallback((): EditFormValues => ({
+  const getDefaults = useCallback((): EditEmployeeFormValues => ({
     title: employee?.['Title'] || '',
     name: employee?.['Employee Name'] || employee?.['Name'] || '',
     email: employee?.['Email'] || '',
@@ -64,7 +57,8 @@ const EditEmployeeModal = ({
     dateOfBirth: employee?.['Date of Birth'] || employee?.['Birthday'] || employee?.['DOB'] || '',
   }), [employee])
 
-  const { register, handleSubmit, reset, watch, setValue } = useForm<EditFormValues>({
+  const { register, handleSubmit, reset, watch, setValue, formState: { errors } } = useForm<EditEmployeeFormValues>({
+    resolver: zodResolver(editEmployeeSchema),
     defaultValues: getDefaults(),
   })
 
@@ -79,7 +73,7 @@ const EditEmployeeModal = ({
     else modal.hide()
   }, [employee])
 
-  const onSubmit = useCallback(async (values: EditFormValues) => {
+  const onSubmit = useCallback(async (values: EditEmployeeFormValues) => {
     if (!employee) return
     const empId = employee['Employee ID'] || employee['Employee Id'] || employee['employee id'] || ''
     const data: Record<string, string> = {
@@ -119,7 +113,7 @@ const EditEmployeeModal = ({
               <div className="row g-3">
                 <div className="col-md-2">
                   <label className="form-label fw-semibold small text-secondary">Title <span className="text-danger">*</span></label>
-                  <Select registration={register('title', { required: 'Title is required' })} placeholder="Select title">
+                  <Select registration={register('title')} placeholder="Select title" className="form-select-sm" error={errors.title}>
                     {TITLE_OPTIONS.map((t) => (
                       <option key={t} value={t}>{t}</option>
                     ))}
@@ -127,39 +121,43 @@ const EditEmployeeModal = ({
                 </div>
                 <div className="col-md-5">
                   <label className="form-label fw-semibold small text-secondary">Name <span className="text-danger">*</span></label>
-                  <Input type="text" registration={register('name', { required: 'Name is required' })}
-                    className="form-control-sm" placeholder="Full name" />
+                  <Input type="text" registration={register('name')}
+                    className="form-control-sm" placeholder="Full name" error={errors.name} />
                 </div>
                 <div className="col-md-5">
                   <label className="form-label fw-semibold small text-secondary">Email <span className="text-danger">*</span></label>
-                  <Input type="email" registration={register('email', { required: 'Email is required' })}
-                    className="form-control-sm" placeholder="Email address" />
+                  <Input type="email" registration={register('email')}
+                    className="form-control-sm" placeholder="Email address" error={errors.email} />
                 </div>
                 <div className="col-md-3">
                   <label className="form-label fw-semibold small text-secondary">Employee ID <span className="text-danger">*</span></label>
-                  <Input type="text" registration={register('employeeId', { required: 'Employee ID is required' })}
-                    className="form-control-sm" placeholder="Employee ID" />
+                  <Input type="text" registration={register('employeeId')}
+                    className="form-control-sm" placeholder="Employee ID" error={errors.employeeId} />
                 </div>
                 <div className="col-md-3">
                   <label className="form-label fw-semibold small text-secondary">Date of Birth <span className="text-danger">*</span></label>
-                  <Input type="date" registration={register('dateOfBirth', { required: 'Date of birth is required' })}
-                    className="form-control-sm" />
+                  <Input type="date" registration={register('dateOfBirth')}
+                    className="form-control-sm" error={errors.dateOfBirth} />
                 </div>
                 <div className="col-md-3">
                   <label className="form-label fw-semibold small text-secondary">Department <span className="text-danger">*</span></label>
                   <SelectOrInput
                     value={watch('department')}
-                    onChange={(v) => setValue('department', v)}
+                    onChange={(v) => setValue('department', v, { shouldValidate: true })}
                     options={departmentOptions}
-                    placeholder="Select department" />
+                    placeholder="Select department"
+                    error={errors.department}
+                    className="form-select-sm" />
                 </div>
                 <div className="col-md-3">
                   <label className="form-label fw-semibold small text-secondary">Designation <span className="text-danger">*</span></label>
                   <SelectOrInput
                     value={watch('designation')}
-                    onChange={(v) => setValue('designation', v)}
+                    onChange={(v) => setValue('designation', v, { shouldValidate: true })}
                     options={designationOptions}
-                    placeholder="Select designation" />
+                    placeholder="Select designation"
+                    error={errors.designation}
+                    className="form-select-sm" />
                 </div>
                 <div className="col-12">
                   <label className="form-label fw-semibold small text-secondary">Photo</label>

@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { Modal as BsModal } from 'bootstrap'
 import { useForm } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
 import { Plus } from 'lucide-react'
 import type { JSX } from 'react'
 
@@ -16,19 +17,8 @@ import {
   useCreateEmployeeMutation,
   useGetSheetRecordsQuery,
 } from '@project/Store/Api'
-
-interface FormValues {
-  title: string
-  name: string
-  email: string
-  employeeId: string
-  department: string
-  designation: string
-  dateOfBirth: string
-  sendWelcome: boolean
-  welcomeTextLine1: string
-  welcomeTextLine2: string
-}
+import { addEmployeeSchema } from '@project/Schemas/employee.schema'
+import type { AddEmployeeFormValues } from '@project/Schemas/employee.schema'
 
 interface AddEmployeeModalProps {
   show: boolean
@@ -42,7 +32,7 @@ const TITLE_OPTIONS = ['Mr', 'Ms']
 const AddEmployeeModal = ({ show, onClose }: AddEmployeeModalProps): JSX.Element => {
   const [createEmployee, { isLoading }] = useCreateEmployeeMutation()
   const [photo, setPhoto] = useState<File | null>(null)
-  const [errors, setErrors] = useState<Partial<Record<keyof FormValues, string>>>({})
+  const [photoError, setPhotoError] = useState<string | null>(null)
   const modalRef = useRef<HTMLDivElement>(null)
 
   const { data: deptRecords } = useGetSheetRecordsQuery(env.VITE_SHEET_DEPARTMENTS_TAB)
@@ -51,7 +41,8 @@ const AddEmployeeModal = ({ show, onClose }: AddEmployeeModalProps): JSX.Element
   const departmentOptions = [...new Set((deptRecords ?? []).map((r) => Object.values(r).find(Boolean) ?? '').filter(Boolean))]
   const designationOptions = [...new Set((desigRecords ?? []).map((r) => Object.values(r).find(Boolean) ?? '').filter(Boolean))]
 
-  const { register, handleSubmit, reset, watch, setValue } = useForm<FormValues>({
+  const { register, handleSubmit, reset, watch, setValue, formState: { errors } } = useForm<AddEmployeeFormValues>({
+    resolver: zodResolver(addEmployeeSchema),
     defaultValues: {
       title: '',
       name: '',
@@ -75,13 +66,12 @@ const AddEmployeeModal = ({ show, onClose }: AddEmployeeModalProps): JSX.Element
     else modal.hide()
   }, [show])
 
-  const onSubmit = useCallback(async (values: FormValues) => {
-    const errs: Partial<Record<keyof FormValues, string>> = {}
-    if (!values.department) errs.department = 'Department is required'
-    if (!values.designation) errs.designation = 'Designation is required'
-    if (!photo) errs.photo = 'Photo is required'
-    setErrors(errs)
-    if (Object.keys(errs).length > 0) return
+  const onSubmit = useCallback(async (values: AddEmployeeFormValues) => {
+    if (!photo) {
+      setPhotoError('Photo is required')
+      return
+    }
+    setPhotoError(null)
 
     const fd = new FormData()
     fd.append('title', values.title)
@@ -91,14 +81,14 @@ const AddEmployeeModal = ({ show, onClose }: AddEmployeeModalProps): JSX.Element
     fd.append('department', values.department)
     fd.append('designation', values.designation)
     fd.append('dateOfBirth', values.dateOfBirth)
-    if (photo) fd.append('photo', photo)
+    fd.append('photo', photo)
     fd.append('sendWelcome', values.sendWelcome ? 'true' : 'false')
     if (values.welcomeTextLine1) fd.append('welcomeTextLine1', values.welcomeTextLine1)
     if (values.welcomeTextLine2) fd.append('welcomeTextLine2', values.welcomeTextLine2)
     await createEmployee(fd)
     reset()
     setPhoto(null)
-    setErrors({})
+    setPhotoError(null)
     onClose()
   }, [photo, createEmployee, reset, onClose])
 
@@ -118,7 +108,7 @@ const AddEmployeeModal = ({ show, onClose }: AddEmployeeModalProps): JSX.Element
               <div className="row g-3">
                 <div className="col-md-2">
                   <label className="form-label fw-semibold small text-secondary">Title <span className="text-danger">*</span></label>
-                  <Select registration={register('title', { required: 'Title is required' })} placeholder="Select title" className="form-select-sm">
+                  <Select registration={register('title')} placeholder="Select title" className="form-select-sm" error={errors.title}>
                     {TITLE_OPTIONS.map((t) => (
                       <option key={t} value={t}>{t}</option>
                     ))}
@@ -130,9 +120,10 @@ const AddEmployeeModal = ({ show, onClose }: AddEmployeeModalProps): JSX.Element
                   </label>
                   <Input
                     type="text"
-                    registration={register('name', { required: 'Name is required' })}
+                    registration={register('name')}
                     className="form-control-sm"
                     placeholder="Full name"
+                    error={errors.name}
                   />
                 </div>
                 <div className="col-md-5">
@@ -141,9 +132,10 @@ const AddEmployeeModal = ({ show, onClose }: AddEmployeeModalProps): JSX.Element
                   </label>
                   <Input
                     type="email"
-                    registration={register('email', { required: 'Email is required' })}
+                    registration={register('email')}
                     className="form-control-sm"
                     placeholder="Email address"
+                    error={errors.email}
                   />
                 </div>
                 <div className="col-md-3">
@@ -152,27 +144,29 @@ const AddEmployeeModal = ({ show, onClose }: AddEmployeeModalProps): JSX.Element
                   </label>
                   <Input
                     type="text"
-                    registration={register('employeeId', { required: 'Employee ID is required' })}
+                    registration={register('employeeId')}
                     className="form-control-sm"
                     placeholder="Employee ID"
+                    error={errors.employeeId}
                   />
                 </div>
                 <div className="col-md-3">
                   <label className="form-label fw-semibold small text-secondary">Date of Birth <span className="text-danger">*</span></label>
                   <Input
                     type="date"
-                    registration={register('dateOfBirth', { required: 'Date of birth is required' })}
+                    registration={register('dateOfBirth')}
                     className="form-control-sm"
+                    error={errors.dateOfBirth}
                   />
                 </div>
                 <div className="col-md-3">
                   <label className="form-label fw-semibold small text-secondary">Department <span className="text-danger">*</span></label>
                   <SelectOrInput
                     value={watch('department')}
-                    onChange={(v) => { setValue('department', v); setErrors((p) => { const n = { ...p }; delete n.department; return n }) }}
+                    onChange={(v) => { setValue('department', v, { shouldValidate: true }) }}
                     options={departmentOptions}
                     placeholder="Select department"
-                    error={errors.department ? { message: errors.department, type: 'required' } : undefined}
+                    error={errors.department}
                     className="form-select-sm"
                   />
                 </div>
@@ -180,17 +174,17 @@ const AddEmployeeModal = ({ show, onClose }: AddEmployeeModalProps): JSX.Element
                   <label className="form-label fw-semibold small text-secondary">Designation <span className="text-danger">*</span></label>
                   <SelectOrInput
                     value={watch('designation')}
-                    onChange={(v) => { setValue('designation', v); setErrors((p) => { const n = { ...p }; delete n.designation; return n }) }}
+                    onChange={(v) => { setValue('designation', v, { shouldValidate: true }) }}
                     options={designationOptions}
                     placeholder="Select designation"
-                    error={errors.designation ? { message: errors.designation, type: 'required' } : undefined}
+                    error={errors.designation}
                     className="form-select-sm"
                   />
                 </div>
                 <div className="col-12">
                   <label className="form-label fw-semibold small text-secondary">Photo <span className="text-danger">*</span></label>
-                  <FileInput value={photo} onChange={(f) => { setPhoto(f); setErrors((p) => { const n = { ...p }; delete n.photo; return n }) }} />
-                  {errors.photo && <div className="invalid-feedback d-block">{errors.photo}</div>}
+                  <FileInput value={photo} onChange={(f) => { setPhoto(f); setPhotoError(null) }} />
+                  {photoError && <div className="invalid-feedback d-block">{photoError}</div>}
                 </div>
                 <div className="col-12">
                   <div className="border-top pt-3">
