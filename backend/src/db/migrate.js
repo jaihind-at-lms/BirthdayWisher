@@ -30,13 +30,7 @@ const TABLES = [
     id SERIAL PRIMARY KEY,
     text TEXT NOT NULL,
     created_at TIMESTAMP DEFAULT NOW()
-  )`,
-  `CREATE TABLE IF NOT EXISTS users (
-    id SERIAL PRIMARY KEY,
-    email TEXT NOT NULL UNIQUE,
-    role TEXT DEFAULT 'admin',
-    created_at TIMESTAMP DEFAULT NOW()
-  )`,
+  )`
 ];
 
 export async function runMigrations() {

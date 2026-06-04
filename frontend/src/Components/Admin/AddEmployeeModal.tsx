@@ -124,7 +124,7 @@ const AddEmployeeModal = ({ show, onClose }: AddEmployeeModalProps): JSX.Element
                     className="form-control-sm"
                     placeholder="Full name"
                     error={errors.name}
-                    maxLength={10}
+                    maxLength={50}
                   />
                 </div>
                 <div className="col-md-5">

@@ -3,7 +3,6 @@ import { readdirSync, existsSync } from "fs";
 import { resolve, dirname } from "path";
 import { fileURLToPath } from "url";
 import logger from "../utils/logger.js";
-import { downloadEmployeeImage } from "../services/index.js";
 import { generateBirthdayCard } from "../services/birthdayCard.js";
 import { sendBirthdayEmail } from "../emails/index.js";
 import { EmployeeModel } from "../models/employee.js";
@@ -64,8 +63,6 @@ export const BirthdayWisher = async () => {
 
     if (existsSync(localPhoto)) {
       photoPath = localPhoto;
-    } else if (emp.photoUrl) {
-      photoPath = await downloadEmployeeImage(emp.photoUrl, id);
     }
 
     if (!photoPath) {

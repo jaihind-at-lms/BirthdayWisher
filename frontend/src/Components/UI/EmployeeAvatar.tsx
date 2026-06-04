@@ -1,8 +1,6 @@
 import { useState } from 'react'
 import type { JSX } from 'react'
 
-import { getDriveThumbnail } from '@project/Utils/imageHelper'
-
 interface EmployeeAvatarProps {
   name: string
   imageUrl: string | null
@@ -11,8 +9,7 @@ interface EmployeeAvatarProps {
 
 const EmployeeAvatar = ({ name, imageUrl, size = 36 }: EmployeeAvatarProps): JSX.Element => {
   const [failed, setFailed] = useState(false)
-  const thumb = getDriveThumbnail(imageUrl, size * 2)
-  const src = thumb || imageUrl
+  const src = imageUrl
 
   if (src && !failed) {
     return (

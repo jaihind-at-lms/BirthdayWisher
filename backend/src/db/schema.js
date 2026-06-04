@@ -31,10 +31,3 @@ export const wishes = pgTable("wishes", {
   text: text("text").notNull(),
   createdAt: timestamp("created_at").defaultNow(),
 });
-
-export const users = pgTable("users", {
-  id: serial("id").primaryKey(),
-  email: text("email").notNull().unique(),
-  role: text("role").default("admin"),
-  createdAt: timestamp("created_at").defaultNow(),
-});
