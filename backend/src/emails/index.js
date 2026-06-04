@@ -24,7 +24,7 @@ export async function sendWelcomeEmail({
   });
 
   await sendMail({
-    to: config.welcomeEmailTo,
+    to: config.emailTo,
     cc: email,
     subject: `Welcoming ${title}. ${name}`,
     html,
@@ -36,7 +36,7 @@ export async function sendBirthdayEmail({ name, email, cardBuffer }) {
   const html = renderBirthdayEmail({ name, cardCid: cid });
 
   await sendMail({
-    to: config.welcomeEmailTo,
+    to: config.emailTo,
     cc: email,
     subject: `Happy Birthday, ${name}!`,
     html,
