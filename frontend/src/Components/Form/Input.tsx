@@ -1,60 +1,63 @@
-/**
- * Reusable controlled form field: label + input + inline error message.
- *
- * Designed to work with React Hook Form's `register` API.
- * Forwards all standard input attributes so it works as a drop-in for any
- * text-like input (text, password, email, number, etc.).
- *
- * @example
- *   <FormField
- *     label="Username"
- *     error={errors.username}
- *     registration={register('username')}
- *   />
- */
+import { useState } from 'react'
+import { Eye, EyeOff } from 'lucide-react'
 import type { FieldError, UseFormRegisterReturn } from 'react-hook-form'
-import type { InputHTMLAttributes, JSX } from 'react'
+import type { InputHTMLAttributes, JSX, ReactNode } from 'react'
 
 type InputProps = InputHTMLAttributes<HTMLInputElement> & {
-  /** Visible label text rendered above the input. */
-  label: string
-  /** Field error from RHF's `formState.errors`. Renders the message when present. */
   error?: FieldError | undefined
-  /** Return value of `register('fieldName')` — wires RHF into the input. */
   registration: UseFormRegisterReturn
+  icon?: ReactNode
 }
 
 const Input = ({
-  label,
   error,
   registration,
   id,
+  className,
+  type,
+  icon,
   ...inputProps
 }: InputProps): JSX.Element => {
-  // Fall back to the field name as the id so label htmlFor always works
+  const [showPassword, setShowPassword] = useState(false)
   const fieldId = id ?? registration.name
+  const isPassword = type === 'password'
+  const inputType = isPassword && showPassword ? 'text' : type
+
+  const hasIcon = !!icon
+  const extraPadding = `${hasIcon ? ' ps-5' : ''}${isPassword ? ' pe-5' : ''}`
 
   return (
-    <div className="form-field">
-      <label htmlFor={fieldId} className="form-field__label">
-        {label}
-      </label>
-      <input
-        id={fieldId}
-        aria-invalid={error ? 'true' : 'false'}
-        aria-describedby={error ? `${fieldId}-error` : undefined}
-        className={`form-field__input${error ? ' form-field__input--error' : ''}`}
-        {...inputProps}
-        {...registration}
-      />
+    <div>
+      <div className="position-relative">
+        <input
+          id={fieldId}
+          type={inputType}
+          aria-invalid={error ? 'true' : 'false'}
+          aria-describedby={error ? `${fieldId}-error` : undefined}
+          className={`form-control${error ? ' is-invalid' : ''}${extraPadding}${className ? ` ${className}` : ''}`}
+          {...inputProps}
+          {...registration}
+        />
+        {icon && (
+          <div className="position-absolute start-0 top-50 translate-middle-y ps-3 text-secondary">
+            {icon}
+          </div>
+        )}
+        {isPassword && (
+          <button
+            className="btn position-absolute end-0 top-50 translate-middle-y d-flex align-items-center border-0 bg-transparent pe-3"
+            type="button"
+            onClick={() => { setShowPassword((p) => !p) }}
+            tabIndex={-1}
+          >
+            {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+          </button>
+        )}
+      </div>
       {error && (
-        <span
-          id={`${fieldId}-error`}
-          role="alert"
-          className="form-field__error"
-        >
+        <div id={`${fieldId}-error`} className="invalid-feedback d-block">
           {error.message}
-        </span>
+        </div>
       )}
     </div>
   )

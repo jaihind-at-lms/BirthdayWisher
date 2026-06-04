@@ -3,6 +3,7 @@ import { lazy, Suspense } from 'react'
 import { Navigate, Route, Routes } from 'react-router-dom'
 import type { JSX } from 'react'
 
+import Spinner from '@project/Components/UI/Spinner'
 import { selectUserRole } from '@project/Store/Feature'
 import { useAppSelector } from '@project/Store/hooks'
 import type { RouteConfig } from '@project/Types/Features/routes'
@@ -50,7 +51,7 @@ const AppRoutes = (): JSX.Element => {
   const userRole = useAppSelector(selectUserRole)
 
   return (
-    <Suspense fallback={<div>Loading...</div>}>
+    <Suspense fallback={<Spinner />}>
       <Routes>
         {/* Root redirect → role-aware default page */}
         <Route
