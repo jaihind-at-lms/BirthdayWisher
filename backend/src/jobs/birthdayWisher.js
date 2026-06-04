@@ -30,9 +30,9 @@ export const BirthdayWisher = async () => {
   let ti = 0;
 
   for (const emp of employees) {
-    const id = emp["Employee ID "] ?? "unknown";
-    const name = emp["Employee Name "] ?? "Unknown";
-    const image = emp["Employee Image "] ?? "";
+    const id = emp["Employee ID"] ?? "unknown";
+    const name = emp["Employee Name"] ?? "Unknown";
+    const image = emp["Employee Image"] ?? "";
 
     if (ti >= templateCycle.length) {
       templateCycle = shuffle(templates);
