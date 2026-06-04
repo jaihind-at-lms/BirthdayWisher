@@ -1,30 +1,14 @@
-import { useCallback, useState, useEffect, useRef } from 'react'
+import { useState } from 'react'
 import { Pencil, Plus, Search, X } from 'lucide-react'
-import { Modal as BsModal } from 'bootstrap'
-import { useForm } from 'react-hook-form'
 import type { JSX } from 'react'
 
 import Spinner from '@project/Components/UI/Spinner'
-import Input from '@project/Components/Form/Input'
-import Button from '@project/Components/Form/Button'
 import EmployeeAvatar from '@project/Components/UI/EmployeeAvatar'
-import AddEmployeeModal from '@project/Components/Employee/AddEmployeeModal'
+import AddEmployeeModal from '@project/Components/Admin/AddEmployeeModal'
+import EditEmployeeModal from '@project/Components/Admin/EditEmployeeModal'
 import { getEmployeeImageUrl } from '@project/Utils/imageHelper'
-import {
-  useGetEmployeesQuery,
-  useUpdateEmployeeMutation,
-} from '@project/Store/Api'
+import { useGetEmployeesQuery } from '@project/Store/Api'
 import type { Employee } from '@project/Types/Features/employee'
-
-const EDIT_MODAL_ID = 'editEmployeeModal'
-
-const IMG_KEYS = new Set([
-  'employee image', 'employee photo', 'image', 'photo',
-])
-
-function getEditableFields(emp: Employee): [string, string][] {
-  return Object.entries(emp).filter(([k]) => !IMG_KEYS.has(k.toLowerCase().trim()))
-}
 
 function getEmployeeName(emp: Employee): string {
   const title = emp['Title'] || emp['title'] || ''
@@ -34,98 +18,6 @@ function getEmployeeName(emp: Employee): string {
 
 function getEmployeeId(emp: Employee): string {
   return emp['Employee ID'] || emp['Employee Id'] || emp['employee id'] || emp['ID'] || emp['id'] || ''
-}
-
-const columns = [
-  { key: 'Employee ID', label: 'ID', width: 100 },
-  { key: 'Employee Name', label: 'Name', width: 200 },
-  { key: 'Email', label: 'Email', width: 220 },
-  { key: 'Department', label: 'Department', width: 140 },
-  { key: 'Designation', label: 'Designation', width: 160 },
-  { key: 'Birthday', label: 'Birthday', width: 120 },
-]
-
-const EditEmployeeModal = ({
-  employee,
-  onClose,
-}: {
-  employee: Employee | null
-  onClose: () => void
-}) => {
-  const [updateEmployee, { isLoading }] = useUpdateEmployeeMutation()
-  const modalRef = useRef<HTMLDivElement>(null)
-
-  const fields = employee ? getEditableFields(employee) : []
-  const defaultValues = Object.fromEntries(
-    fields.map(([k]) => [k, employee?.[k] ?? ''])
-  )
-
-  const { register, handleSubmit, reset } = useForm<Record<string, string>>({
-    defaultValues,
-  })
-
-  useEffect(() => {
-    if (employee) reset(defaultValues)
-  }, [employee])
-
-  useEffect(() => {
-    if (!modalRef.current) return
-    const modal = BsModal.getOrCreateInstance(modalRef.current)
-    if (employee) modal.show()
-    else modal.hide()
-  }, [employee])
-
-  const onSubmit = useCallback(
-    async (values: Record<string, string>) => {
-      if (!employee) return
-      const empId = getEmployeeId(employee)
-      await updateEmployee({ id: empId, data: values })
-      onClose()
-    },
-    [employee, updateEmployee, onClose]
-  )
-
-  if (!employee) return null
-
-  return (
-    <div ref={modalRef} className="modal fade" id={EDIT_MODAL_ID} tabIndex={-1}>
-      <div className="modal-dialog modal-lg modal-dialog-scrollable">
-        <div className="modal-content border-0 shadow">
-          <div className="modal-header border-bottom">
-            <h5 className="modal-title fw-bold d-flex align-items-center gap-2">
-              <EmployeeAvatar name={getEmployeeName(employee)} imageUrl={getEmployeeImageUrl(employee)} size={28} />
-              Edit — {getEmployeeName(employee)}
-            </h5>
-            <button type="button" className="btn-close" onClick={onClose} />
-          </div>
-          <form onSubmit={(e) => { void handleSubmit(onSubmit)(e) }}>
-            <div className="modal-body">
-              <div className="row g-3">
-                {fields.map(([key]) => (
-                  <div className="col-md-6" key={key}>
-                    <label className="form-label fw-semibold small text-secondary">{key}</label>
-                    <Input
-                      type="text"
-                      registration={register(key)}
-                      className="form-control-sm"
-                    />
-                  </div>
-                ))}
-              </div>
-            </div>
-            <div className="modal-footer border-top">
-              <button type="button" className="btn btn-outline-secondary px-4 py-3 fw-semibold shadow-sm" style={{ minWidth: 120 }} onClick={onClose}>
-                Cancel
-              </button>
-              <Button type="submit" loading={isLoading} variant="btn-info" className="px-4" style={{ minWidth: 120 }}>
-                <span className="text-white">Save Changes</span>
-              </Button>
-            </div>
-          </form>
-        </div>
-      </div>
-    </div>
-  )
 }
 
 const UserManagementPage = (): JSX.Element => {

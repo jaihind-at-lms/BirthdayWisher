@@ -43,14 +43,13 @@ const ChangeImageModal = ({ employee, onClose }: { employee: Employee | null; on
     onClose()
   }, [employee, file, uploadPhoto, onClose])
 
-  if (!employee) return null
-
-  const name = employee['Employee Name'] || employee['Employee name'] || ''
+  const name = employee ? (employee['Employee Name'] || employee['Employee name'] || '') : ''
 
   return (
     <div ref={modalRef} className="modal fade" id={CHANGE_IMAGE_MODAL_ID} tabIndex={-1}>
       <div className="modal-dialog">
         <div className="modal-content border-0 shadow">
+          {employee ? (<>
           <div className="modal-header border-bottom">
             <h5 className="modal-title fw-bold">Change Photo</h5>
             <button type="button" className="btn-close" onClick={onClose} />
@@ -82,6 +81,7 @@ const ChangeImageModal = ({ employee, onClose }: { employee: Employee | null; on
               </button>
             </div>
           </div>
+          </>) : null}
         </div>
       </div>
     </div>

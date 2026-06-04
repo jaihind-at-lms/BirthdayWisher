@@ -121,7 +121,7 @@ const AddEmployeeModal = ({ show, onClose }: AddEmployeeModalProps): JSX.Element
           <form onSubmit={(e) => { void handleSubmit(onSubmit)(e) }}>
             <div className="modal-body" style={{ overflowY: 'auto', maxHeight: '70vh' }}>
               <div className="row g-3">
-                <div className="col-md-4">
+                <div className="col-md-2">
                   <label className="form-label fw-semibold small text-secondary">Title <span className="text-danger">*</span></label>
                   <Select registration={register('title', { required: 'Title is required' })} placeholder="Select title">
                     {TITLE_OPTIONS.map((t) => (
@@ -129,7 +129,7 @@ const AddEmployeeModal = ({ show, onClose }: AddEmployeeModalProps): JSX.Element
                     ))}
                   </Select>
                 </div>
-                <div className="col-md-8">
+                <div className="col-md-5">
                   <label className="form-label fw-semibold small text-secondary">
                     Name <span className="text-danger">*</span>
                   </label>
@@ -140,7 +140,7 @@ const AddEmployeeModal = ({ show, onClose }: AddEmployeeModalProps): JSX.Element
                     placeholder="Full name"
                   />
                 </div>
-                <div className="col-md-6">
+                <div className="col-md-5">
                   <label className="form-label fw-semibold small text-secondary">
                     Email <span className="text-danger">*</span>
                   </label>
@@ -151,7 +151,7 @@ const AddEmployeeModal = ({ show, onClose }: AddEmployeeModalProps): JSX.Element
                     placeholder="Email address"
                   />
                 </div>
-                <div className="col-md-6">
+                <div className="col-md-3">
                   <label className="form-label fw-semibold small text-secondary">
                     Employee ID <span className="text-danger">*</span>
                   </label>
@@ -162,7 +162,15 @@ const AddEmployeeModal = ({ show, onClose }: AddEmployeeModalProps): JSX.Element
                     placeholder="Employee ID"
                   />
                 </div>
-                <div className="col-md-6">
+                <div className="col-md-3">
+                  <label className="form-label fw-semibold small text-secondary">Date of Birth <span className="text-danger">*</span></label>
+                  <Input
+                    type="date"
+                    registration={register('dateOfBirth', { required: 'Date of birth is required' })}
+                    className="form-control-sm"
+                  />
+                </div>
+                <div className="col-md-3">
                   <label className="form-label fw-semibold small text-secondary">Department <span className="text-danger">*</span></label>
                   <SelectOrInput
                     value={watch('department')}
@@ -172,7 +180,7 @@ const AddEmployeeModal = ({ show, onClose }: AddEmployeeModalProps): JSX.Element
                     error={errors.department ? { message: errors.department, type: 'required' } : undefined}
                   />
                 </div>
-                <div className="col-md-6">
+                <div className="col-md-3">
                   <label className="form-label fw-semibold small text-secondary">Designation <span className="text-danger">*</span></label>
                   <SelectOrInput
                     value={watch('designation')}
@@ -180,14 +188,6 @@ const AddEmployeeModal = ({ show, onClose }: AddEmployeeModalProps): JSX.Element
                     options={designationOptions}
                     placeholder="Select designation"
                     error={errors.designation ? { message: errors.designation, type: 'required' } : undefined}
-                  />
-                </div>
-                <div className="col-md-6">
-                  <label className="form-label fw-semibold small text-secondary">Date of Birth <span className="text-danger">*</span></label>
-                  <Input
-                    type="date"
-                    registration={register('dateOfBirth', { required: 'Date of birth is required' })}
-                    className="form-control-sm"
                   />
                 </div>
                 <div className="col-12">
