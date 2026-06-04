@@ -151,3 +151,38 @@ export const clearSheetRow = async (range) => {
     range,
   });
 };
+
+export const deleteSheetRow = async (rowIndex, tabName) => {
+  const spreadsheetId = config.googleSheetId;
+  if (!spreadsheetId) throw new Error("GOOGLE_SHEET_ID is not set in .env");
+
+  const auth = getAuth(true);
+  const sheets = google.sheets({ version: "v4", auth });
+
+  // Get the grid sheetId for the tab
+  const sheetMeta = await sheets.spreadsheets.get({
+    spreadsheetId,
+    ranges: [tabName],
+    fields: "sheets.properties",
+  });
+  const gridSheetId = sheetMeta.data.sheets[0].properties.sheetId;
+  // rowIndex is 0-based (row 0 = first data row, header is row 0 in sheet but
+  // deleteDimension startIndex is 0-based sheet row). Data rows start at sheet row 1 (0-indexed).
+  const sheetRow = rowIndex + 1;
+
+  await sheets.spreadsheets.batchUpdate({
+    spreadsheetId,
+    resource: {
+      requests: [{
+        deleteDimension: {
+          range: {
+            sheetId: gridSheetId,
+            dimension: "ROWS",
+            startIndex: sheetRow,
+            endIndex: sheetRow + 1,
+          },
+        },
+      }],
+    },
+  });
+};

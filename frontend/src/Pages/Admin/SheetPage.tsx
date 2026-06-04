@@ -30,9 +30,9 @@ function columnLabel(key: string): string {
 
 function SheetPage({ tab, title, icon }: SheetPageProps): JSX.Element {
   const { data: rawRecords, isLoading, isError, error } = useGetSheetRecordsQuery(tab)
-  const [createRecord] = useCreateSheetRecordMutation()
-  const [updateRecord] = useUpdateSheetRecordMutation()
-  const [deleteRecord] = useDeleteSheetRecordMutation()
+  const [createRecord, { isLoading: isCreating }] = useCreateSheetRecordMutation()
+  const [updateRecord, { isLoading: isUpdating }] = useUpdateSheetRecordMutation()
+  const [deleteRecord, { isLoading: isDeleting }] = useDeleteSheetRecordMutation()
 
   const records = rawRecords ?? []
   const [searchTerm, setSearchTerm] = useState('')
@@ -53,7 +53,7 @@ function SheetPage({ tab, title, icon }: SheetPageProps): JSX.Element {
   const formModalRef = useRef<HTMLDivElement>(null)
 
   const getFormDefaults = useCallback(() => {
-    if (editTarget) {
+    if (editTarget && editTarget.row >= 0) {
       return Object.fromEntries(columns.map((c) => [c, editTarget.data[c] ?? '']))
     }
     return Object.fromEntries(columns.map((c) => [c, '']))
@@ -70,30 +70,25 @@ function SheetPage({ tab, title, icon }: SheetPageProps): JSX.Element {
   useEffect(() => {
     if (!formModalRef.current) return
     const modal = BsModal.getOrCreateInstance(formModalRef.current)
-    if (editTarget !== null) {
-      // opening: already handled by state change
-    }
-    return () => { modal.dispose() }
-  }, [])
+    if (editTarget !== null) modal.show()
+    else modal.hide()
+  }, [editTarget])
 
   const openCreateModal = () => {
-    setEditTarget(null)
     reset(Object.fromEntries(columns.map((c) => [c, ''])))
-    BsModal.getOrCreateInstance(formModalRef.current!).show()
+    setEditTarget({ row: -1, data: {} })
   }
 
   const openEditModal = (row: number, data: SheetRecord) => {
     setEditTarget({ row, data })
-    BsModal.getOrCreateInstance(formModalRef.current!).show()
   }
 
   const closeFormModal = () => {
-    BsModal.getOrCreateInstance(formModalRef.current!).hide()
     setEditTarget(null)
   }
 
   const onFormSubmit = useCallback(async (values: Record<string, string>) => {
-    if (editTarget) {
+    if (editTarget && editTarget.row >= 0) {
       await updateRecord({ tab, row: editTarget.row, data: values })
     } else {
       await createRecord({ tab, data: values })
@@ -110,7 +105,6 @@ function SheetPage({ tab, title, icon }: SheetPageProps): JSX.Element {
     const modal = BsModal.getOrCreateInstance(deleteModalRef.current)
     if (deleteTarget) modal.show()
     else modal.hide()
-    return () => { modal.dispose() }
   }, [deleteTarget])
 
   const confirmDelete = useCallback(async () => {
@@ -250,7 +244,7 @@ function SheetPage({ tab, title, icon }: SheetPageProps): JSX.Element {
               <h5 className="modal-title fw-bold">
                 {editTarget ? 'Edit Record' : 'Add New Record'}
               </h5>
-              <button type="button" className="btn-close" data-bs-dismiss="modal" onClick={() => setEditTarget(null)} />
+              <button type="button" className="btn-close" onClick={closeFormModal} />
             </div>
             <form onSubmit={(e) => { void handleSubmit(onFormSubmit)(e) }}>
               <div className="modal-body">
@@ -269,11 +263,11 @@ function SheetPage({ tab, title, icon }: SheetPageProps): JSX.Element {
                 </div>
               </div>
               <div className="modal-footer border-top">
-                <button type="button" className="btn btn-outline-secondary btn-sm" data-bs-dismiss="modal" onClick={() => setEditTarget(null)}>
+                <button type="button" className="btn btn-outline-secondary px-4 py-3 fw-semibold shadow-sm" style={{ minWidth: 120 }} onClick={closeFormModal}>
                   Cancel
                 </button>
-                <Button type="submit" variant="btn-info">
-                  <span className="text-white">{editTarget ? 'Update' : 'Create'}</span>
+                <Button type="submit" loading={isCreating || isUpdating} variant="btn-info" className="px-4" style={{ minWidth: 120 }}>
+                  <span className="text-white">{editTarget && editTarget.row >= 0 ? 'Update' : 'Create'}</span>
                 </Button>
               </div>
             </form>
@@ -293,12 +287,11 @@ function SheetPage({ tab, title, icon }: SheetPageProps): JSX.Element {
               </p>
             </div>
             <div className="modal-footer border-top justify-content-center">
-              <button className="btn btn-outline-secondary btn-sm" data-bs-dismiss="modal" onClick={() => setDeleteTarget(null)}>
+              <button type="button" className="btn btn-outline-secondary px-4 py-3 fw-semibold shadow-sm" style={{ minWidth: 120 }} onClick={() => setDeleteTarget(null)}>
                 Cancel
               </button>
-              <button className="btn btn-danger btn-sm d-flex align-items-center gap-1" onClick={confirmDelete}>
-                <Trash2 size={14} />
-                Delete
+              <button type="button" className="btn btn-danger px-4 py-3 fw-semibold shadow-sm d-flex align-items-center justify-content-center gap-2" style={{ minWidth: 120 }} disabled={isDeleting} onClick={confirmDelete}>
+                {isDeleting ? <><span className="spinner-border spinner-border-sm" /> Deleting…</> : <><Trash2 size={16} /> Delete</>}
               </button>
             </div>
           </div>

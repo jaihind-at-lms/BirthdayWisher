@@ -4,6 +4,7 @@ export {
   updateSheetCell,
   appendSheetRow,
   clearSheetRow,
+  deleteSheetRow,
   getSheetHeaders,
 } from "./googleSheet.js";
 export { generateBirthdayCard } from "./birthdayCard.js";

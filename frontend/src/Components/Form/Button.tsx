@@ -22,7 +22,7 @@ const Button = ({
     {loading ? (
       <>
         <span className="spinner-border spinner-border-sm" role="status" />
-        Signing in…
+        {children}
       </>
     ) : (
       children

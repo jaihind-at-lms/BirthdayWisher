@@ -33,7 +33,6 @@ const ChangeImageModal = ({ employee, onClose }: { employee: Employee | null; on
     const modal = BsModal.getOrCreateInstance(modalRef.current)
     if (employee) modal.show()
     else modal.hide()
-    return () => { modal.dispose() }
   }, [employee])
 
   const handleSubmit = useCallback(async () => {

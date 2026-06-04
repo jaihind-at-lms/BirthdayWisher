@@ -73,7 +73,6 @@ const EditEmployeeModal = ({
     const modal = BsModal.getOrCreateInstance(modalRef.current)
     if (employee) modal.show()
     else modal.hide()
-    return () => { modal.dispose() }
   }, [employee])
 
   const onSubmit = useCallback(
@@ -97,7 +96,7 @@ const EditEmployeeModal = ({
               <EmployeeAvatar name={getEmployeeName(employee)} imageUrl={getEmployeeImageUrl(employee)} size={28} />
               Edit — {getEmployeeName(employee)}
             </h5>
-            <button type="button" className="btn-close" data-bs-dismiss="modal" onClick={onClose} />
+            <button type="button" className="btn-close" onClick={onClose} />
           </div>
           <form onSubmit={(e) => { void handleSubmit(onSubmit)(e) }}>
             <div className="modal-body">
@@ -115,10 +114,10 @@ const EditEmployeeModal = ({
               </div>
             </div>
             <div className="modal-footer border-top">
-              <button type="button" className="btn btn-outline-secondary btn-sm" data-bs-dismiss="modal" onClick={onClose}>
+              <button type="button" className="btn btn-outline-secondary px-4 py-3 fw-semibold shadow-sm" style={{ minWidth: 120 }} onClick={onClose}>
                 Cancel
               </button>
-              <Button type="submit" loading={isLoading} variant="btn-info">
+              <Button type="submit" loading={isLoading} variant="btn-info" className="px-4" style={{ minWidth: 120 }}>
                 <span className="text-white">Save Changes</span>
               </Button>
             </div>

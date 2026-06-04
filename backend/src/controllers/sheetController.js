@@ -1,4 +1,4 @@
-import { getSheetRecords, updateSheetCell, appendSheetRow, clearSheetRow } from "../services/index.js";
+import { getSheetRecords, updateSheetCell, appendSheetRow, deleteSheetRow } from "../services/index.js";
 import { trimKeys, colLetter } from "../utils/helpers.js";
 
 export function createSheetController(tabName) {
@@ -53,11 +53,7 @@ export function createSheetController(tabName) {
         if (isNaN(rowIndex)) {
           return res.status(400).json({ success: false, message: "Invalid row index." });
         }
-        const rows = await getSheetRecords(range);
-        const headers = Object.keys(rows[0]);
-        const sheetRow = rowIndex + 2;
-        const clearRange = `${tabName}!A${sheetRow}:${colLetter(headers.length - 1)}${sheetRow}`;
-        await clearSheetRow(clearRange);
+        await deleteSheetRow(rowIndex, tabName);
         res.json({ success: true, message: "Record deleted successfully." });
       } catch (err) {
         res.status(500).json({ success: false, message: err.message });
