@@ -44,13 +44,13 @@ const EditEmployeeModal = ({
   const { data: designationOptions } = useGetSheetRecordsQuery('designations')
 
   const getDefaults = useCallback((): EditEmployeeFormValues => ({
-    title: employee?.['Title'] || '',
-    name: employee?.['Employee Name'] || employee?.['Name'] || '',
-    email: employee?.['Email'] || '',
-    employeeId: employee?.['Employee ID'] || employee?.['Employee Id'] || '',
-    department: employee?.['Department'] || '',
-    designation: employee?.['Designation'] || '',
-    dateOfBirth: employee?.['Date of Birth'] || employee?.['Birthday'] || employee?.['DOB'] || '',
+    title: employee?.['title'] || '',
+    name: employee?.['name'] || '',
+    email: employee?.['email'] || '',
+    employeeId: employee?.['employeeId'] || '',
+    department: employee?.['departmentId'] || '',
+    designation: employee?.['designationId'] || '',
+    dateOfBirth: employee?.['dateOfBirth'] || '',
   }), [employee])
 
   const { register, handleSubmit, reset, watch, setValue, formState: { errors } } = useForm<EditEmployeeFormValues>({
@@ -71,7 +71,7 @@ const EditEmployeeModal = ({
 
   const onSubmit = useCallback(async (values: EditEmployeeFormValues) => {
     if (!employee) return
-    const empId = employee['Employee ID'] || employee['Employee Id'] || employee['employee id'] || ''
+    const empId = employee['id']
     const data: Record<string, string> = {
       'Title': values.title,
       'Employee Name': values.name,

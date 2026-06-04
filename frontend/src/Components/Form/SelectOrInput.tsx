@@ -24,7 +24,7 @@ const SelectOrInput = ({
   className = '',
   maxLength,
 }: SelectOrInputProps): JSX.Element => {
-  const [isOther, setIsOther] = useState(!options.find((o) => o.id === value) && Boolean(value))
+  const [isOther, setIsOther] = useState(Boolean(value) && !options.find((o) => o.id === value))
 
   const handleSelectChange = (selected: string) => {
     if (selected === OTHER) {

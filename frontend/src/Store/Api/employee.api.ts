@@ -50,7 +50,7 @@ const employeeApi = createApi({
       providesTags: ['DashboardStats'],
     }),
 
-    updateEmployee: builder.mutation<undefined, { id: string; data: Record<string, string> }>({
+    updateEmployee: builder.mutation<undefined, { id: number; data: Record<string, string> }>({
       query: ({ id, data }) => ({
         url: `api/employees/${id}`,
         method: 'PUT',
@@ -78,7 +78,7 @@ const employeeApi = createApi({
       invalidatesTags: ['Employees', 'DashboardStats'],
     }),
 
-    uploadEmployeePhoto: builder.mutation<undefined, { id: string; photo: File }>({
+    uploadEmployeePhoto: builder.mutation<undefined, { id: number; photo: File }>({
       query: ({ id, photo }) => {
         const fd = new FormData()
         fd.append('photo', photo)

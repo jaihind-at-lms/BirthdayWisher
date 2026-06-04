@@ -78,14 +78,14 @@ const UserManagementPage = (): JSX.Element => {
               <table className="table table-borderless align-middle mb-0">
                 <thead className="table-light border-bottom">
                   <tr>
-                    <th className="ps-4 py-3 small fw-semibold text-uppercase text-secondary" style={{ width: 220 }}>
+                    <th className="ps-4 py-3 small fw-semibold text-uppercase text-secondary">
                       Employee
                     </th>
-                    <th className="py-3 small fw-semibold text-uppercase text-secondary" style={{ width: 100 }}>ID</th>
+                    <th className="py-3 small fw-semibold text-uppercase text-secondary">ID</th>
                     <th className="py-3 small fw-semibold text-uppercase text-secondary">Email</th>
-                    <th className="py-3 small fw-semibold text-uppercase text-secondary" style={{ width: 130 }}>Department</th>
-                    <th className="py-3 small fw-semibold text-uppercase text-secondary" style={{ width: 150 }}>Designation</th>
-                    <th className="text-end pe-4 py-3 small fw-semibold text-uppercase text-secondary" style={{ width: 100 }}>Action</th>
+                    <th className="py-3 small fw-semibold text-uppercase text-secondary">Department</th>
+                    <th className="py-3 small fw-semibold text-uppercase text-secondary">Designation</th>
+                    <th className="text-end pe-4 py-3 small fw-semibold text-uppercase text-secondary">Action</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -101,7 +101,7 @@ const UserManagementPage = (): JSX.Element => {
                               </div>
                             </div>
                           </td>
-                          <td className="text-secondary py-3">{emp.id}</td>
+                          <td className="text-secondary py-3">{emp.employeeId}</td>
                           <td className="text-secondary py-3">{emp['email'] || '-'}</td>
                           <td className="py-3">
                             <span className="badge bg-primary bg-opacity-10 text-primary rounded-pill px-3 py-2">

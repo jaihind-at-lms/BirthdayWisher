@@ -27,7 +27,7 @@ export const EmployeeModel = {
   },
 
   async findById(id) {
-    const [row] = await db.select().from(employees).where(eq(employees.employeeId, id)).limit(1);
+    const [row] = await db.select().from(employees).where(eq(employees.id, id)).limit(1);
     return row ?? null;
   },
 
