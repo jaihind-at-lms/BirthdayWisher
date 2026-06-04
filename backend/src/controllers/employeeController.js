@@ -1,4 +1,4 @@
-import { writeFileSync, existsSync, mkdirSync } from "fs";
+import { writeFileSync, existsSync, mkdirSync, unlinkSync } from "fs";
 import { resolve, dirname } from "path";
 import { fileURLToPath } from "url";
 
@@ -47,8 +47,6 @@ export async function getDashboardStats(req, res) {
         todayBirthdays,
         upcomingBirthdays,
         upcomingCount: upcomingBirthdays.length,
-        employeesWithImage: stats.withImage,
-        employeesWithoutImage: stats.total - stats.withImage,
       },
     });
   } catch (error) {
@@ -103,6 +101,31 @@ export async function updateEmployee(req, res) {
   }
 }
 
+export async function deleteEmployee(req, res) {
+  try {
+    const { id } = req.params;
+    const employee = await EmployeeModel.findById(id);
+    if (!employee) {
+      return res.status(404).json({ success: false, message: "Employee not found." });
+    }
+    
+    // Delete employee photo if it exists
+    const photoPath = resolve(UPLOADS_DIR, `${employee.employeeId}.png`);
+    if (existsSync(photoPath)) {
+      try {
+        unlinkSync(photoPath);
+      } catch (err) {
+        logger.warn("Failed to delete employee photo", { error: err.message, employeeId: employee.employeeId });
+      }
+    }
+    
+    await EmployeeModel.delete(id);
+    res.json({ success: true, message: "Employee deleted successfully." });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+}
+
 export async function uploadEmployeePhoto(req, res) {
   try {
     const { id: employeeId } = req.params;
@@ -112,6 +135,10 @@ export async function uploadEmployeePhoto(req, res) {
     if (!existsSync(UPLOADS_DIR)) mkdirSync(UPLOADS_DIR, { recursive: true });
     const dest = resolve(UPLOADS_DIR, `${employeeId}.png`);
     writeFileSync(dest, req.file.buffer);
+    
+    // Update the employee's updatedAt timestamp to force cache refresh on frontend
+    await EmployeeModel.updateWithEmployeeId(employeeId, {});
+    
     res.json({ success: true, message: "Photo updated successfully." });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });

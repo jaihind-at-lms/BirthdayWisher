@@ -32,10 +32,9 @@ export const EmployeeModel = {
         total: sql`COUNT(*)::int`,
         monthCount: sql`COUNT(*) FILTER (WHERE date_of_birth IS NOT NULL AND EXTRACT(MONTH FROM date_of_birth) = EXTRACT(MONTH FROM CURRENT_DATE))::int`,
         todayCount: sql`COUNT(*) FILTER (WHERE date_of_birth IS NOT NULL AND EXTRACT(MONTH FROM date_of_birth) = EXTRACT(MONTH FROM CURRENT_DATE) AND EXTRACT(DAY FROM date_of_birth) = EXTRACT(DAY FROM CURRENT_DATE))::int`,
-        withImage: sql`COUNT(*) FILTER (WHERE photo_url IS NOT NULL AND photo_url != '')::int`,
       })
       .from(employees);
-    return row ?? { total: 0, monthCount: 0, todayCount: 0, withImage: 0 };
+    return row ?? { total: 0, monthCount: 0, todayCount: 0 };
   },
 
   async findTodayBirthdays() {
@@ -80,6 +79,7 @@ export const EmployeeModel = {
           des.name AS "designationName",
           e.date_of_birth AS "dateOfBirth",
           e.photo_url AS "photoUrl",
+          e.updated_at AS "updatedAt",
           CASE
             WHEN TO_CHAR(e.date_of_birth, 'MM-DD') >= TO_CHAR(CURRENT_DATE, 'MM-DD')
             THEN (DATE_TRUNC('year', CURRENT_DATE) + (EXTRACT(DOY FROM e.date_of_birth) - 1) * INTERVAL '1 day')::date
@@ -135,6 +135,14 @@ export const EmployeeModel = {
     const [row] = await db.update(employees)
       .set({ ...data, updatedAt: sql`NOW()` })
       .where(eq(employees.id, id))
+      .returning();
+    return row ?? null;
+  },
+
+  async updateWithEmployeeId(employeeId, data) {
+    const [row] = await db.update(employees)
+      .set({ ...data, updatedAt: sql`NOW()` })
+      .where(eq(employees.employeeId, employeeId))
       .returning();
     return row ?? null;
   },

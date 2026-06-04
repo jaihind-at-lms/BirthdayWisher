@@ -1,20 +1,26 @@
-import { useState } from 'react'
-import { Pencil, Plus, Search, X } from 'lucide-react'
+import { useState, useRef, useEffect, useCallback } from 'react'
+import { Pencil, Plus, Search, X, Trash2 } from 'lucide-react'
+import { Modal as BsModal } from 'bootstrap'
 import type { JSX } from 'react'
 
 import Spinner from '@project/Components/UI/Spinner'
 import EmployeeAvatar from '@project/Components/UI/EmployeeAvatar'
 import AddEmployeeModal from '@project/Components/Admin/AddEmployeeModal'
 import EditEmployeeModal from '@project/Components/Admin/EditEmployeeModal'
-import { useGetEmployeesQuery } from '@project/Store/Api'
+import { useGetEmployeesQuery, useDeleteEmployeeMutation } from '@project/Store/Api'
 import type { Employee } from '@project/Types/Features/employee'
 import { env } from '@project/Utils/envValidation'
 
+const DELETE_MODAL_ID = 'employeeDeleteModal'
+
 const UserManagementPage = (): JSX.Element => {
   const { data: rawEmployees, isLoading, isError, error } = useGetEmployeesQuery(undefined)
+  const [deleteEmployee, { isLoading: isDeleting }] = useDeleteEmployeeMutation()
   const [searchTerm, setSearchTerm] = useState('')
   const [selectedEmployee, setSelectedEmployee] = useState<Employee | null>(null)
   const [showAddModal, setShowAddModal] = useState(false)
+  const [deleteTarget, setDeleteTarget] = useState<{ id: number; name: string } | null>(null)
+  const deleteModalRef = useRef<HTMLDivElement>(null)
 
   const employees = rawEmployees ?? []
 
@@ -23,6 +29,20 @@ const UserManagementPage = (): JSX.Element => {
     const q = searchTerm.toLowerCase()
     return Object.values(emp).some((v) => String(v ?? '').toLowerCase().includes(q))
   })
+
+  useEffect(() => {
+    if (!deleteModalRef.current) return
+    const modal = BsModal.getOrCreateInstance(deleteModalRef.current)
+    if (deleteTarget) modal.show()
+    else modal.hide()
+  }, [deleteTarget])
+
+  const confirmDelete = useCallback(async () => {
+    if (!deleteTarget) return
+    const result = await deleteEmployee(deleteTarget.id)
+    if (result.error) return
+    setDeleteTarget(null)
+  }, [deleteTarget, deleteEmployee])
 
   if (isLoading) return <Spinner />
 
@@ -95,7 +115,7 @@ const UserManagementPage = (): JSX.Element => {
                         <tr key={emp.id || i} className="border-bottom border-light">
                           <td className="ps-4 py-3">
                             <div className="d-flex align-items-center gap-3">
-                              <EmployeeAvatar name={emp.name} imageUrl={env.VITE_API_BASE_URL+emp.photoUrl} size={40} />
+                              <EmployeeAvatar name={emp.name} imageUrl={env.VITE_API_BASE_URL+emp.photoUrl+ '?v='+emp.updatedAt} size={40} />
                               <div>
                                 <div className="fw-semibold">{emp.name}</div>
                               </div>
@@ -110,13 +130,24 @@ const UserManagementPage = (): JSX.Element => {
                           </td>
                           <td className="text-secondary py-3">{emp['designationName'] || '-'}</td>
                           <td className="text-end pe-4 py-3">
-                            <button
-                              className="btn btn-outline-info btn-sm d-inline-flex align-items-center gap-1 rounded-pill px-3"
-                              onClick={() => { setSelectedEmployee(emp) }}
-                            >
-                              <Pencil size={14} />
-                              Edit
-                            </button>
+                            <div className="d-flex gap-1 justify-content-end">
+                              <button
+                                className="btn btn-outline-info btn-sm d-inline-flex align-items-center gap-1 rounded-pill px-2"
+                                onClick={() => { setSelectedEmployee(emp) }}
+                                title="Edit"
+                              >
+                                <Pencil size={13} />
+                              </button>
+                              <button
+                                className="btn btn-outline-danger btn-sm d-inline-flex align-items-center gap-1 rounded-pill px-2"
+                                onClick={() => {
+                                  setDeleteTarget({ id: emp.id, name: emp.name })
+                                }}
+                                title="Delete"
+                              >
+                                <Trash2 size={13} />
+                              </button>
+                            </div>
                           </td>
                         </tr>
                       )
@@ -145,6 +176,28 @@ const UserManagementPage = (): JSX.Element => {
         show={showAddModal}
         onClose={() => { setShowAddModal(false) }}
       />
+
+      <div ref={deleteModalRef} className="modal fade" id={DELETE_MODAL_ID} tabIndex={-1}>
+        <div className="modal-dialog modal-sm">
+          <div className="modal-content border-0 shadow">
+            <div className="modal-body text-center py-4">
+              <Trash2 size={36} className="text-danger mb-3" />
+              <h5 className="fw-bold mb-2">Delete Employee</h5>
+              <p className="text-secondary small mb-0">
+                Are you sure you want to delete <strong>{deleteTarget?.name}</strong>?
+              </p>
+            </div>
+            <div className="modal-footer border-top justify-content-center">
+              <button type="button" className="btn btn-outline-secondary px-4 py-3 fw-semibold shadow-sm" style={{ minWidth: 120 }} onClick={() => setDeleteTarget(null)}>
+                Cancel
+              </button>
+              <button type="button" className="btn btn-danger px-4 py-3 fw-semibold shadow-sm d-flex align-items-center justify-content-center gap-2" style={{ minWidth: 120 }} disabled={isDeleting} onClick={confirmDelete}>
+                {isDeleting ? <><span className="spinner-border spinner-border-sm" /> Deleting…</> : <><Trash2 size={16} /> Delete</>}
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   )
 }

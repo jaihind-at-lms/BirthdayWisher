@@ -95,6 +95,19 @@ const employeeApi = createApi({
 
       invalidatesTags: ['Employees', 'DashboardStats'],
     }),
+
+    deleteEmployee: builder.mutation<undefined, number>({
+      query: (id) => ({
+        url: `api/employees/${id}`,
+        method: 'DELETE',
+        showErrorMessage: true,
+        showResultMessage: true,
+      }),
+
+      transformResponse: () => undefined,
+
+      invalidatesTags: ['Employees', 'DashboardStats'],
+    }),
   }),
 })
 
@@ -104,6 +117,7 @@ export const {
   useUpdateEmployeeMutation,
   useCreateEmployeeMutation,
   useUploadEmployeePhotoMutation,
+  useDeleteEmployeeMutation,
 } = employeeApi
 
 export default employeeApi

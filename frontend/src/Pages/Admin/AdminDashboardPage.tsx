@@ -1,13 +1,12 @@
-import { useCallback, useState, useEffect, useRef } from 'react'
+import { useState } from 'react'
 import { Users, Cake, Gift, CalendarDays, Camera } from 'lucide-react'
-import { Modal as BsModal } from 'bootstrap'
 import type { JSX } from 'react'
 
 import Spinner from '@project/Components/UI/Spinner'
 import EmployeeAvatar from '@project/Components/UI/EmployeeAvatar'
+import ChangeImageModal from '@project/Components/Admin/ChangeImageModal'
 import {
   useGetDashboardStatsQuery,
-  useUploadEmployeePhotoMutation,
 } from '@project/Store/Api'
 import type { Employee } from '@project/Types/Features/employee'
 import { formatBirthday } from '@project/Utils/dateUtils'
@@ -19,74 +18,6 @@ const STAT_CARDS = [
   { key: 'todayBirthdayCount', label: "Today's Birthdays", icon: Gift, color: 'success', bg: 'success' },
   { key: 'upcomingCount', label: 'Upcoming (7 Days)', icon: CalendarDays, color: 'warning', bg: 'warning' },
 ] as const
-
-const CHANGE_IMAGE_MODAL_ID = 'changeImageModal'
-
-const ChangeImageModal = ({ employee, onClose }: { employee: Employee | null; onClose: () => void }) => {
-  const [uploadPhoto, { isLoading }] = useUploadEmployeePhotoMutation()
-  const [file, setFile] = useState<File | null>(null)
-  const modalRef = useRef<HTMLDivElement>(null)
-  const previewUrl = file ? URL.createObjectURL(file) : null
-
-  useEffect(() => {
-    if (!modalRef.current) return
-    const modal = BsModal.getOrCreateInstance(modalRef.current)
-    if (employee) modal.show()
-    else modal.hide()
-  }, [employee])
-
-  const handleSubmit = useCallback(async () => {
-    if (!employee || !file) return
-    const empId = employee.employeeId || ''
-    await uploadPhoto({ id: empId, photo: file })
-    setFile(null)
-    onClose()
-  }, [employee, file, uploadPhoto, onClose])
-
-  const name = employee?.name || ''
-
-  return (
-    <div ref={modalRef} className="modal fade" id={CHANGE_IMAGE_MODAL_ID} tabIndex={-1}>
-      <div className="modal-dialog">
-        <div className="modal-content border-0 shadow">
-          {employee ? (<>
-          <div className="modal-header border-bottom">
-            <h5 className="modal-title fw-bold">Change Photo</h5>
-            <button type="button" className="btn-close" onClick={onClose} />
-          </div>
-          <div className="modal-body">
-            {(previewUrl || file) && (
-              <div className="text-center mb-3">
-                <img src={previewUrl!} alt={name} className="rounded-3 border object-fit-cover"
-                  width={80} height={80} />
-              </div>
-            )}
-            <p className="text-secondary mb-3">
-              Upload new photo for <strong>{name}</strong>
-            </p>
-            <div className="mb-3">
-              <label className="form-label fw-semibold">Photo</label>
-              <input
-                type="file"
-                className="form-control"
-                accept="image/png,image/jpeg,image/jpg"
-                onChange={(e) => { setFile(e.target.files?.[0] ?? null) }}
-              />
-            </div>
-            <div className="d-flex gap-2 justify-content-end">
-              <button type="button" className="btn btn-outline-secondary btn-sm" onClick={onClose}>Cancel</button>
-              <button type="button" className="btn btn-info btn-sm text-white d-flex align-items-center gap-1"
-                disabled={isLoading || !file} onClick={handleSubmit}>
-                {isLoading ? <><span className="spinner-border spinner-border-sm" /> Uploading…</> : 'Upload'}
-              </button>
-            </div>
-          </div>
-          </>) : null}
-        </div>
-      </div>
-    </div>
-  )
-}
 
 const AdminDashboardPage = (): JSX.Element => {
   const { data: stats, isLoading, isError, error } = useGetDashboardStatsQuery(undefined)
@@ -164,7 +95,7 @@ const AdminDashboardPage = (): JSX.Element => {
                         <tr key={emp.id || i} className="border-bottom border-light">
                           <td className="ps-4 py-3">
                             <div className="d-flex align-items-center gap-3">
-                              <EmployeeAvatar name={emp.name} imageUrl={env.VITE_API_BASE_URL + emp.photoUrl} size={38} />
+                              <EmployeeAvatar name={emp.name} imageUrl={env.VITE_API_BASE_URL + emp.photoUrl + '?v='+emp.updatedAt} size={38} />
                               <span className="fw-semibold">{emp.name}</span>
                             </div>
                           </td>

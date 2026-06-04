@@ -92,7 +92,7 @@ const EditEmployeeModal = ({
   }, [employee, updateEmployee, uploadPhoto, photo, onClose])
 
   const name = employee ? getEmployeeName(employee) : ''
-  const imageUrl = employee ? env.VITE_API_BASE_URL + employee.photoUrl : ''
+  const imageUrl = employee ? env.VITE_API_BASE_URL + employee.photoUrl + '?v='+employee.updatedAt : ''
 
   return (
     <div ref={modalRef} className="modal fade" id={EDIT_MODAL_ID} tabIndex={-1}>

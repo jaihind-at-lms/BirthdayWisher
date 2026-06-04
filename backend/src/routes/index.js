@@ -11,6 +11,7 @@ import {
   updateEmployee,
   createEmployee,
   uploadEmployeePhoto,
+  deleteEmployee,
 } from "../controllers/employeeController.js";
 
 import { wishController } from "../controllers/wishController.js";
@@ -32,6 +33,7 @@ const upload = multer({ storage: multer.memoryStorage() });
 router.get("/employees", getEmployees);
 router.post("/employees", upload.single("photo"), createEmployee);
 router.put("/employees/:id", updateEmployee);
+router.delete("/employees/:id", deleteEmployee);
 router.put("/employees/:id/photo", upload.single("photo"), uploadEmployeePhoto);
 
 // ── Dashboard routes ─────────────────────────────────────────────────────────
