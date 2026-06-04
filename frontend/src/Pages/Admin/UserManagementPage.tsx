@@ -6,19 +6,9 @@ import Spinner from '@project/Components/UI/Spinner'
 import EmployeeAvatar from '@project/Components/UI/EmployeeAvatar'
 import AddEmployeeModal from '@project/Components/Admin/AddEmployeeModal'
 import EditEmployeeModal from '@project/Components/Admin/EditEmployeeModal'
-import { getEmployeeImageUrl } from '@project/Utils/imageHelper'
 import { useGetEmployeesQuery } from '@project/Store/Api'
 import type { Employee } from '@project/Types/Features/employee'
-
-function getEmployeeName(emp: Employee): string {
-  const title = emp['Title'] || emp['title'] || ''
-  const name = emp['Employee Name'] || emp['Employee name'] || emp['Name'] || emp['name'] || '-'
-  return title ? `${title}. ${name}` : name
-}
-
-function getEmployeeId(emp: Employee): string {
-  return emp['Employee ID'] || emp['Employee Id'] || emp['employee id'] || emp['ID'] || emp['id'] || ''
-}
+import { env } from '@project/Utils/envValidation'
 
 const UserManagementPage = (): JSX.Element => {
   const { data: rawEmployees, isLoading, isError, error } = useGetEmployeesQuery(undefined)
@@ -101,32 +91,24 @@ const UserManagementPage = (): JSX.Element => {
                 <tbody>
                   {filtered.length > 0 ? (
                     filtered.map((emp, i) => {
-                      const empId = getEmployeeId(emp)
-                      const name = getEmployeeName(emp)
-                      const imageUrl = getEmployeeImageUrl(emp)
                       return (
-                        <tr key={empId || i} className="border-bottom border-light">
+                        <tr key={emp.id || i} className="border-bottom border-light">
                           <td className="ps-4 py-3">
                             <div className="d-flex align-items-center gap-3">
-                              <EmployeeAvatar name={name} imageUrl={imageUrl} size={40} />
+                              <EmployeeAvatar name={emp.name} imageUrl={env.VITE_API_BASE_URL+emp.photoUrl} size={40} />
                               <div>
-                                <div className="fw-semibold">{name}</div>
-                                {emp['Username'] && (
-                                  <div className="text-secondary" style={{ fontSize: 12 }}>
-                                    @{emp['Username']}
-                                  </div>
-                                )}
+                                <div className="fw-semibold">{emp.name}</div>
                               </div>
                             </div>
                           </td>
-                          <td className="text-secondary py-3">{empId}</td>
-                          <td className="text-secondary py-3">{emp['Email'] || emp['email'] || '-'}</td>
+                          <td className="text-secondary py-3">{emp.id}</td>
+                          <td className="text-secondary py-3">{emp['email'] || '-'}</td>
                           <td className="py-3">
                             <span className="badge bg-primary bg-opacity-10 text-primary rounded-pill px-3 py-2">
-                              {emp['Department'] || emp['department'] || '-'}
+                              {emp['departmentName'] || '-'}
                             </span>
                           </td>
-                          <td className="text-secondary py-3">{emp['Designation'] || emp['designation'] || '-'}</td>
+                          <td className="text-secondary py-3">{emp['designationName'] || '-'}</td>
                           <td className="text-end pe-4 py-3">
                             <button
                               className="btn btn-outline-info btn-sm d-inline-flex align-items-center gap-1 rounded-pill px-3"

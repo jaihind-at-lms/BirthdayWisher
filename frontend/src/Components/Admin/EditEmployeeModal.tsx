@@ -9,7 +9,7 @@ import FileInput from '@project/Components/Form/FileInput'
 import Button from '@project/Components/Form/Button'
 import SelectOrInput from '@project/Components/Form/SelectOrInput'
 import EmployeeAvatar from '@project/Components/UI/EmployeeAvatar'
-import { getEmployeeImageUrl } from '@project/Utils/imageHelper'
+import { env } from '@project/Utils/envValidation'
 import {
   useUpdateEmployeeMutation,
   useUploadEmployeePhotoMutation,
@@ -40,11 +40,8 @@ const EditEmployeeModal = ({
   const [photo, setPhoto] = useState<File | null>(null)
   const modalRef = useRef<HTMLDivElement>(null)
 
-  const { data: deptRecords } = useGetSheetRecordsQuery('departments')
-  const { data: desigRecords } = useGetSheetRecordsQuery('designations')
-
-  const departmentOptions = [...new Set((deptRecords ?? []).map((r) => Object.values(r).find(Boolean) ?? '').filter(Boolean))]
-  const designationOptions = [...new Set((desigRecords ?? []).map((r) => Object.values(r).find(Boolean) ?? '').filter(Boolean))]
+  const { data: departmentOptions } = useGetSheetRecordsQuery('departments')
+  const { data: designationOptions } = useGetSheetRecordsQuery('designations')
 
   const getDefaults = useCallback((): EditEmployeeFormValues => ({
     title: employee?.['Title'] || '',
@@ -95,7 +92,7 @@ const EditEmployeeModal = ({
   }, [employee, updateEmployee, uploadPhoto, photo, onClose])
 
   const name = employee ? getEmployeeName(employee) : ''
-  const imageUrl = employee ? getEmployeeImageUrl(employee) : ''
+  const imageUrl = employee ? env.VITE_API_BASE_URL + employee.photoUrl : ''
 
   return (
     <div ref={modalRef} className="modal fade" id={EDIT_MODAL_ID} tabIndex={-1}>
@@ -145,7 +142,7 @@ const EditEmployeeModal = ({
                   <SelectOrInput
                     value={watch('department')}
                     onChange={(v) => setValue('department', v, { shouldValidate: true })}
-                    options={departmentOptions}
+                    options={departmentOptions || []}
                     placeholder="Select department"
                     error={errors.department}
                     className="form-select-sm"
@@ -156,7 +153,7 @@ const EditEmployeeModal = ({
                   <SelectOrInput
                     value={watch('designation')}
                     onChange={(v) => setValue('designation', v, { shouldValidate: true })}
-                    options={designationOptions}
+                    options={designationOptions || []}
                     placeholder="Select designation"
                     error={errors.designation}
                     className="form-select-sm"

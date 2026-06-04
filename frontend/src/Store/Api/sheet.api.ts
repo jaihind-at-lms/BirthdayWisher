@@ -5,7 +5,8 @@ import type { ApiResponse } from '@project/Types/Api'
 import axiosBaseQuery from './baseQuery'
 
 export interface SheetRecord {
-  [key: string]: string | null
+  id: number
+  name: string
 }
 
 const sheetApi = createApi({
@@ -21,7 +22,7 @@ const sheetApi = createApi({
 
   endpoints: (builder) => ({
     getSheetRecords: builder.query<SheetRecord[], string>({
-      query: (tab) => ({ url: `${tab}`, method: 'GET', showErrorMessage: true }),
+      query: (tab) => ({ url: `api/${tab}`, method: 'GET', showErrorMessage: true }),
       transformResponse: (response: ApiResponse<SheetRecord[]>): SheetRecord[] =>
         response.data,
       providesTags: (_result, _error, tab) => [{ type: `Sheet_${tab}` as const }],
@@ -29,7 +30,7 @@ const sheetApi = createApi({
 
     createSheetRecord: builder.mutation<undefined, { tab: string; data: Record<string, string> }>({
       query: ({ tab, data }) => ({
-        url: `${tab}`,
+        url: `api/${tab}`,
         method: 'POST',
         data,
         showErrorMessage: true,
@@ -41,7 +42,7 @@ const sheetApi = createApi({
 
     updateSheetRecord: builder.mutation<undefined, { tab: string; id: number; data: Record<string, string> }>({
       query: ({ tab, id, data }) => ({
-        url: `${tab}/${id}`,
+        url: `api/${tab}/${id}`,
         method: 'PUT',
         data,
         showErrorMessage: true,
@@ -53,7 +54,7 @@ const sheetApi = createApi({
 
     deleteSheetRecord: builder.mutation<undefined, { tab: string; id: number }>({
       query: ({ tab, id }) => ({
-        url: `${tab}/${id}`,
+        url: `api/${tab}/${id}`,
         method: 'DELETE',
         showErrorMessage: true,
         showResultMessage: true,

@@ -1,10 +1,29 @@
 import { db } from "../db/index.js";
-import { employees } from "../db/schema.js";
-import { eq, or, sql } from "drizzle-orm";
+import { employees, departments, designations } from "../db/schema.js";
+import { eq, or, sql, asc } from "drizzle-orm";
 
 export const EmployeeModel = {
   async findAll() {
-    return db.select().from(employees).orderBy(employees.createdAt);
+    return db
+    .select({
+      id: employees.id,
+      employeeId: employees.employeeId,
+      title: employees.title,
+      name: employees.name,
+      email: employees.email,
+      departmentId: employees.department,
+      departmentName: departments.name,
+      designationId: employees.designation,
+      designationName: designations.name,
+      dateOfBirth: employees.dateOfBirth,
+      photoUrl: employees.photoUrl,
+      createdAt: employees.createdAt,
+      updatedAt: employees.updatedAt,
+    })
+    .from(employees)
+    .leftJoin(departments, eq(employees.department, departments.id))
+    .leftJoin(designations, eq(employees.designation, designations.id))
+    .orderBy(asc(employees.createdAt));
   },
 
   async findById(id) {

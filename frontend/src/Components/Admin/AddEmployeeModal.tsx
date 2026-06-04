@@ -34,11 +34,8 @@ const AddEmployeeModal = ({ show, onClose }: AddEmployeeModalProps): JSX.Element
   const [photoError, setPhotoError] = useState<string | null>(null)
   const modalRef = useRef<HTMLDivElement>(null)
 
-  const { data: deptRecords } = useGetSheetRecordsQuery('departments')
-  const { data: desigRecords } = useGetSheetRecordsQuery('designations')
-
-  const departmentOptions = [...new Set((deptRecords ?? []).map((r) => Object.values(r).find(Boolean) ?? '').filter(Boolean))]
-  const designationOptions = [...new Set((desigRecords ?? []).map((r) => Object.values(r).find(Boolean) ?? '').filter(Boolean))]
+  const { data: departmentOptions } = useGetSheetRecordsQuery('departments')
+  const { data: designationOptions } = useGetSheetRecordsQuery('designations')
 
   const { register, handleSubmit, reset, watch, setValue, formState: { errors } } = useForm<AddEmployeeFormValues>({
     resolver: zodResolver(addEmployeeSchema),
@@ -168,7 +165,7 @@ const AddEmployeeModal = ({ show, onClose }: AddEmployeeModalProps): JSX.Element
                   <SelectOrInput
                     value={watch('department')}
                     onChange={(v) => { setValue('department', v, { shouldValidate: true }) }}
-                    options={departmentOptions}
+                    options={departmentOptions || []}
                     placeholder="Select department"
                     error={errors.department}
                     className="form-select-sm"
@@ -180,7 +177,7 @@ const AddEmployeeModal = ({ show, onClose }: AddEmployeeModalProps): JSX.Element
                   <SelectOrInput
                     value={watch('designation')}
                     onChange={(v) => { setValue('designation', v, { shouldValidate: true }) }}
-                    options={designationOptions}
+                    options={designationOptions || []}
                     placeholder="Select designation"
                     error={errors.designation}
                     className="form-select-sm"

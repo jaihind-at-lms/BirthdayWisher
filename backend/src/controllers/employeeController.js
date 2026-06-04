@@ -180,7 +180,7 @@ export async function createEmployee(req, res) {
       department: department ?? "",
       designation: designation ?? "",
       dateOfBirth: formattedDob || null,
-      photoUrl: `${config.appUrl}/uploads/${employeeId}.png`,
+      photoUrl: `uploads/${employeeId}.png`,
     });
 
     // Send welcome email if opted in

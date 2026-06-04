@@ -30,7 +30,7 @@ const authApi = createApi({
   endpoints: (builder) => ({
     login: builder.mutation<LoginResponse, LoginRequest>({
       query: (request) => ({
-        url: 'auth/login',
+        url: 'api/auth/login',
         method: 'POST',
         data: request,
         showErrorMessage: true,
@@ -58,7 +58,7 @@ const authApi = createApi({
 
     logout: builder.mutation<undefined, { refreshToken: string }>({
       query: (request) => ({
-        url: 'auth/logout',
+        url: 'api/auth/logout',
         method: 'POST',
         data: request,
         showErrorMessage: false,
@@ -86,7 +86,7 @@ const authApi = createApi({
 
     getProfile: builder.query<AuthUser, undefined>({
       query: () => ({
-        url: 'auth/me',
+        url: 'api/auth/me',
         method: 'GET',
         showErrorMessage: true,
       }),

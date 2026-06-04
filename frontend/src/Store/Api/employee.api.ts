@@ -24,7 +24,7 @@ const employeeApi = createApi({
   endpoints: (builder) => ({
     getEmployees: builder.query<Employee[], undefined>({
       query: () => ({
-        url: 'employees',
+        url: 'api/employees',
         method: 'GET',
         showErrorMessage: true,
       }),
@@ -38,7 +38,7 @@ const employeeApi = createApi({
 
     getDashboardStats: builder.query<DashboardStats, undefined>({
       query: () => ({
-        url: 'dashboard/stats',
+        url: 'api/dashboard/stats',
         method: 'GET',
         showErrorMessage: true,
       }),
@@ -52,7 +52,7 @@ const employeeApi = createApi({
 
     updateEmployee: builder.mutation<undefined, { id: string; data: Record<string, string> }>({
       query: ({ id, data }) => ({
-        url: `employees/${id}`,
+        url: `api/employees/${id}`,
         method: 'PUT',
         data,
         showErrorMessage: true,
@@ -66,7 +66,7 @@ const employeeApi = createApi({
 
     createEmployee: builder.mutation<undefined, FormData>({
       query: (formData) => ({
-        url: 'employees',
+        url: 'api/employees',
         method: 'POST',
         data: formData,
         showErrorMessage: true,
@@ -83,7 +83,7 @@ const employeeApi = createApi({
         const fd = new FormData()
         fd.append('photo', photo)
         return {
-          url: `employees/${id}/photo`,
+          url: `api/employees/${id}/photo`,
           method: 'PUT',
           data: fd,
           showErrorMessage: true,

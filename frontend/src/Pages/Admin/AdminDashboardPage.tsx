@@ -10,8 +10,8 @@ import {
   useUploadEmployeePhotoMutation,
 } from '@project/Store/Api'
 import type { Employee } from '@project/Types/Features/employee'
-import { getEmployeeImageUrl } from '@project/Utils/imageHelper'
 import { formatBirthday } from '@project/Utils/dateUtils'
+import { env } from '@project/Utils/envValidation'
 
 const STAT_CARDS = [
   { key: 'totalEmployees', label: 'Total Employees', icon: Users, color: 'primary', bg: 'primary' },
@@ -88,15 +88,6 @@ const ChangeImageModal = ({ employee, onClose }: { employee: Employee | null; on
   )
 }
 
-const getEmployeeNameCol = (emp: Employee): string => {
-  const title = emp['Title'] || emp['title'] || ''
-  const name = emp['Employee Name'] || emp['Employee name'] || emp['Name'] || emp['name'] || '-'
-  return title ? `${title}. ${name}` : name
-}
-
-const getEmployeeIdCol = (emp: Employee): string =>
-  emp['Employee ID'] || emp['Employee Id'] || emp['employee id'] || emp['ID'] || emp['id'] || ''
-
 const AdminDashboardPage = (): JSX.Element => {
   const { data: stats, isLoading, isError, error } = useGetDashboardStatsQuery(undefined)
   const [selectedEmployee, setSelectedEmployee] = useState<Employee | null>(null)
@@ -169,22 +160,19 @@ const AdminDashboardPage = (): JSX.Element => {
                 <tbody>
                   {stats?.upcomingBirthdays?.length ? (
                     stats.upcomingBirthdays.map((emp, i) => {
-                      const name = getEmployeeNameCol(emp)
-                      const empId = getEmployeeIdCol(emp)
-                      const imageUrl = getEmployeeImageUrl(emp)
                       return (
-                        <tr key={empId || i} className="border-bottom border-light">
+                        <tr key={emp.id || i} className="border-bottom border-light">
                           <td className="ps-4 py-3">
                             <div className="d-flex align-items-center gap-3">
-                              <EmployeeAvatar name={name} imageUrl={imageUrl} size={38} />
-                              <span className="fw-semibold">{name}</span>
+                              <EmployeeAvatar name={emp.name} imageUrl={env.VITE_API_BASE_URL + emp.photoUrl} size={38} />
+                              <span className="fw-semibold">{emp.name}</span>
                             </div>
                           </td>
-                          <td className="text-secondary py-3">{empId}</td>
-                          <td className="text-secondary py-3">{emp['Department'] || emp['department'] || '-'}</td>
+                          <td className="text-secondary py-3">{emp.employeeId}</td>
+                          <td className="text-secondary py-3">{emp.departmentName || '-'}</td>
                           <td className="py-3">
                             <span className="badge bg-info bg-opacity-10 text-info rounded-pill px-3 py-2">
-                              {formatBirthday(emp['Birthday'] || emp['birthday'] || emp['DOB'] || emp['dob'] || emp['Date of Birth'] || emp['date of birth'] || null)}
+                              {formatBirthday(emp.dateOfBirth || null)}
                             </span>
                           </td>
                           <td className="text-end pe-4 py-3">

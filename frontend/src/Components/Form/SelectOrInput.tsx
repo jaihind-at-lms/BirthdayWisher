@@ -1,12 +1,13 @@
+import { SheetRecord } from '@project/Store/Api'
 import { useState } from 'react'
 import type { JSX } from 'react'
 import type { FieldError } from 'react-hook-form'
 
 interface SelectOrInputProps {
-  value: string
+  value: number
   onChange: (value: string) => void
   error?: FieldError | undefined
-  options: string[]
+  options: SheetRecord[]
   placeholder?: string
   className?: string
   maxLength?: number
@@ -23,9 +24,7 @@ const SelectOrInput = ({
   className = '',
   maxLength,
 }: SelectOrInputProps): JSX.Element => {
-  const [isOther, setIsOther] = useState(
-    options.length > 0 && !options.includes(value) && value !== ''
-  )
+  const [isOther, setIsOther] = useState(!options.find((o) => o.id === value) && Boolean(value))
 
   const handleSelectChange = (selected: string) => {
     if (selected === OTHER) {
@@ -46,7 +45,7 @@ const SelectOrInput = ({
       >
         <option value="">{placeholder}</option>
         {options.map((opt) => (
-          <option key={opt} value={opt}>{opt}</option>
+          <option key={opt.id} value={opt.id}>{opt.name}</option>
         ))}
         <option value={OTHER}>{OTHER}</option>
       </select>
