@@ -1,4 +1,4 @@
-import { writeFileSync, existsSync, mkdirSync, unlinkSync } from "fs";
+import { writeFileSync, existsSync, mkdirSync, unlinkSync, readFileSync } from "fs";
 import { resolve, dirname } from "path";
 import { fileURLToPath } from "url";
 
@@ -19,6 +19,17 @@ async function resolveRef(value, model) {
   if (!isNaN(num)) return num;
   const record = await model.findOrCreateByName(value);
   return record.id;
+}
+
+async function resolveName(value, model) {
+  if (value == null || value === "") return null;
+  const num = Number(value);
+  if (!isNaN(num)) {
+    const record = await model.findById(num);
+    if (record) return record.name;
+  }
+  const record = await model.findByName(String(value));
+  return record?.name ?? String(value);
 }
 
 export async function getEmployees(req, res) {
@@ -89,9 +100,10 @@ export async function updateEmployee(req, res) {
 
     if (mapped.dateOfBirth && typeof mapped.dateOfBirth === "string") {
       const d = dayjs(mapped.dateOfBirth);
-      if (d.isValid()) {
-        mapped.dateOfBirth = d.format("YYYY-MM-DD");
+      if (!d.isValid()) {
+        return res.status(400).json({ success: false, message: "Invalid date of birth." });
       }
+      mapped.dateOfBirth = d.format("YYYY-MM-DD");
     }
 
     await EmployeeModel.update(id, mapped);
@@ -185,9 +197,13 @@ export async function createEmployee(req, res) {
     let formattedDob = dateOfBirth || "";
     if (formattedDob) {
       const d = dayjs(formattedDob);
-      if (d.isValid()) {
-        formattedDob = d.format("YYYY-MM-DD");
+      if (!d.isValid()) {
+        return res.status(400).json({ success: false, message: "Invalid date of birth." });
       }
+      if (d.add(18, 'year').isAfter(dayjs(), 'day')) {
+        return res.status(400).json({ success: false, message: "Employee must be at least 18 years old." });
+      }
+      formattedDob = d.format("YYYY-MM-DD");
     }
 
     const record = await EmployeeModel.create({
@@ -203,14 +219,17 @@ export async function createEmployee(req, res) {
 
     // Send welcome email if opted in
     if (sendWelcome === "true" || sendWelcome === true) {
-      const photoUrl = `${config.appUrl}/uploads/${employeeId}.png`;
+      const photoFile = resolve(UPLOADS_DIR, `${employeeId}.png`);
+      const photoBuffer = existsSync(photoFile) ? readFileSync(photoFile) : null;
+      const departmentName = await resolveName(department, DepartmentModel);
+      const designationName = await resolveName(designation, DesignationModel);
       sendWelcomeEmail({
         title,
         name,
         email,
-        department,
-        designation,
-        photoUrl,
+        department: departmentName,
+        designation: designationName,
+        photoBuffer,
         welcomeTextLine1,
         welcomeTextLine2: welcomeTextLine2 ?? "",
       }).catch((err) => {

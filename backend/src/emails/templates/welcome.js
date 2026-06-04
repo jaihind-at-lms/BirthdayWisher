@@ -1,6 +1,12 @@
-export function renderWelcomeEmail({ name, title, designation, team, description, hobbies, photoUrl }) {
+export function renderWelcomeEmail({ name, title, designation, team, description, hobbies, photoCid, headerSrc, facebookSrc, linkedinSrc }) {
   const pronoun = title === "Mr" ? "him" : "her";
   const salutation = title ? `${title}.` : "";
+  const profileSrc = photoCid
+    ? `cid:${photoCid}`
+    : "data:image/gif;base64,R0lGODlhAQABAIABAP///wAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==";
+  const headerImageSrc = headerSrc ?? "cid:headerImage";
+  const facebookImageSrc = facebookSrc ?? "cid:facebookIcon";
+  const linkedinImageSrc = linkedinSrc ?? "cid:linkedinIcon";
 
   return `<!DOCTYPE html>
 <html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office">
@@ -54,7 +60,7 @@ export function renderWelcomeEmail({ name, title, designation, team, description
           </tr>
           <tr>
             <td dir="ltr" style="background-color:#0F6BB0;overflow:hidden;min-height:40px;max-height:40px;">
-              <img src="https://lmsin.com/welcome_email/profileimages/Topheader.png" width="100%" alt="LMS" border="0" style="max-width:100%;height:auto;min-height:40px;margin:auto;display:block;margin-bottom:8px;" class="g-img" />
+              <img src="${headerImageSrc}" width="100%" alt="LMS" border="0" style="max-width:100%;height:auto;min-height:40px;margin:auto;display:block;margin-bottom:8px;" class="g-img" />
             </td>
           </tr>
           <tr>
@@ -67,7 +73,7 @@ export function renderWelcomeEmail({ name, title, designation, team, description
                         <tbody>
                           <tr>
                             <td dir="ltr" style="padding:0 10px 10px 10px;width:100px;height:100px;">
-                              <img src="${photoUrl}" width="100" height="100" border="0" alt="LMS" class="center-on-narrow" style="width:100px;height:100px;" />
+                              <img src="${profileSrc}" width="100" height="100" border="0" alt="LMS" class="center-on-narrow" style="width:100px;height:100px;" />
                             </td>
                           </tr>
                         </tbody>
@@ -125,10 +131,10 @@ export function renderWelcomeEmail({ name, title, designation, team, description
           <tr>
             <td style="text-align:center;display:block;padding:25px;background-color:#ffffff;" colspan="4">
               <a style="display:inline-block;padding:0 10px;" href="https://www.facebook.com/LMS-Solutions-India-Pvt-Ltd-2131957133590043">
-                <img src="https://lmsin.com/welcome_email/profileimages/bookLogo.png" alt="Facebook" />
+                <img src="${facebookImageSrc}" alt="Facebook" />
               </a>
               <a style="display:inline-block;padding:0 10px;" href="https://in.linkedin.com/company/lms-solutions-india-pvt-ltd">
-                <img src="https://lmsin.com/welcome_email/profileimages/LinkedinLogo.png" alt="LinkedIn" />
+                <img src="${linkedinImageSrc}" alt="LinkedIn" />
               </a>
             </td>
           </tr>

@@ -67,3 +67,9 @@ export const generateYears = (
   }
   return years
 }
+
+export const date18YearsAgo = (): string => {
+  const date = new Date()
+  date.setFullYear(date.getFullYear() - 18)
+  return date.toISOString().slice(0, 10)
+}

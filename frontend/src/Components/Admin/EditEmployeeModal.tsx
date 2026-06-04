@@ -10,6 +10,7 @@ import Button from '@project/Components/Form/Button'
 import SelectOrInput from '@project/Components/Form/SelectOrInput'
 import EmployeeAvatar from '@project/Components/UI/EmployeeAvatar'
 import { env } from '@project/Utils/envValidation'
+import { date18YearsAgo } from '@project/Utils/dateUtils'
 import {
   useUpdateEmployeeMutation,
   useUploadEmployeePhotoMutation,
@@ -42,6 +43,7 @@ const EditEmployeeModal = ({
 
   const { data: departmentOptions } = useGetSheetRecordsQuery('departments')
   const { data: designationOptions } = useGetSheetRecordsQuery('designations')
+  const maxDateOfBirth = date18YearsAgo()
 
   const getDefaults = useCallback((): EditEmployeeFormValues => ({
     title: employee?.title || '',
@@ -134,7 +136,7 @@ const EditEmployeeModal = ({
                 <div className="col-md-3">
                   <label className="form-label fw-semibold small text-secondary">Date of Birth <span className="text-danger">*</span></label>
                   <Input type="date" registration={register('dateOfBirth')}
-                    className="form-control-sm" error={errors.dateOfBirth} maxLength={10} />
+                    className="form-control-sm" error={errors.dateOfBirth} maxLength={10} max={maxDateOfBirth} />
                 </div>
                 <div className="col-md-3">
                   <label className="form-label fw-semibold small text-secondary">Department <span className="text-danger">*</span></label>

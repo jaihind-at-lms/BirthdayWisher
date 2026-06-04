@@ -17,6 +17,11 @@ export const DepartmentModel = {
     return row;
   },
 
+  async findById(id) {
+    const [row] = await db.select().from(departments).where(eq(departments.id, id)).limit(1);
+    return row ?? null;
+  },
+
   async update(id, name) {
     const [row] = await db.update(departments).set({ name }).where(eq(departments.id, id)).returning();
     return row ?? null;

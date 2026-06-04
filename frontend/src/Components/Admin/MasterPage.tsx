@@ -255,7 +255,6 @@ function MasterPage({ tab, title, icon }: MasterPageProps): JSX.Element {
                 <div className="row g-3">
                   {visibleColumns.map((col) => (
                     <div className="col-12" key={col}>
-                      <label className="form-label fw-semibold small text-secondary">{columnLabel(col)}</label>
                       <Input
                         type="text"
                         registration={register(col)}

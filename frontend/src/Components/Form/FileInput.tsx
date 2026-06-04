@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Upload, X } from 'lucide-react'
 import type { JSX } from 'react'
 
@@ -55,6 +55,13 @@ const FileInput = ({
     setError(null)
     if (inputRef.current) inputRef.current.value = ''
   }
+
+  useEffect(() => {
+    if (!value) {
+      setPreview(null)
+      if (inputRef.current) inputRef.current.value = ''
+    }
+  }, [value])
 
   const handleClick = () => inputRef.current?.click()
   const sizeLabel = humanSize(maxSizeBytes)

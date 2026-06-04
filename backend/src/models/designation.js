@@ -17,6 +17,11 @@ export const DesignationModel = {
     return row;
   },
 
+  async findById(id) {
+    const [row] = await db.select().from(designations).where(eq(designations.id, id)).limit(1);
+    return row ?? null;
+  },
+
   async update(id, name) {
     const [row] = await db.update(designations).set({ name }).where(eq(designations.id, id)).returning();
     return row ?? null;

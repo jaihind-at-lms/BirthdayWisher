@@ -17,6 +17,7 @@ import {
   useGetSheetRecordsQuery,
 } from '@project/Store/Api'
 import { addEmployeeSchema } from '@project/Schemas/employee.schema'
+import { date18YearsAgo } from '@project/Utils/dateUtils'
 import type { AddEmployeeFormValues } from '@project/Schemas/employee.schema'
 
 interface AddEmployeeModalProps {
@@ -54,6 +55,7 @@ const AddEmployeeModal = ({ show, onClose }: AddEmployeeModalProps): JSX.Element
   })
 
   const sendWelcome = watch('sendWelcome')
+  const maxDateOfBirth = date18YearsAgo()
 
   useEffect(() => {
     if (!modalRef.current) return
@@ -158,6 +160,7 @@ const AddEmployeeModal = ({ show, onClose }: AddEmployeeModalProps): JSX.Element
                     className="form-control-sm"
                     error={errors.dateOfBirth}
                     maxLength={10}
+                    max={maxDateOfBirth}
                   />
                 </div>
                 <div className="col-md-3">
