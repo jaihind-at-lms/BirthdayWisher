@@ -11,8 +11,8 @@ const AdminDashboardPage = lazy(
 const UserManagementPage = lazy(
   () => import('@project/Pages/Admin/UserManagementPage')
 )
-const QuotesPage = lazy(
-  () => import('@project/Pages/Admin/QuotesPage')
+const WishesPage = lazy(
+  () => import('@project/Pages/Admin/WishesPage')
 )
 const DepartmentsPage = lazy(
   () => import('@project/Pages/Admin/DepartmentsPage')
@@ -45,11 +45,11 @@ export const protectedRoutes: RouteConfig[] = [
     roles: [AppRole.ADMIN, AppRole.SUPER_ADMIN],
   },
   {
-    path: AppPaths.ADMIN_QUOTES,
-    component: QuotesPage,
+    path: AppPaths.ADMIN_WISHES,
+    component: WishesPage,
     layout: 'admin',
-    label: 'Quotes',
-    icon: 'quotes',
+    label: 'Wishes',
+    icon: 'wishes',
     showInNav: true,
     roles: [AppRole.ADMIN, AppRole.SUPER_ADMIN],
   },

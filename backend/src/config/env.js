@@ -5,7 +5,7 @@ export const config = {
   ntfyTopic: process.env.NTFY_TOPIC,
   googleSheetId: process.env.GOOGLE_SHEET_ID,
   googleSheetEmployeeTab: process.env.GOOGLE_SHEET_EMPLOYEE_TAB ?? "Employees",
-  googleSheetQuotesTab: process.env.GOOGLE_SHEET_QUOTES_TAB ?? "Quotes",
+  googleSheetWishesTab: process.env.GOOGLE_SHEET_WISHES_TAB ?? "Wishes",
   googleSheetDepartmentTab: process.env.GOOGLE_SHEET_DEPARTMENT_TAB ?? "Departments",
   googleSheetDesignationTab: process.env.GOOGLE_SHEET_DESIGNATION_TAB ?? "Designation",
 

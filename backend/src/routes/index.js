@@ -40,7 +40,7 @@ router.get("/dashboard/stats", getDashboardStats);
 // ── Sheet CRUD routes ────────────────────────────────────────────────────────
 
 const sheetTabs = [
-  { name: config.googleSheetQuotesTab, path: "quotes" },
+  { name: config.googleSheetWishesTab, path: "wishes" },
   { name: config.googleSheetDepartmentTab, path: "departments" },
   { name: config.googleSheetDesignationTab, path: "designations" },
 ];

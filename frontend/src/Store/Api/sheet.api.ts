@@ -14,7 +14,7 @@ const sheetApi = createApi({
   baseQuery: axiosBaseQuery(),
 
   tagTypes: [
-    `Sheet_${env.VITE_SHEET_QUOTES_TAB}`,
+    `Sheet_${env.VITE_SHEET_WISHES_TAB}`,
     `Sheet_${env.VITE_SHEET_DEPARTMENTS_TAB}`,
     `Sheet_${env.VITE_SHEET_DESIGNATIONS_TAB}`,
   ],

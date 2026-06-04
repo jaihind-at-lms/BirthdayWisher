@@ -23,7 +23,7 @@ const NAV_ITEMS: NavItem[] = [
 ]
 
 const MASTER_SECTION: NavItem[] = [
-  { to: AppPaths.ADMIN_QUOTES, label: 'Quotes', icon: Quote },
+  { to: AppPaths.ADMIN_WISHES, label: 'Wishes', icon: Quote },
   { to: AppPaths.ADMIN_DEPARTMENTS, label: 'Departments', icon: Building2 },
   { to: AppPaths.ADMIN_DESIGNATIONS, label: 'Designations', icon: Briefcase },
 ]

@@ -7,7 +7,7 @@ interface EnvConfig {
   VITE_API_BASE_URL: string
   VITE_ROUTER_BASE_PATH: string
   VITE_PORT: string
-  VITE_SHEET_QUOTES_TAB: string
+  VITE_SHEET_WISHES_TAB: string
   VITE_SHEET_DEPARTMENTS_TAB: string
   VITE_SHEET_DESIGNATIONS_TAB: string
 }
@@ -32,7 +32,7 @@ const validateEnv = (): EnvConfig => {
     VITE_API_BASE_URL: import.meta.env.VITE_API_BASE_URL,
     VITE_ROUTER_BASE_PATH: import.meta.env.VITE_ROUTER_BASE_PATH,
     VITE_PORT: import.meta.env.VITE_PORT,
-    VITE_SHEET_QUOTES_TAB: import.meta.env.VITE_SHEET_QUOTES_TAB ?? 'quotes',
+    VITE_SHEET_WISHES_TAB: import.meta.env.VITE_SHEET_WISHES_TAB ?? 'wishes',
     VITE_SHEET_DEPARTMENTS_TAB: import.meta.env.VITE_SHEET_DEPARTMENTS_TAB ?? 'departments',
     VITE_SHEET_DESIGNATIONS_TAB: import.meta.env.VITE_SHEET_DESIGNATIONS_TAB ?? 'designations',
   }
