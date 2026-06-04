@@ -10,6 +10,9 @@ export const AppPaths = {
   ADMIN: '/admin',
   ADMIN_DASHBOARD: '/admin/dashboard',
   ADMIN_USERS: '/admin/users',
+  ADMIN_QUOTES: '/admin/quotes',
+  ADMIN_DEPARTMENTS: '/admin/departments',
+  ADMIN_DESIGNATIONS: '/admin/designations',
   UNAUTHORIZED: '/unauthorized',
   NOT_FOUND: '*',
 } as const

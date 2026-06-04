@@ -11,19 +11,19 @@ const TEMP_DIR = resolve(__dirname, "../temp");
 
 let authClient = null;
 
-const getAuth = () => {
-  if (authClient) return authClient;
+const getAuth = (writable = false) => {
+  if (authClient && !writable) return authClient;
 
   const credentials = JSON.parse(readFileSync(SETTINGS_PATH, "utf-8"));
-  const auth = new google.auth.GoogleAuth({
-    credentials,
-    scopes: [
-      "https://www.googleapis.com/auth/spreadsheets.readonly",
-      "https://www.googleapis.com/auth/drive.readonly",
-    ],
-  });
-  authClient = auth;
-  return authClient;
+  const scopes = writable
+    ? ["https://www.googleapis.com/auth/spreadsheets"]
+    : [
+        "https://www.googleapis.com/auth/spreadsheets.readonly",
+        "https://www.googleapis.com/auth/drive.readonly",
+      ];
+  const auth = new google.auth.GoogleAuth({ credentials, scopes });
+  if (!writable) authClient = auth;
+  return auth;
 };
 
 export const getSheetRecords = async (range = "Sheet1!A:Z") => {
@@ -93,4 +93,46 @@ export const downloadEmployeeImage = async (imageUrl, employeeId) => {
   }
 
   return null;
+};
+
+export const updateSheetCell = async (range, values) => {
+  const sheetId = config.googleSheetId;
+  if (!sheetId) throw new Error("GOOGLE_SHEET_ID is not set in .env");
+
+  const auth = getAuth(true);
+  const sheets = google.sheets({ version: "v4", auth });
+  await sheets.spreadsheets.values.update({
+    spreadsheetId: sheetId,
+    range,
+    valueInputOption: "USER_ENTERED",
+    resource: { values },
+  });
+};
+
+export const appendSheetRow = async (range, values) => {
+  const sheetId = config.googleSheetId;
+  if (!sheetId) throw new Error("GOOGLE_SHEET_ID is not set in .env");
+
+  const auth = getAuth(true);
+  const sheets = google.sheets({ version: "v4", auth });
+  const res = await sheets.spreadsheets.values.append({
+    spreadsheetId: sheetId,
+    range,
+    valueInputOption: "USER_ENTERED",
+    insertDataOption: "INSERT_ROWS",
+    resource: { values },
+  });
+  return res.data;
+};
+
+export const clearSheetRow = async (range) => {
+  const sheetId = config.googleSheetId;
+  if (!sheetId) throw new Error("GOOGLE_SHEET_ID is not set in .env");
+
+  const auth = getAuth(true);
+  const sheets = google.sheets({ version: "v4", auth });
+  await sheets.spreadsheets.values.clear({
+    spreadsheetId: sheetId,
+    range,
+  });
 };

@@ -3,6 +3,14 @@ import { BirthdayWisher } from "../jobs/birthdayWisher.js";
 import { generatePreviewCards } from "../services/testService.js";
 
 import { login, logout, me } from "../controllers/authController.js";
+import {
+  getEmployees,
+  getDashboardStats,
+  updateEmployee,
+} from "../controllers/employeeController.js";
+import { createSheetController } from "../controllers/sheetController.js";
+
+import { config } from "../config/env.js";
 
 const router = Router();
 
@@ -11,6 +19,31 @@ const router = Router();
 router.post("/auth/login", login);
 router.post("/auth/logout", logout);
 router.get("/auth/me", me);
+
+// ── Employee routes ──────────────────────────────────────────────────────────
+
+router.get("/employees", getEmployees);
+router.put("/employees/:id", updateEmployee);
+
+// ── Dashboard routes ─────────────────────────────────────────────────────────
+
+router.get("/dashboard/stats", getDashboardStats);
+
+// ── Sheet CRUD routes ────────────────────────────────────────────────────────
+
+const sheetTabs = [
+  { name: config.googleSheetQuotesTab, path: "quotes" },
+  { name: config.googleSheetDepartmentTab, path: "departments" },
+  { name: config.googleSheetDesignationTab, path: "designations" },
+];
+
+for (const { name, path } of sheetTabs) {
+  const ctrl = createSheetController(name);
+  router.get(`/sheet/${path}`, ctrl.list);
+  router.post(`/sheet/${path}`, ctrl.create);
+  router.put(`/sheet/${path}/:row`, ctrl.update);
+  router.delete(`/sheet/${path}/:row`, ctrl.remove);
+}
 
 // ── Birthday wisher routes ───────────────────────────────────────────────────
 

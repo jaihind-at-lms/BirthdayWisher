@@ -11,6 +11,15 @@ const AdminDashboardPage = lazy(
 const UserManagementPage = lazy(
   () => import('@project/Pages/Admin/UserManagementPage')
 )
+const QuotesPage = lazy(
+  () => import('@project/Pages/Admin/QuotesPage')
+)
+const DepartmentsPage = lazy(
+  () => import('@project/Pages/Admin/DepartmentsPage')
+)
+const DesignationsPage = lazy(
+  () => import('@project/Pages/Admin/DesignationsPage')
+)
 const NotFoundPage = lazy(() => import('@project/Pages/Errors/NotFoundPage'))
 const UnauthorizedPage = lazy(
   () => import('@project/Pages/Errors/UnauthorizedPage')
@@ -21,8 +30,8 @@ export const protectedRoutes: RouteConfig[] = [
     path: AppPaths.ADMIN_DASHBOARD,
     component: AdminDashboardPage,
     layout: 'admin',
-    label: 'Admin Dashboard',
-    icon: 'admin',
+    label: 'Dashboard',
+    icon: 'dashboard',
     showInNav: true,
     roles: [AppRole.ADMIN, AppRole.SUPER_ADMIN],
   },
@@ -30,8 +39,35 @@ export const protectedRoutes: RouteConfig[] = [
     path: AppPaths.ADMIN_USERS,
     component: UserManagementPage,
     layout: 'admin',
-    label: 'User Management',
+    label: 'Employees',
     icon: 'users',
+    showInNav: true,
+    roles: [AppRole.ADMIN, AppRole.SUPER_ADMIN],
+  },
+  {
+    path: AppPaths.ADMIN_QUOTES,
+    component: QuotesPage,
+    layout: 'admin',
+    label: 'Quotes',
+    icon: 'quotes',
+    showInNav: true,
+    roles: [AppRole.ADMIN, AppRole.SUPER_ADMIN],
+  },
+  {
+    path: AppPaths.ADMIN_DEPARTMENTS,
+    component: DepartmentsPage,
+    layout: 'admin',
+    label: 'Departments',
+    icon: 'departments',
+    showInNav: true,
+    roles: [AppRole.ADMIN, AppRole.SUPER_ADMIN],
+  },
+  {
+    path: AppPaths.ADMIN_DESIGNATIONS,
+    component: DesignationsPage,
+    layout: 'admin',
+    label: 'Designations',
+    icon: 'designations',
     showInNav: true,
     roles: [AppRole.ADMIN, AppRole.SUPER_ADMIN],
   },

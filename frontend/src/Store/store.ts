@@ -16,17 +16,14 @@ import {
 import sessionStorage from 'redux-persist/es/storage'
 
 import authApi from './Api/auth.api'
+import employeeApi from './Api/employee.api'
+import sheetApi from './Api/sheet.api'
 import { setStoreRef } from './Api/baseQuery'
 import authSlice, { resetStore } from './Feature/auth.slice'
 
 // ─── API slice registry ───────────────────────────────────────────────────────
-// To add a new feature API:
-//   1. Create src/Store/Api/feature.api.ts
-//   2. Import it here and add it to apiSlices
-//   3. Add its reducer to combineReducers below
-// Middleware is concatenated individually per slice further down.
 
-const apiSlices = [authApi] as const
+const apiSlices = [authApi, employeeApi, sheetApi] as const
 
 // ─── Persist config (auth slice only) ────────────────────────────────────────
 
@@ -51,6 +48,8 @@ const persistedAuthReducer = persistReducer(
 const rootReducer = combineReducers({
   [authSlice.name]: persistedAuthReducer,
   [authApi.reducerPath]: authApi.reducer,
+  [employeeApi.reducerPath]: employeeApi.reducer,
+  [sheetApi.reducerPath]: sheetApi.reducer,
 })
 
 /**
