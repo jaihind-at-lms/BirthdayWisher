@@ -1,0 +1,149 @@
+@import url("https://fonts.googleapis.com/css2?family=Source+Sans+Pro:wght@200;300;400;600;700;900&display=swap");
+body {
+  background:#000000;
+  font-family: "Source Sans Pro", sans-serif;
+}
+    .top-border-red {
+    width: 51px;
+    height: 3px;
+    background: #FC0041;
+    margin-top: 10px;
+}
+.contactus-heading {
+  font-size: 50px;
+  font-weight: 900;
+}
+.red-color {
+  color: #FC0041;
+}
+textarea.form-control {
+    min-height: 100px;
+  height: 100px;
+}
+.contact-form .form-control, .contact-form .form-select {
+      border-radius: 0;
+    background-color: transparent;
+    border: 1px solid rgba(199, 199, 199, 0.2);
+    box-shadow: none;
+    padding: 0.75rem;
+    color: #C7C7C7;
+}
+.form-control:focus, .form-control:active, .form-select:focus, .form-select:active {
+    background-color: transparent;
+    border-color: #C7C7C7;
+    color: #C7C7C7;
+}
+.form-select option {
+  color: #fff;
+  background-color: #000;
+  max-height: 200px;
+  overflow-y: auto;
+}
+input[type="file"] {
+/*  display: none;*/
+}
+ 
+.custom-file-upload {
+  border: 1px solid rgba(199, 199, 199, 0.2);
+  color:#ffffff;
+  padding: 6px 12px;
+  cursor: pointer;
+ 
+}
+.file-upload p {
+  color: #999;
+}
+.submit-btn, .logout-btn {
+    width: 180px;
+    height: 45px;
+    cursor: pointer;
+    background: transparent;
+    border: 3px solid #FC0041;
+    outline: none;
+    transition: transform 1s ease-in-out;
+    font-weight: 700;
+    font-size: 16px;
+    color: #fff;
+    position: relative;
+  }
+ .logout-btn {
+  width: 100px !important;
+ }
+.loader {
+  border: 6px solid #f3f3f3;
+  border-radius: 50%;
+  border-top: 6px solid #ff001d;
+  width: 60px;
+  height: 60px;
+  -webkit-animation: spin 2s linear infinite;
+  animation: spin 2s linear infinite;
+  position: absolute;
+  left:30%;top:45%;
+  display: none;
+}
+.loader.active {
+  display: block;
+}
+
+@-webkit-keyframes spin {
+  0% { -webkit-transform: rotate(0deg); }
+  100% { -webkit-transform: rotate(360deg); }
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+
+button::before, button::after{
+  content:"";
+  width: 0;
+  height: 2px;
+  position: absolute;
+  transition: all 0.2s linear;
+  background: #fff;
+}
+
+button span::before, button span::after{
+  content:"";
+  width:2px;
+  height:0;
+  position: absolute;
+  transition: all 0.2s linear;
+  background: #fff;
+}
+button:hover::before, button:hover::after{
+  width: 100%;
+}
+button:hover span::before, button:hover span::after{
+  height: 100%;
+}
+.submit-btn::before, .submit-btn::after{
+  transition-delay: 0.2s;
+}
+.submit-btn span::before, .submit-btn span::after{
+  transition-delay: 0s;
+}
+.submit-btn::before{
+  right: 0;
+  top: 0;
+}
+.submit-btn::after{
+  left: 0;
+  bottom: 0;
+}
+.submit-btn span::before{
+  left: 0;
+  top: 0;
+}
+.submit-btn span::after{
+  right: 0;
+  bottom: 0;
+}
+.submit-btn:hover::before, .submit-btn:hover::after{
+  transition-delay: 0s;
+}
+.submit-btn:hover span::before, .submit-btn:hover span::after{
+  transition-delay: 0.2s;
+}
