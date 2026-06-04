@@ -22,12 +22,12 @@ const LoginPage = (): JSX.Element => {
   } = useForm<LoginFormValues>({
     resolver: zodResolver(loginSchema),
     mode: 'onTouched',
-    defaultValues: { username: '', password: '' },
+    defaultValues: { email: '', password: '' },
   })
 
   const onSubmit = async (values: LoginFormValues): Promise<void> => {
     try {
-      const { role } = await login({ ...values, expiresInMins: 30 }).unwrap()
+      const { role } = await login({ username: values.email, password: values.password, expiresInMins: 30 }).unwrap()
       void navigate(getDefaultPathForRole(role), { replace: true })
     } catch {
       // handled by baseQuery toast
@@ -103,14 +103,14 @@ const LoginPage = (): JSX.Element => {
                     noValidate
                   >
                     <div className="mb-3">
-                      <label className="form-label fw-semibold">Username</label>
+                      <label className="form-label fw-semibold">Email Address</label>
                       <Input
                         icon={<User size={18} />}
                         type="text"
-                        placeholder="Enter username"
-                        autoComplete="username"
-                        registration={register('username')}
-                        error={errors.username}
+                        placeholder="Enter email address"
+                        autoComplete="email"
+                        registration={register('email')}
+                        error={errors.email}
                         className="form-control-lg"
                       />
                     </div>

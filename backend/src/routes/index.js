@@ -2,7 +2,17 @@ import { Router } from "express";
 import { BirthdayWisher } from "../jobs/birthdayWisher.js";
 import { generatePreviewCards } from "../services/testService.js";
 
+import { login, logout, me } from "../controllers/authController.js";
+
 const router = Router();
+
+// ── Auth routes ──────────────────────────────────────────────────────────────
+
+router.post("/auth/login", login);
+router.post("/auth/logout", logout);
+router.get("/auth/me", me);
+
+// ── Birthday wisher routes ───────────────────────────────────────────────────
 
 router.get("/birthday-wisher/trigger", async (req, res) => {
   try {

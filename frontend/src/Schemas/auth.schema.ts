@@ -16,11 +16,10 @@ import validationMessages from '@project/Utils/validationMessages'
 // ─── Login ────────────────────────────────────────────────────────────────────
 
 export const loginSchema = z.object({
-  username: z
+  email: z
     .string()
     .min(1, validationMessages.name.required)
-    .min(3, validationMessages.name.min)
-    .max(150, validationMessages.name.max),
+    .email('Please enter a valid email address'),
 
   password: z
     .string()
