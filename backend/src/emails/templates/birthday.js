@@ -1,4 +1,4 @@
-export function renderBirthdayEmail({ name, cardCid }) {
+export function renderBirthdayEmail({ name, cardSrc }) {
   return `<!DOCTYPE html>
 <html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office">
 <head>
@@ -29,7 +29,7 @@ export function renderBirthdayEmail({ name, cardCid }) {
       <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="margin: auto;">
         <tr>
           <td style="padding: 0; text-align: center;">
-            <img src="cid:${cardCid}" alt="Birthday Card" class="card-img" style="max-width: 100%; height: auto; display: block;" />
+            <img src="${cardSrc}" alt="Birthday Card" class="card-img" style="max-width: 100%; height: auto; display: block;" />
           </td>
         </tr>
         <tr>

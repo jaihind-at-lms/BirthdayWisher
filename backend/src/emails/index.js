@@ -51,6 +51,8 @@ export async function sendWelcomeEmail({
     .map((asset) => ({
       filename: asset.filename,
       content: readFileSync(asset.localPath),
+      contentType: "image/png",
+      contentDisposition: "inline",
       cid: asset.cid,
     }));
 
@@ -58,6 +60,8 @@ export async function sendWelcomeEmail({
     attachments.push({
       filename: "profile-photo.png",
       content: photoBuffer,
+      contentType: "image/png",
+      contentDisposition: "inline",
       cid: "profilePhoto",
     });
   }
@@ -85,8 +89,9 @@ export async function sendWelcomeEmail({
 }
 
 export async function sendBirthdayEmail({ name, email, cardBuffer }) {
-  const cid = "birthdayCard";
-  const html = renderBirthdayEmail({ name, cardCid: cid });
+  const cid = "birthdayCard@lmsin.com";
+  const cardSrc = `data:image/png;base64,${cardBuffer.toString('base64')}`;
+  const html = renderBirthdayEmail({ name, cardSrc });
 
   await sendMail({
     to: config.emailTo,
@@ -97,6 +102,8 @@ export async function sendBirthdayEmail({ name, email, cardBuffer }) {
       {
         filename: "birthday-card.png",
         content: cardBuffer,
+        contentType: "image/png",
+        contentDisposition: "inline",
         cid,
       },
     ],
