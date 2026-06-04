@@ -2,9 +2,9 @@ import { writeFileSync, existsSync, mkdirSync } from "fs";
 import { resolve, dirname } from "path";
 import { fileURLToPath } from "url";
 
+import dayjs from "dayjs";
 import { config } from "../config/env.js";
 import { EmployeeModel } from "../models/employee.js";
-import { parseDate } from "../utils/helpers.js";
 import logger from "../utils/logger.js";
 import { sendWelcomeEmail } from "../emails/index.js";
 
@@ -22,53 +22,23 @@ export async function getEmployees(req, res) {
 
 export async function getDashboardStats(req, res) {
   try {
-    const employees = await EmployeeModel.findAll();
-
-    const dateKeys = ["birthday", "dob", "date of birth", "birth date", "birth day"];
-
-    const today = new Date();
-    const currentMonth = today.getMonth();
-    const currentDate = today.getDate();
-    const currentYear = today.getFullYear();
-
-    let birthdaysThisMonth = 0;
-    const todayBirthdays = [];
-    const upcomingBirthdays = [];
-
-    for (const emp of employees) {
-      if (emp.dateOfBirth) {
-        const bd = parseDate(emp.dateOfBirth);
-        if (bd) {
-          if (bd.getMonth() === currentMonth) {
-            birthdaysThisMonth++;
-          }
-          if (bd.getMonth() === currentMonth && bd.getDate() === currentDate) {
-            todayBirthdays.push(emp);
-          }
-          const thisYearBd = new Date(currentYear, bd.getMonth(), bd.getDate());
-          const diffDays = Math.ceil((thisYearBd - today) / (1000 * 60 * 60 * 24));
-          if (diffDays >= 0 && diffDays <= 7) {
-            upcomingBirthdays.push({ ...emp, _nextBirthday: thisYearBd });
-          }
-        }
-      }
-    }
-
-    upcomingBirthdays.sort((a, b) => a._nextBirthday - b._nextBirthday);
-
-    const withImage = employees.filter((e) => e.photoUrl);
+    const [stats, todayBirthdays, upcomingBirthdays] = await Promise.all([
+      EmployeeModel.getAggregateStats(),
+      EmployeeModel.findTodayBirthdays(),
+      EmployeeModel.findUpcomingBirthdays(7),
+    ]);
 
     res.json({
       success: true,
       data: {
-        totalEmployees: employees.length,
-        birthdaysThisMonth,
-        todayBirthdayCount: todayBirthdays.length,
+        totalEmployees: stats.total,
+        birthdaysThisMonth: stats.monthCount,
+        todayBirthdayCount: stats.todayCount,
         todayBirthdays,
         upcomingBirthdays,
         upcomingCount: upcomingBirthdays.length,
-        employeesWithImage: withImage.length,
-        employeesWithoutImage: employees.length - withImage.length,
+        employeesWithImage: stats.withImage,
+        employeesWithoutImage: stats.total - stats.withImage,
       },
     });
   } catch (error) {
@@ -87,7 +57,7 @@ export async function updateEmployee(req, res) {
     }
 
     // Check duplicate email if being changed
-    const newEmail = updates["Email"]?.trim();
+    const newEmail = updates.email?.trim();
     if (newEmail && newEmail.toLowerCase() !== existing.email.toLowerCase()) {
       const dup = await EmployeeModel.findByEmail(newEmail);
       if (dup) {
@@ -99,19 +69,20 @@ export async function updateEmployee(req, res) {
     }
 
     const mapped = {
-      title: updates["Title"] ?? existing.title,
-      name: updates["Employee Name"] ?? updates["Name"] ?? existing.name,
+      title: updates.title ?? existing.title,
+      name: updates.name ?? existing.name,
       email: newEmail ?? existing.email,
-      department: updates["Department"] ?? existing.department,
-      designation: updates["Designation"] ?? existing.designation,
-      dateOfBirth: updates["Date of Birth"] ?? updates["Birthday"] ?? updates["DOB"] ?? existing.dateOfBirth,
-      photoUrl: updates["Employee Image"] ?? existing.photoUrl,
+      department: updates.department ?? existing.department,
+      designation: updates.designation ?? existing.designation,
+      dateOfBirth: updates.dateOfBirth ?? existing.dateOfBirth,
+      photoUrl: updates.photoUrl ?? existing.photoUrl,
+      employeeId: updates.employeeId ?? existing.employeeId,
     };
 
     if (mapped.dateOfBirth && typeof mapped.dateOfBirth === "string") {
-      const d = new Date(mapped.dateOfBirth);
-      if (!isNaN(d.getTime())) {
-        mapped.dateOfBirth = d.toISOString().slice(0, 10);
+      const d = dayjs(mapped.dateOfBirth);
+      if (d.isValid()) {
+        mapped.dateOfBirth = d.format("YYYY-MM-DD");
       }
     }
 
@@ -166,9 +137,9 @@ export async function createEmployee(req, res) {
 
     let formattedDob = dateOfBirth || "";
     if (formattedDob) {
-      const d = new Date(formattedDob);
-      if (!isNaN(d.getTime())) {
-        formattedDob = d.toISOString().slice(0, 10);
+      const d = dayjs(formattedDob);
+      if (d.isValid()) {
+        formattedDob = d.format("YYYY-MM-DD");
       }
     }
 

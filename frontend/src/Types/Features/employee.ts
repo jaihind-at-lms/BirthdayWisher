@@ -1,5 +1,18 @@
 export interface Employee {
-  [key: string]: string | null
+  id: number
+  employeeId: string
+  title: string | null
+  name: string
+  email: string
+  departmentId: number | null
+  departmentName: string | null
+  designationId: number | null
+  designationName: string | null
+  dateOfBirth: string | null
+  photoUrl: string | null
+  createdAt: string
+  updatedAt: string
+  _nextBirthday?: string
 }
 
 export interface DashboardStats {

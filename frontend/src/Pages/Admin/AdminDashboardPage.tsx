@@ -37,13 +37,13 @@ const ChangeImageModal = ({ employee, onClose }: { employee: Employee | null; on
 
   const handleSubmit = useCallback(async () => {
     if (!employee || !file) return
-    const empId = employee['Employee ID'] || employee['Employee Id'] || employee['employee id'] || ''
+    const empId = employee.employeeId || ''
     await uploadPhoto({ id: empId, photo: file })
     setFile(null)
     onClose()
   }, [employee, file, uploadPhoto, onClose])
 
-  const name = employee ? (employee['Employee Name'] || employee['Employee name'] || '') : ''
+  const name = employee?.name || ''
 
   return (
     <div ref={modalRef} className="modal fade" id={CHANGE_IMAGE_MODAL_ID} tabIndex={-1}>

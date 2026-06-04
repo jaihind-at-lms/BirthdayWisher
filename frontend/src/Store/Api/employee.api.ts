@@ -78,7 +78,7 @@ const employeeApi = createApi({
       invalidatesTags: ['Employees', 'DashboardStats'],
     }),
 
-    uploadEmployeePhoto: builder.mutation<undefined, { id: number; photo: File }>({
+    uploadEmployeePhoto: builder.mutation<undefined, { id: string; photo: File }>({
       query: ({ id, photo }) => {
         const fd = new FormData()
         fd.append('photo', photo)

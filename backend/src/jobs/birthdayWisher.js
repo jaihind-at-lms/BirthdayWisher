@@ -6,7 +6,6 @@ import logger from "../utils/logger.js";
 import { generateBirthdayCard } from "../services/birthdayCard.js";
 import { sendBirthdayEmail } from "../emails/index.js";
 import { EmployeeModel } from "../models/employee.js";
-import { parseDate } from "../utils/helpers.js";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const UPLOADS_DIR = resolve(__dirname, "../../uploads");
@@ -22,20 +21,8 @@ const shuffle = (arr) => {
 };
 
 export const BirthdayWisher = async () => {
-  const employees = await EmployeeModel.findAll();
-  logger.info(`Fetched ${employees.length} employees from database`);
-
-  if (!employees.length) return [];
-
-  const today = new Date();
-  const todayMonth = today.getMonth();
-  const todayDate = today.getDate();
-
-  const matches = employees.filter((emp) => {
-    if (!emp.dateOfBirth) return false;
-    const bd = parseDate(emp.dateOfBirth);
-    return bd && bd.getMonth() === todayMonth && bd.getDate() === todayDate;
-  });
+  const matches = await EmployeeModel.findTodayBirthdays();
+  logger.info(`Found ${matches.length} birthday(s) today`);
 
   logger.info(`Found ${matches.length} birthday(s) today`);
 

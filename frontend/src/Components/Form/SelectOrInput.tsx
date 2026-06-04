@@ -4,7 +4,7 @@ import type { JSX } from 'react'
 import type { FieldError } from 'react-hook-form'
 
 interface SelectOrInputProps {
-  value: number
+  value: string
   onChange: (value: string) => void
   error?: FieldError | undefined
   options: SheetRecord[]
@@ -24,7 +24,7 @@ const SelectOrInput = ({
   className = '',
   maxLength,
 }: SelectOrInputProps): JSX.Element => {
-  const [isOther, setIsOther] = useState(Boolean(value) && !options.find((o) => o.id === value))
+  const [isOther, setIsOther] = useState(Boolean(value) && !options.find((o) => o.id === Number(value)))
 
   const handleSelectChange = (selected: string) => {
     if (selected === OTHER) {

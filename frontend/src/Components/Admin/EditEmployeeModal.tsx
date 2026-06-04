@@ -23,8 +23,8 @@ export const EDIT_MODAL_ID = 'editEmployeeModal'
 const TITLE_OPTIONS = ['Mr', 'Ms']
 
 function getEmployeeName(emp: Employee): string {
-  const title = emp['Title'] || emp['title'] || ''
-  const name = emp['Employee Name'] || emp['Employee name'] || emp['Name'] || emp['name'] || '-'
+  const title = emp.title || ''
+  const name = emp.name || '-'
   return title ? `${title}. ${name}` : name
 }
 
@@ -44,13 +44,13 @@ const EditEmployeeModal = ({
   const { data: designationOptions } = useGetSheetRecordsQuery('designations')
 
   const getDefaults = useCallback((): EditEmployeeFormValues => ({
-    title: employee?.['title'] || '',
-    name: employee?.['name'] || '',
-    email: employee?.['email'] || '',
-    employeeId: employee?.['employeeId'] || '',
-    department: employee?.['departmentId'] || '',
-    designation: employee?.['designationId'] || '',
-    dateOfBirth: employee?.['dateOfBirth'] || '',
+    title: employee?.title || '',
+    name: employee?.name || '',
+    email: employee?.email || '',
+    employeeId: employee?.employeeId || '',
+    department: employee?.departmentId?.toString() || '',
+    designation: employee?.designationId?.toString() || '',
+    dateOfBirth: employee?.dateOfBirth || '',
   }), [employee])
 
   const { register, handleSubmit, reset, watch, setValue, formState: { errors } } = useForm<EditEmployeeFormValues>({
@@ -71,20 +71,20 @@ const EditEmployeeModal = ({
 
   const onSubmit = useCallback(async (values: EditEmployeeFormValues) => {
     if (!employee) return
-    const empId = employee['id']
+    const empId = employee.id
     const data: Record<string, string> = {
-      'Title': values.title,
-      'Employee Name': values.name,
-      'Email': values.email,
-      'Employee ID': values.employeeId,
-      'Department': values.department,
-      'Designation': values.designation,
-      'Date of Birth': values.dateOfBirth,
+      title: values.title,
+      name: values.name,
+      email: values.email,
+      employeeId: values.employeeId,
+      department: values.department,
+      designation: values.designation,
+      dateOfBirth: values.dateOfBirth,
     }
     const updateResult = await updateEmployee({ id: empId, data })
     if (updateResult.error) return
     if (photo) {
-      const uploadResult = await uploadPhoto({ id: empId, photo })
+      const uploadResult = await uploadPhoto({ id: employee.employeeId, photo })
       if (uploadResult.error) return
     }
     setPhoto(null)

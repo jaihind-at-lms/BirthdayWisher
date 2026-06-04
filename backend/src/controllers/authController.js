@@ -1,3 +1,4 @@
+import dayjs from "dayjs";
 import { authService } from "../services/authService.js";
 
 export async function login(req, res) {
@@ -48,9 +49,7 @@ export async function login(req, res) {
         role: "admin" ,
         accessToken,
         refreshToken,
-        refreshTokenExpiryTime: new Date(
-          Date.now() + 7 * 24 * 60 * 60 * 1000
-        ).toISOString(),
+        refreshTokenExpiryTime: dayjs().add(7, "day").toISOString(),
       },
     });
   } catch (error) {

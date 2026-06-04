@@ -1,15 +1,9 @@
+import dayjs from "dayjs";
 import { createLogger, format, transports } from "winston";
 import { sendNtfy } from "./notifier.js";
 import { config } from "../config/env.js";
 
-// Function to dynamically generate log file names based on the date
-const getLogFileName = () => {
-  const date = new Date();
-  const year = date.getFullYear();
-  const month = `0${date.getMonth() + 1}`.slice(-2);
-  const day = `0${date.getDate()}`.slice(-2);
-  return `logs/${year}-${month}-${day}.log`;
-};
+const getLogFileName = () => `logs/${dayjs().format("YYYY-MM-DD")}.log`;
 
 const enumerateErrorFormat = format((info) => {
   if (info instanceof Error) {
