@@ -46,7 +46,7 @@ function MasterPage({ tab, title, icon }: MasterPageProps): JSX.Element {
   const filtered = records.filter((rec) => {
     if (!searchTerm.trim()) return true
     const q = searchTerm.toLowerCase()
-    return Object.values(rec).some((v) => v?.toLowerCase().includes(q))
+    return Object.values(rec).some((v) => String(v ?? '').toLowerCase().includes(q))
   })
 
   const firstRecord: SheetRecord = records[0] ?? ({} as SheetRecord)

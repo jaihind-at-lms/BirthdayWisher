@@ -21,7 +21,7 @@ const UserManagementPage = (): JSX.Element => {
   const filtered = employees.filter((emp) => {
     if (!searchTerm.trim()) return true
     const q = searchTerm.toLowerCase()
-    return Object.values(emp).some((v) => v?.toLowerCase().includes(q))
+    return Object.values(emp).some((v) => String(v ?? '').toLowerCase().includes(q))
   })
 
   if (isLoading) return <Spinner />

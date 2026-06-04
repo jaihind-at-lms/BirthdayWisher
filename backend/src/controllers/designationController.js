@@ -44,7 +44,8 @@ export const designationController = {
       await DesignationModel.remove(id);
       res.json({ success: true, message: "Designation deleted successfully." });
     } catch (err) {
-      res.status(500).json({ success: false, message: err.message });
+      const status = err.statusCode || 500;
+      res.status(status).json({ success: false, message: err.message });
     }
   },
 };

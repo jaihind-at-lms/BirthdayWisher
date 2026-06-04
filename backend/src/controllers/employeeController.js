@@ -5,11 +5,21 @@ import { fileURLToPath } from "url";
 import dayjs from "dayjs";
 import { config } from "../config/env.js";
 import { EmployeeModel } from "../models/employee.js";
+import { DepartmentModel } from "../models/department.js";
+import { DesignationModel } from "../models/designation.js";
 import logger from "../utils/logger.js";
 import { sendWelcomeEmail } from "../emails/index.js";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const UPLOADS_DIR = resolve(__dirname, "../../uploads");
+
+async function resolveRef(value, model) {
+  if (value == null || value === "") return null;
+  const num = Number(value);
+  if (!isNaN(num)) return num;
+  const record = await model.findOrCreateByName(value);
+  return record.id;
+}
 
 export async function getEmployees(req, res) {
   try {
@@ -72,8 +82,8 @@ export async function updateEmployee(req, res) {
       title: updates.title ?? existing.title,
       name: updates.name ?? existing.name,
       email: newEmail ?? existing.email,
-      department: updates.department ?? existing.department,
-      designation: updates.designation ?? existing.designation,
+      department: updates.department != null ? await resolveRef(updates.department, DepartmentModel) : existing.department,
+      designation: updates.designation != null ? await resolveRef(updates.designation, DesignationModel) : existing.designation,
       dateOfBirth: updates.dateOfBirth ?? existing.dateOfBirth,
       photoUrl: updates.photoUrl ?? existing.photoUrl,
       employeeId: updates.employeeId ?? existing.employeeId,
@@ -148,8 +158,8 @@ export async function createEmployee(req, res) {
       title: title ?? "",
       name,
       email,
-      department: department ?? "",
-      designation: designation ?? "",
+      department: department ? await resolveRef(department, DepartmentModel) : null,
+      designation: designation ? await resolveRef(designation, DesignationModel) : null,
       dateOfBirth: formattedDob || null,
       photoUrl: `uploads/${employeeId}.png`,
     });

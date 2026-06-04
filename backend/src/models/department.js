@@ -1,5 +1,5 @@
 import { db } from "../db/index.js";
-import { departments } from "../db/schema.js";
+import { employees, departments } from "../db/schema.js";
 import { eq, sql } from "drizzle-orm";
 
 export const DepartmentModel = {
@@ -22,7 +22,17 @@ export const DepartmentModel = {
     return row ?? null;
   },
 
+  async findOrCreateByName(name) {
+    const existing = await this.findByName(name);
+    if (existing) return existing;
+    return this.create(name);
+  },
+
   async remove(id) {
+    const [ref] = await db.select({ count: sql`count(*)::int` }).from(employees).where(eq(employees.department, id));
+    if (ref.count > 0) {
+      throw Object.assign(new Error("Cannot delete: department is assigned to one or more employees."), { statusCode: 409 });
+    }
     await db.delete(departments).where(eq(departments.id, id));
   },
 };
