@@ -18,7 +18,7 @@ import {
 import type { Employee } from '@project/Types/Features/employee'
 
 export const EDIT_MODAL_ID = 'editEmployeeModal'
-const TITLE_OPTIONS = ['Mr', 'Ms', 'Mrs', 'Dr', 'Prof']
+const TITLE_OPTIONS = ['Mr', 'Ms']
 
 interface EditFormValues {
   title: string

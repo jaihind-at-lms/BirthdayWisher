@@ -5,6 +5,8 @@ import { fileURLToPath } from "url";
 import { getSheetRecords, updateSheetCell, appendSheetRow, getSheetHeaders } from "../services/index.js";
 import { config } from "../config/env.js";
 import { trimKeys, parseDate } from "../utils/helpers.js";
+import logger from "../utils/logger.js";
+import { sendWelcomeMail } from "../emails/index.js";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const UPLOADS_DIR = resolve(__dirname, "../../uploads");
@@ -146,7 +148,7 @@ export async function uploadEmployeePhoto(req, res) {
 
 export async function createEmployee(req, res) {
   try {
-    const { title, name, email, employeeId, department, designation, dateOfBirth } = req.body;
+    const { title, name, email, employeeId, department, designation, dateOfBirth, sendWelcomeEmail, welcomeTextLine1, welcomeTextLine2 } = req.body;
 
     if (!name || !email || !employeeId) {
       return res.status(400).json({
@@ -202,6 +204,23 @@ export async function createEmployee(req, res) {
     console.log("[createEmployee] values to append:", values);
 
     await appendSheetRow(RANGE, [values]);
+
+    // Send welcome email if opted in
+    if (sendWelcomeEmail === "true" || sendWelcomeEmail === true) {
+      const photoUrl = `${config.appUrl}/uploads/${employeeId}.png`;
+      sendWelcomeMail({
+        title,
+        name,
+        email,
+        department,
+        designation,
+        photoUrl,
+        welcomeTextLine1,
+        welcomeTextLine2: welcomeTextLine2 ?? "",
+      }).catch((err) => {
+        logger.error("Failed to send welcome email", { error: err.message, employeeId });
+      });
+    }
 
     res.json({ success: true, message: "Employee created successfully." });
   } catch (error) {

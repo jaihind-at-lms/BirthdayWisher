@@ -37,7 +37,7 @@ interface AddEmployeeModalProps {
 
 const MODAL_ID = 'addEmployeeModal'
 
-const TITLE_OPTIONS = ['Mr', 'Ms', 'Mrs', 'Dr', 'Prof']
+const TITLE_OPTIONS = ['Mr', 'Ms']
 
 const AddEmployeeModal = ({ show, onClose }: AddEmployeeModalProps): JSX.Element => {
   const [createEmployee, { isLoading }] = useCreateEmployeeMutation()
@@ -80,10 +80,6 @@ const AddEmployeeModal = ({ show, onClose }: AddEmployeeModalProps): JSX.Element
     if (!values.department) errs.department = 'Department is required'
     if (!values.designation) errs.designation = 'Designation is required'
     if (!photo) errs.photo = 'Photo is required'
-    if (values.sendWelcomeEmail) {
-      if (!values.welcomeTextLine1) errs.welcomeTextLine1 = 'Welcome text line 1 is required'
-      if (!values.welcomeTextLine2) errs.welcomeTextLine2 = 'Welcome text line 2 is required'
-    }
     setErrors(errs)
     if (Object.keys(errs).length > 0) return
 
@@ -96,10 +92,9 @@ const AddEmployeeModal = ({ show, onClose }: AddEmployeeModalProps): JSX.Element
     fd.append('designation', values.designation)
     fd.append('dateOfBirth', values.dateOfBirth)
     if (photo) fd.append('photo', photo)
-    if (values.sendWelcomeEmail) {
-      fd.append('welcomeTextLine1', values.welcomeTextLine1)
-      fd.append('welcomeTextLine2', values.welcomeTextLine2)
-    }
+    fd.append('sendWelcomeEmail', values.sendWelcomeEmail ? 'true' : 'false')
+    if (values.welcomeTextLine1) fd.append('welcomeTextLine1', values.welcomeTextLine1)
+    if (values.welcomeTextLine2) fd.append('welcomeTextLine2', values.welcomeTextLine2)
     await createEmployee(fd)
     reset()
     setPhoto(null)
@@ -205,23 +200,17 @@ const AddEmployeeModal = ({ show, onClose }: AddEmployeeModalProps): JSX.Element
                 {sendWelcomeEmail && (
                   <>
                     <div className="col-12">
-                      <label className="form-label fw-semibold small text-secondary">Welcome Text Line 1 <span className="text-danger">*</span></label>
+                      <label className="form-label fw-semibold small text-secondary">Welcome Text Line 1</label>
                       <TextArea
-                        registration={register('welcomeTextLine1', {
-                          required: 'Welcome text line 1 is required',
-                          onChange: () => setErrors((p) => { const n = { ...p }; delete n.welcomeTextLine1; return n }),
-                        })}
+                        registration={register('welcomeTextLine1')}
                         placeholder="First line of welcome message…"
                         rows={3}
                       />
                     </div>
                     <div className="col-12">
-                      <label className="form-label fw-semibold small text-secondary">Welcome Text Line 2 <span className="text-danger">*</span></label>
+                      <label className="form-label fw-semibold small text-secondary">Welcome Text Line 2</label>
                       <TextArea
-                        registration={register('welcomeTextLine2', {
-                          required: 'Welcome text line 2 is required',
-                          onChange: () => setErrors((p) => { const n = { ...p }; delete n.welcomeTextLine2; return n }),
-                        })}
+                        registration={register('welcomeTextLine2')}
                         placeholder="Second line of welcome message…"
                         rows={3}
                       />

@@ -22,4 +22,11 @@ export const config = {
     .split(",")
     .map((e) => e.trim().toLowerCase())
     .filter(Boolean),
+
+  // SMTP (system sender for automated emails)
+  smtpUser: process.env.SMTP_USER ?? "",
+  smtpPassword: process.env.SMTP_PASSWORD ?? "",
+
+  // App URL (used to build absolute URLs in emails)
+  appUrl: (process.env.APP_URL ?? "http://localhost:3000").replace(/\/+$/, ""),
 };
