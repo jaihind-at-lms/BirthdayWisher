@@ -29,4 +29,7 @@ export const config = {
 
   // App URL (used to build absolute URLs in emails)
   appUrl: (process.env.APP_URL ?? "http://localhost:3000").replace(/\/+$/, ""),
+
+  // Welcome email recipient (usually all-staff list)
+  welcomeEmailTo: process.env.WELCOME_EMAIL_TO ?? "",
 };

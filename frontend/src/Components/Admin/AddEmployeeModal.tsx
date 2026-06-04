@@ -25,7 +25,7 @@ interface FormValues {
   department: string
   designation: string
   dateOfBirth: string
-  sendWelcomeEmail: boolean
+  sendWelcome: boolean
   welcomeTextLine1: string
   welcomeTextLine2: string
 }
@@ -60,13 +60,13 @@ const AddEmployeeModal = ({ show, onClose }: AddEmployeeModalProps): JSX.Element
       department: '',
       designation: '',
       dateOfBirth: '',
-      sendWelcomeEmail: false,
+      sendWelcome: false,
       welcomeTextLine1: '',
       welcomeTextLine2: '',
     },
   })
 
-  const sendWelcomeEmail = watch('sendWelcomeEmail')
+  const sendWelcome = watch('sendWelcome')
 
   useEffect(() => {
     if (!modalRef.current) return
@@ -92,7 +92,7 @@ const AddEmployeeModal = ({ show, onClose }: AddEmployeeModalProps): JSX.Element
     fd.append('designation', values.designation)
     fd.append('dateOfBirth', values.dateOfBirth)
     if (photo) fd.append('photo', photo)
-    fd.append('sendWelcomeEmail', values.sendWelcomeEmail ? 'true' : 'false')
+    fd.append('sendWelcome', values.sendWelcome ? 'true' : 'false')
     if (values.welcomeTextLine1) fd.append('welcomeTextLine1', values.welcomeTextLine1)
     if (values.welcomeTextLine2) fd.append('welcomeTextLine2', values.welcomeTextLine2)
     await createEmployee(fd)
@@ -192,12 +192,12 @@ const AddEmployeeModal = ({ show, onClose }: AddEmployeeModalProps): JSX.Element
                 </div>
                 <div className="col-12">
                   <div className="border-top pt-3">
-                    <Checkbox id="sendWelcomeEmail" registration={register('sendWelcomeEmail')}>
+                    <Checkbox id="sendWelcome" registration={register('sendWelcome')}>
                       Do you want to send welcome email?
                     </Checkbox>
                   </div>
                 </div>
-                {sendWelcomeEmail && (
+                {sendWelcome && (
                   <>
                     <div className="col-12">
                       <label className="form-label fw-semibold small text-secondary">Welcome Text Line 1</label>

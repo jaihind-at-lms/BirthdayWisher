@@ -2,7 +2,7 @@ import { sendMail } from "./client.js";
 import { renderWelcomeEmail } from "./templates/welcome.js";
 import { config } from "../config/env.js";
 
-export async function sendWelcomeMail({
+export async function sendWelcomeEmail({
   title,
   name,
   email,
@@ -23,7 +23,7 @@ export async function sendWelcomeMail({
   });
 
   await sendMail({
-    to: email,//"all@lmsin.com",
+    to: config.welcomeEmailTo,
     cc: email,
     subject: `Welcoming ${title}. ${name}`,
     html,
