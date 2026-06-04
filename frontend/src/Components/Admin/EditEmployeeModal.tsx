@@ -85,9 +85,11 @@ const EditEmployeeModal = ({
       'Designation': values.designation,
       'Date of Birth': values.dateOfBirth,
     }
-    await updateEmployee({ id: empId, data })
+    const updateResult = await updateEmployee({ id: empId, data })
+    if (updateResult.error) return
     if (photo) {
-      await uploadPhoto({ id: empId, photo })
+      const uploadResult = await uploadPhoto({ id: empId, photo })
+      if (uploadResult.error) return
     }
     setPhoto(null)
     onClose()

@@ -112,6 +112,21 @@ export async function updateEmployee(req, res) {
         .json({ success: false, message: "Employee not found in sheet." });
     }
 
+    // Check for duplicate email if being updated
+    const emailCol = headers.find((h) => h.trim().toLowerCase() === "email");
+    const newEmail = updates[emailCol]?.trim();
+    if (newEmail) {
+      const dup = rows.find(
+        (r, i) => i !== index && r[emailCol]?.trim().toLowerCase() === newEmail.toLowerCase()
+      );
+      if (dup) {
+        return res.status(409).json({
+          success: false,
+          message: `Email "${newEmail}" is already in use by another employee.`,
+        });
+      }
+    }
+
     const rowNumber = index + 2;
     const cellValues = headers.map((h) => {
       const key = h.trim();
@@ -169,6 +184,24 @@ export async function createEmployee(req, res) {
     let headers = Object.keys(rows[0] || {});
     if (!headers.length) {
       headers = await getSheetHeaders(RANGE);
+    }
+
+    // Check for duplicate employee ID or email
+    const idCol = headers.find((h) => h.trim().toLowerCase() === "employee id");
+    const emailCol = headers.find((h) => h.trim().toLowerCase() === "email");
+    for (const row of rows) {
+      if (idCol && row[idCol]?.trim() === employeeId) {
+        return res.status(409).json({
+          success: false,
+          message: `Employee ID "${employeeId}" already exists.`,
+        });
+      }
+      if (emailCol && row[emailCol]?.trim().toLowerCase() === email.trim().toLowerCase()) {
+        return res.status(409).json({
+          success: false,
+          message: `Email "${email}" is already in use.`,
+        });
+      }
     }
 
     let formattedDob = dateOfBirth || "";

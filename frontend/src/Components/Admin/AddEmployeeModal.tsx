@@ -85,7 +85,8 @@ const AddEmployeeModal = ({ show, onClose }: AddEmployeeModalProps): JSX.Element
     fd.append('sendWelcome', values.sendWelcome ? 'true' : 'false')
     if (values.welcomeTextLine1) fd.append('welcomeTextLine1', values.welcomeTextLine1)
     if (values.welcomeTextLine2) fd.append('welcomeTextLine2', values.welcomeTextLine2)
-    await createEmployee(fd)
+    const result = await createEmployee(fd)
+    if (result.error) return
     reset()
     setPhoto(null)
     setPhotoError(null)
