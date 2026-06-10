@@ -5,6 +5,7 @@ import routes from "./routes/index.js";
 import { startBirthdayWisherJob } from "./jobs/index.js";
 import { runMigrations } from "./db/migrate.js";
 import { seedDefaultData } from "./db/seed.js";
+import { config } from "./config/env.js";
 
 const app = express();
 
@@ -36,4 +37,5 @@ app.use("/uploads", express.static("uploads"));
 app.get("/health", (_, res) => res.json({ status: "ok" }));
 app.use("/api", routes);
 
-app.listen(3000, () => console.log("Server running on port 3000"));
+const PORT = config.port;
+app.listen(PORT, () => console.log(`Server running on port ${PORT}`));

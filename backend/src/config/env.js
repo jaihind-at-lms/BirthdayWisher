@@ -2,6 +2,7 @@ import dotenv from "dotenv";
 dotenv.config();
 
 export const config = {
+  port: parseInt(process.env.PORT ?? "8082", 10),
   ntfyTopic: process.env.NTFY_TOPIC,
 
   // Supabase PostgreSQL
