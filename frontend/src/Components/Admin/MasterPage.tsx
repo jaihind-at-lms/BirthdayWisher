@@ -57,7 +57,7 @@ function MasterPage({ tab, title, icon }: MasterPageProps): JSX.Element {
 
   const getFormDefaults = useCallback(() => {
     if (editTarget && editTarget.id >= 0) {
-      return Object.fromEntries(visibleColumns.map((c) => [c, editTarget.data[c] ?? '']))
+      return Object.fromEntries(visibleColumns.map((c) => [c, String(editTarget.data[c] ?? '')]))
     }
     return Object.fromEntries(visibleColumns.map((c) => [c, '']))
   }, [editTarget, visibleColumns])
@@ -82,7 +82,7 @@ function MasterPage({ tab, title, icon }: MasterPageProps): JSX.Element {
   }, [editTarget])
 
   const openCreateModal = () => {
-    setEditTarget({ id: -1, data: {} })
+    setEditTarget({ id: -1, data: { id: 0, name: '' } })
   }
 
   const openEditModal = (id: number, data: SheetRecord) => {

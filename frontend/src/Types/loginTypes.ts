@@ -5,4 +5,4 @@
 export type {
   LoginResponse as LoginResType,
   LoginRequest as LoginType,
-} from './features/auth'
+} from './Features/auth'

@@ -7,13 +7,16 @@ import axiosBaseQuery from './baseQuery'
 export interface SheetRecord {
   id: number
   name: string
+  [key: string]: string | number | null | undefined
 }
+
+type SheetTagType = 'Sheet_wishes' | 'Sheet_departments' | 'Sheet_designations'
 
 const sheetApi = createApi({
   reducerPath: 'sheetApi',
   baseQuery: axiosBaseQuery(),
 
-  tagTypes: ['Sheet_wishes', 'Sheet_departments', 'Sheet_designations'],
+  tagTypes: ['Sheet_wishes', 'Sheet_departments', 'Sheet_designations'] as const,
 
   keepUnusedDataFor: 120,
   refetchOnMountOrArgChange: true,
@@ -25,7 +28,7 @@ const sheetApi = createApi({
       query: (tab) => ({ url: `api/${tab}`, method: 'GET', showErrorMessage: true }),
       transformResponse: (response: ApiResponse<SheetRecord[]>): SheetRecord[] =>
         response.data,
-      providesTags: (_result, _error, tab) => [{ type: `Sheet_${tab}` as const }],
+      providesTags: (_result, _error, tab) => [{ type: `Sheet_${tab}` as SheetTagType }],
     }),
 
     createSheetRecord: builder.mutation<undefined, { tab: string; data: Record<string, string> }>({
@@ -37,7 +40,7 @@ const sheetApi = createApi({
         showResultMessage: true,
       }),
       transformResponse: () => undefined,
-      invalidatesTags: (_result, _error, { tab }) => [{ type: `Sheet_${tab}` as const }],
+      invalidatesTags: (_result, _error, { tab }) => [{ type: `Sheet_${tab}` as SheetTagType }],
     }),
 
     updateSheetRecord: builder.mutation<undefined, { tab: string; id: number; data: Record<string, string> }>({
@@ -49,7 +52,7 @@ const sheetApi = createApi({
         showResultMessage: true,
       }),
       transformResponse: () => undefined,
-      invalidatesTags: (_result, _error, { tab }) => [{ type: `Sheet_${tab}` as const }],
+      invalidatesTags: (_result, _error, { tab }) => [{ type: `Sheet_${tab}` as SheetTagType }],
     }),
 
     deleteSheetRecord: builder.mutation<undefined, { tab: string; id: number }>({
@@ -60,7 +63,7 @@ const sheetApi = createApi({
         showResultMessage: true,
       }),
       transformResponse: () => undefined,
-      invalidatesTags: (_result, _error, { tab }) => [{ type: `Sheet_${tab}` as const }],
+      invalidatesTags: (_result, _error, { tab }) => [{ type: `Sheet_${tab}` as SheetTagType }],
     }),
   }),
 })

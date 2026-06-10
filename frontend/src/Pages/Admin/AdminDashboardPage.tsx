@@ -55,7 +55,7 @@ const AdminDashboardPage = (): JSX.Element => {
                 <div>
                   <p className="text-secondary small mb-0">{label}</p>
                   <h3 className={`fw-bold mb-0 text-${color}`}>
-                    {stats ? stats[key as keyof typeof stats] : '-'}
+                    {stats ? String(stats[key as keyof typeof stats] ?? '-') : '-'}
                   </h3>
                 </div>
               </div>
