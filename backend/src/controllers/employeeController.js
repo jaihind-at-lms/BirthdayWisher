@@ -34,7 +34,9 @@ async function resolveName(value, model) {
 
 export async function getEmployees(req, res) {
   try {
-    const data = await EmployeeModel.findAll();
+    const data = await EmployeeModel.findAll({
+      order: [['name', 'ASC']]
+    });
     res.json({ success: true, data, totalRecords: data.length });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
@@ -120,7 +122,7 @@ export async function deleteEmployee(req, res) {
     if (!employee) {
       return res.status(404).json({ success: false, message: "Employee not found." });
     }
-    
+
     // Delete employee photo if it exists
     const photoPath = resolve(UPLOADS_DIR, `${employee.employeeId}.png`);
     if (existsSync(photoPath)) {
@@ -130,7 +132,7 @@ export async function deleteEmployee(req, res) {
         logger.warn("Failed to delete employee photo", { error: err.message, employeeId: employee.employeeId });
       }
     }
-    
+
     await EmployeeModel.delete(id);
     res.json({ success: true, message: "Employee deleted successfully." });
   } catch (error) {
@@ -152,10 +154,10 @@ export async function uploadEmployeePhoto(req, res) {
     if (!existsSync(UPLOADS_DIR)) mkdirSync(UPLOADS_DIR, { recursive: true });
     const dest = resolve(UPLOADS_DIR, `${employeeId}.png`);
     writeFileSync(dest, req.file.buffer);
-    
+
     // Update the employee's updatedAt timestamp to force cache refresh on frontend
     await EmployeeModel.updateWithEmployeeId(employeeId, {});
-    
+
     res.json({ success: true, message: "Photo updated successfully." });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
