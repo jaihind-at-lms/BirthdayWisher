@@ -34,9 +34,7 @@ async function resolveName(value, model) {
 
 export async function getEmployees(req, res) {
   try {
-    const data = await EmployeeModel.findAll({
-      order: [['name', 'ASC']]
-    });
+    const data = await EmployeeModel.findAll();
     res.json({ success: true, data, totalRecords: data.length });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });

@@ -23,7 +23,7 @@ export const EmployeeModel = {
     .from(employees)
     .leftJoin(departments, eq(employees.department, departments.id))
     .leftJoin(designations, eq(employees.designation, designations.id))
-    .orderBy(asc(employees.createdAt));
+    .orderBy(asc(employees.name));
   },
 
   async getAggregateStats() {
