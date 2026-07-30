@@ -29,53 +29,74 @@ async function acquireToken() {
 
 export async function uploadToDrive(buffer, fileName, folder) {
   const token = await acquireToken();
-  const targetFolder = folder || config.msBirthdayCardsFolder;
 
-  const uploadUrl = `https://graph.microsoft.com/v1.0/drives/${config.msDriveId}/root:/${targetFolder}/${fileName}:/content`;
-  await axios.put(uploadUrl, buffer, {
-    headers: {
-      Authorization: `Bearer ${token}`,
-      "Content-Type": "image/png",
-    },
-  });
-
-  const linkRes = await axios.post(
-    `https://graph.microsoft.com/v1.0/drives/${config.msDriveId}/root:/${targetFolder}/${fileName}:/createLink`,
-    { type: "view", scope: "organization" },
+  const res = await axios.put(
+    `https://graph.microsoft.com/v1.0/drives/${config.msDriveId}/root:/${folder}/${fileName}:/content`,
+    buffer,
     {
       headers: {
         Authorization: `Bearer ${token}`,
-        "Content-Type": "application/json",
+        "Content-Type": "image/png",
       },
     }
   );
 
-  return linkRes.data.link.webUrl;
+  return res.data.id;
 }
 
-export async function downloadFromDrive(fileName, folder) {
+export async function getAllUploadedItems() {
   const token = await acquireToken();
-  const targetFolder = folder || config.msEmployeeImagesFolder;
+
+  const allFiles = await axios.get(
+    `https://graph.microsoft.com/v1.0/drives/${config.msDriveId}/root:/employee-images:/children`,
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    }
+  );
+  return allFiles.data
+}
+
+export async function getDownloadUrlByItemId(itemId) {
+  const token = await acquireToken();
 
   const res = await axios.get(
-    `https://graph.microsoft.com/v1.0/drives/${config.msDriveId}/root:/${targetFolder}/${fileName}:/content`,
+    `https://graph.microsoft.com/v1.0/drives/${config.msDriveId}/items/${itemId}?select=@microsoft.graph.downloadUrl`,
     {
-      headers: { Authorization: `Bearer ${token}` },
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    }
+  );
+
+  return res.data["@microsoft.graph.downloadUrl"];
+}
+
+export async function downloadByItemId(itemId) {
+  const token = await acquireToken();
+
+  const res = await axios.get(
+    `https://graph.microsoft.com/v1.0/drives/${config.msDriveId}/items/${itemId}/content`,
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
       responseType: "arraybuffer",
     }
   );
 
   return Buffer.from(res.data);
 }
-
-export async function deleteFromDrive(fileName, folder) {
+export async function deleteByItemId(itemId) {
   const token = await acquireToken();
-  const targetFolder = folder || config.msEmployeeImagesFolder;
 
   await axios.delete(
-    `https://graph.microsoft.com/v1.0/drives/${config.msDriveId}/root:/${targetFolder}/${fileName}`,
+    `https://graph.microsoft.com/v1.0/drives/${config.msDriveId}/items/${itemId}`,
     {
-      headers: { Authorization: `Bearer ${token}` },
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
     }
   );
 }

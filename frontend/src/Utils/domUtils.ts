@@ -44,5 +44,11 @@ export const downloadFile = (url: string, fileName: string): void => {
 
 export const getPhotoUrl = (photoUrl: string | null): string => {
   if (!photoUrl) return ''
-  return photoUrl
+
+  const base = typeof import.meta !== 'undefined'
+      ? ((import.meta.env as Record<string, string>).VITE_API_BASE_URL ?? '')
+    : ''
+    
+  return `${base}/photos/${photoUrl}`;
 }
+

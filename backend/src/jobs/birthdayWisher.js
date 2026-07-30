@@ -7,7 +7,7 @@ import { generateBirthdayCard } from "../services/birthdayCard.js";
 import { sendBirthdayEmail } from "../emails/index.js";
 import { EmployeeModel } from "../models/employee.js";
 import { config } from "../config/env.js";
-import { downloadFromDrive } from "../services/msGraph.js";
+import { downloadByItemId } from "../services/msGraph.js";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const TEMPLATES_DIR = resolve(__dirname, "../templates");
@@ -33,6 +33,7 @@ export const BirthdayWisher = async () => {
     const id = emp.employeeId;
     const name = emp.name;
     const email = emp.email;
+    const photoUrl = emp.photoUrl;
 
     if (!email) {
       logger.warn(`No email for "${name}" (${id}), skipping`);
@@ -46,7 +47,7 @@ export const BirthdayWisher = async () => {
 
     let photoBuffer;
     try {
-      photoBuffer = await downloadFromDrive(`${id}.png`, config.msEmployeeImagesFolder);
+      photoBuffer = await downloadByItemId(photoUrl);
     } catch (err) {
       logger.warn(`No photo available for "${name}" (${id}), skipping: ${err.message}`);
       continue;

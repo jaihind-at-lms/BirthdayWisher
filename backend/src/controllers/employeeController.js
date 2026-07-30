@@ -5,7 +5,10 @@ import { DepartmentModel } from "../models/department.js";
 import { DesignationModel } from "../models/designation.js";
 import logger from "../utils/logger.js";
 import { sendWelcomeEmail } from "../emails/index.js";
-import { uploadToDrive, deleteFromDrive, downloadFromDrive } from "../services/msGraph.js";
+import { uploadToDrive, deleteByItemId, downloadByItemId, getDownloadUrlByItemId } from "../services/msGraph.js";
+
+const downloadUrlCache = new Map();
+const CACHE_TTL = 50 * 60 * 1000;
 
 async function resolveRef(value, model) {
   if (value == null || value === "") return null;
@@ -116,7 +119,7 @@ export async function deleteEmployee(req, res) {
     }
 
     try {
-      await deleteFromDrive(`${employee.employeeId}.png`, config.msEmployeeImagesFolder);
+      await deleteByItemId(employee.photoUrl);
     } catch (err) {
       logger.warn("Failed to delete employee photo from drive", { error: err.message, employeeId: employee.employeeId });
     }
@@ -139,14 +142,40 @@ export async function uploadEmployeePhoto(req, res) {
       return res.status(413).json({ success: false, message: "File too large. Maximum allowed size is 1MB." });
     }
 
-    const fileName = `${employeeId}.png`;
-    const photoUrl = await uploadToDrive(req.file.buffer, fileName, config.msEmployeeImagesFolder);
+    const photoUrl = await uploadToDrive(
+      req.file.buffer,
+      `${employeeId}.png`,
+      config.msEmployeeImagesFolder
+    );
 
     await EmployeeModel.updateWithEmployeeId(employeeId, { photoUrl });
 
     res.json({ success: true, message: "Photo updated successfully." });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
+  }
+}
+
+export async function serveUpload(req, res) {
+  try {
+    const { driveItemID } = req.params;
+
+    // const cached = downloadUrlCache.get(driveItemID);
+    // if (cached && Date.now() - cached.ts < CACHE_TTL) {
+    //   return res.redirect(cached.url);
+    // }
+
+    const url = await getDownloadUrlByItemId(driveItemID);
+    
+    downloadUrlCache.set(driveItemID, {
+      url,
+      ts: Date.now()
+    });
+
+    return res.redirect(url);
+  } catch (e){
+    console.log(e)
+    res.status(404).json({ success: false, message: "Photo not found." });
   }
 }
 
@@ -207,7 +236,7 @@ export async function createEmployee(req, res) {
       let photoBuffer = null;
       if (photoUrl) {
         try {
-          photoBuffer = await downloadFromDrive(`${employeeId}.png`, config.msEmployeeImagesFolder);
+          photoBuffer = await downloadByItemId(photoUrl);
         } catch (err) {
           logger.warn("Failed to download photo for welcome email", { error: err.message, employeeId });
         }
