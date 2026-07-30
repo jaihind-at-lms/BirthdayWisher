@@ -156,28 +156,19 @@ export async function uploadEmployeePhoto(req, res) {
   }
 }
 
-export async function serveUpload(req, res) {
+export const serveUpload = async (req, res) => {
   try {
-    const { driveItemID } = req.params;
+    const buffer = await downloadByItemId(req.params.driveItemID);
 
-    // const cached = downloadUrlCache.get(driveItemID);
-    // if (cached && Date.now() - cached.ts < CACHE_TTL) {
-    //   return res.redirect(cached.url);
-    // }
+    res.setHeader("Content-Type", "image/png");
+    res.setHeader("Cache-Control", "public, max-age=86400");
 
-    const url = await getDownloadUrlByItemId(driveItemID);
-    
-    downloadUrlCache.set(driveItemID, {
-      url,
-      ts: Date.now()
-    });
-
-    return res.redirect(url);
-  } catch (e){
-    console.log(e)
-    res.status(404).json({ success: false, message: "Photo not found." });
+    res.end(buffer);
+  } catch (err) {
+    console.error(err);
+    res.status(404).send("Image not found");
   }
-}
+};
 
 export async function createEmployee(req, res) {
   try {
