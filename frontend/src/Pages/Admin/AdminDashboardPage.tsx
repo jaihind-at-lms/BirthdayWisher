@@ -95,7 +95,7 @@ const AdminDashboardPage = (): JSX.Element => {
                         <tr key={emp.id || i} className="border-bottom border-light">
                           <td className="ps-4 py-3">
                             <div className="d-flex align-items-center gap-3">
-                              <EmployeeAvatar name={emp.name} imageUrl={getPhotoUrl(emp.photoUrl, emp.updatedAt)} size={38} />
+                              <EmployeeAvatar name={emp.name} imageUrl={getPhotoUrl(emp.photoUrl)} size={38} />
                               <span className="fw-semibold">{emp.name}</span>
                             </div>
                           </td>

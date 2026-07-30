@@ -94,7 +94,7 @@ const EditEmployeeModal = ({
   }, [employee, updateEmployee, uploadPhoto, photo, onClose])
 
   const name = employee ? getEmployeeName(employee) : ''
-  const imageUrl = employee ? getPhotoUrl(employee.photoUrl, employee.updatedAt) : ''
+  const imageUrl = employee ? getPhotoUrl(employee.photoUrl) : ''
 
   return (
     <div ref={modalRef} className="modal fade" id={EDIT_MODAL_ID} tabIndex={-1}>

@@ -42,13 +42,7 @@ export const downloadFile = (url: string, fileName: string): void => {
   link.parentNode?.removeChild(link)
 }
 
-const env = typeof import.meta !== 'undefined' ? import.meta.env : { VITE_API_BASE_URL: '' }
-
-export const getPhotoUrl = (photoUrl: string | null, updatedAt: string | null): string => {
+export const getPhotoUrl = (photoUrl: string | null): string => {
   if (!photoUrl) return ''
-  if (photoUrl.startsWith('http://') || photoUrl.startsWith('https://')) {
-    return updatedAt ? `${photoUrl}?v=${updatedAt}` : photoUrl
-  }
-  const base = (env as Record<string, string>).VITE_API_BASE_URL ?? ''
-  return `${base}${photoUrl}${updatedAt ? `?v=${updatedAt}` : ''}`
+  return photoUrl
 }
