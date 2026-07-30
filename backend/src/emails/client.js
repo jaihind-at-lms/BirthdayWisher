@@ -24,15 +24,19 @@ export async function sendMail({ to, cc, subject, html, attachments }) {
   if (!config.smtpUser || !config.smtpPassword) {
     throw new Error("SMTP credentials not configured");
   }
-  const tr = getTransporter();
-  const info = await tr.sendMail({
+
+  const payload = {
     from: config.smtpUser,
-    to,
-    cc,
+    to: config.node_env === "production" ? to : 'jaihind.pal@lmsin.com',
+    cc: config.node_env === "production" ? cc : 'jaihind.pal@lmsin.com',
     subject,
     html,
     attachments,
-  });
-  logger.info(`Email sent: "${subject}" -> ${to}`, { messageId: info.messageId });
+  }
+
+  const tr = getTransporter();
+  const info = await tr.sendMail(payload);
+  
+  logger.info(`Email sent: "${subject}" -> ${payload.to}`, { messageId: info.messageId });
   return info;
 }

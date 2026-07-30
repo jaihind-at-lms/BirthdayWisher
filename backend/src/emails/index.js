@@ -101,7 +101,8 @@ export async function sendBirthdayEmail({ name, email, cardBuffer, employeeId })
       config.msDriveId
     ) {
       const fileName = `birthday-${employeeId}-${Date.now()}.png`;
-      cardSrc = await uploadToDrive(cardBuffer, fileName);
+      const driveItemId = await uploadToDrive(cardBuffer, fileName);
+      cardSrc = `${config.appUrl}/photos/${driveItemId}`;
       logger.info(`Birthday card uploaded to drive: ${cardSrc}`);
     } else {
       throw new Error("MS Graph not configured");

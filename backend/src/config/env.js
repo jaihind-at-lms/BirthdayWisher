@@ -3,6 +3,9 @@ dotenv.config();
 
 export const config = {
   port: parseInt(process.env.PORT ?? "8082", 10),
+  node_env: process.env.NODE_ENV ?? "development",
+  
+  // Ntfy (for push notifications)
   ntfyTopic: process.env.NTFY_TOPIC,
 
   // Supabase PostgreSQL
