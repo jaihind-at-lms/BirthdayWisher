@@ -161,7 +161,7 @@ const drawQuote = async (ctx, cfg, W, H) => {
   });
 };
 
-export const generateBirthdayCard = async (employeeName, employeeImagePath, templateFile) => {
+export const generateBirthdayCard = async (employeeName, employeeImageBuffer, templateFile) => {
   const config = loadConfig();
   const W = config?.canvas?.width ?? 1080;
   const H = config?.canvas?.height ?? 1080;
@@ -189,11 +189,10 @@ export const generateBirthdayCard = async (employeeName, employeeImagePath, temp
 
   let empImg = null;
   try {
-    const buf = readFileSync(employeeImagePath);
-    const png = await sharp(buf).png().toBuffer();
+    const png = await sharp(employeeImageBuffer).png().toBuffer();
     empImg = await loadImage(png);
   } catch {
-    logger.error("Failed to load employee image:", employeeImagePath);
+    logger.error("Failed to load employee image");
   }
 
   if (empImg) {

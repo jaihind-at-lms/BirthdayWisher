@@ -9,7 +9,7 @@ import AddEmployeeModal from '@project/Components/Admin/AddEmployeeModal'
 import EditEmployeeModal from '@project/Components/Admin/EditEmployeeModal'
 import { useGetEmployeesQuery, useDeleteEmployeeMutation } from '@project/Store/Api'
 import type { Employee } from '@project/Types/Features/employee'
-import { env } from '@project/Utils/envValidation'
+import { getPhotoUrl } from '@project/Utils/domUtils'
 
 const DELETE_MODAL_ID = 'employeeDeleteModal'
 
@@ -115,7 +115,7 @@ const UserManagementPage = (): JSX.Element => {
                         <tr key={emp.id || i} className="border-bottom border-light">
                           <td className="ps-4 py-3">
                             <div className="d-flex align-items-center gap-3">
-                              <EmployeeAvatar name={emp.name} imageUrl={env.VITE_API_BASE_URL+emp.photoUrl+ '?v='+emp.updatedAt} size={40} />
+                              <EmployeeAvatar name={emp.name} imageUrl={getPhotoUrl(emp.photoUrl, emp.updatedAt)} size={40} />
                               <div>
                                 <div className="fw-semibold">{emp.name}</div>
                               </div>

@@ -31,4 +31,13 @@ export const config = {
 
   // Welcome email recipient (usually all-staff list)
   emailTo: process.env.EMAIL_TO ?? "",
+
+  // Microsoft Graph API (for uploading to OneDrive/SharePoint)
+  msAuthTenantId: process.env.MS_AUTH_TENANT_ID ?? "",
+  msAuthClientId: process.env.MS_AUTH_CLIENT_ID ?? "",
+  msAuthClientSecret: process.env.MS_AUTH_CLIENT_SECRET ?? "",
+  msDriveId: process.env.MS_DRIVE_ID ?? "",
+  msDriveUser: process.env.MS_DRIVE_USER ?? "",
+  msEmployeeImagesFolder: process.env.MS_EMPLOYEE_IMAGES_FOLDER ?? "employee-images",
+  msBirthdayCardsFolder: process.env.MS_BIRTHDAY_CARDS_FOLDER ?? "birthday-cards",
 };

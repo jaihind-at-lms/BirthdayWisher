@@ -1,14 +1,15 @@
 import cron from "node-cron";
-import { readdirSync, existsSync } from "fs";
+import { readdirSync } from "fs";
 import { resolve, dirname } from "path";
 import { fileURLToPath } from "url";
 import logger from "../utils/logger.js";
 import { generateBirthdayCard } from "../services/birthdayCard.js";
 import { sendBirthdayEmail } from "../emails/index.js";
 import { EmployeeModel } from "../models/employee.js";
+import { config } from "../config/env.js";
+import { downloadFromDrive } from "../services/msGraph.js";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
-const UPLOADS_DIR = resolve(__dirname, "../../uploads");
 const TEMPLATES_DIR = resolve(__dirname, "../templates");
 
 const shuffle = (arr) => {
@@ -22,8 +23,6 @@ const shuffle = (arr) => {
 
 export const BirthdayWisher = async () => {
   const matches = await EmployeeModel.findTodayBirthdays();
-  logger.info(`Found ${matches.length} birthday(s) today`);
-
   logger.info(`Found ${matches.length} birthday(s) today`);
 
   const templates = readdirSync(TEMPLATES_DIR);
@@ -45,22 +44,18 @@ export const BirthdayWisher = async () => {
       ti = 0;
     }
 
-    const localPhoto = resolve(UPLOADS_DIR, `${id}.png`);
-    let photoPath = null;
-
-    if (existsSync(localPhoto)) {
-      photoPath = localPhoto;
-    }
-
-    if (!photoPath) {
-      logger.warn(`No photo available for "${name}" (${id}), skipping`);
+    let photoBuffer;
+    try {
+      photoBuffer = await downloadFromDrive(`${id}.png`, config.msEmployeeImagesFolder);
+    } catch (err) {
+      logger.warn(`No photo available for "${name}" (${id}), skipping: ${err.message}`);
       continue;
     }
 
     try {
-      const cardBuffer = await generateBirthdayCard(name, photoPath, templateCycle[ti]);
+      const cardBuffer = await generateBirthdayCard(name, photoBuffer, templateCycle[ti]);
       ti++;
-      await sendBirthdayEmail({ name, email, cardBuffer });
+      await sendBirthdayEmail({ name, email, cardBuffer, employeeId: id });
       logger.info(`Birthday email sent to ${name} (${id}) at ${email}`);
     } catch (err) {
       logger.error(`Failed to send birthday for ${id} (${name}): ${err.message}`);

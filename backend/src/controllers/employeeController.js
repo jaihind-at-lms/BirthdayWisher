@@ -1,7 +1,3 @@
-import { writeFileSync, existsSync, mkdirSync, unlinkSync, readFileSync } from "fs";
-import { resolve, dirname } from "path";
-import { fileURLToPath } from "url";
-
 import dayjs from "dayjs";
 import { config } from "../config/env.js";
 import { EmployeeModel } from "../models/employee.js";
@@ -9,9 +5,7 @@ import { DepartmentModel } from "../models/department.js";
 import { DesignationModel } from "../models/designation.js";
 import logger from "../utils/logger.js";
 import { sendWelcomeEmail } from "../emails/index.js";
-
-const __dirname = dirname(fileURLToPath(import.meta.url));
-const UPLOADS_DIR = resolve(__dirname, "../../uploads");
+import { uploadToDrive, deleteFromDrive, downloadFromDrive } from "../services/msGraph.js";
 
 async function resolveRef(value, model) {
   if (value == null || value === "") return null;
@@ -121,14 +115,10 @@ export async function deleteEmployee(req, res) {
       return res.status(404).json({ success: false, message: "Employee not found." });
     }
 
-    // Delete employee photo if it exists
-    const photoPath = resolve(UPLOADS_DIR, `${employee.employeeId}.png`);
-    if (existsSync(photoPath)) {
-      try {
-        unlinkSync(photoPath);
-      } catch (err) {
-        logger.warn("Failed to delete employee photo", { error: err.message, employeeId: employee.employeeId });
-      }
+    try {
+      await deleteFromDrive(`${employee.employeeId}.png`, config.msEmployeeImagesFolder);
+    } catch (err) {
+      logger.warn("Failed to delete employee photo from drive", { error: err.message, employeeId: employee.employeeId });
     }
 
     await EmployeeModel.delete(id);
@@ -144,17 +134,15 @@ export async function uploadEmployeePhoto(req, res) {
     if (!req.file) {
       return res.status(400).json({ success: false, message: "No photo file provided." });
     }
-    // Enforce max file size 1MB
-    const MAX_BYTES = 1024 * 1024
+    const MAX_BYTES = 1024 * 1024;
     if (req.file.size != null && req.file.size > MAX_BYTES) {
       return res.status(413).json({ success: false, message: "File too large. Maximum allowed size is 1MB." });
     }
-    if (!existsSync(UPLOADS_DIR)) mkdirSync(UPLOADS_DIR, { recursive: true });
-    const dest = resolve(UPLOADS_DIR, `${employeeId}.png`);
-    writeFileSync(dest, req.file.buffer);
 
-    // Update the employee's updatedAt timestamp to force cache refresh on frontend
-    await EmployeeModel.updateWithEmployeeId(employeeId, {});
+    const fileName = `${employeeId}.png`;
+    const photoUrl = await uploadToDrive(req.file.buffer, fileName, config.msEmployeeImagesFolder);
+
+    await EmployeeModel.updateWithEmployeeId(employeeId, { photoUrl });
 
     res.json({ success: true, message: "Photo updated successfully." });
   } catch (error) {
@@ -182,16 +170,13 @@ export async function createEmployee(req, res) {
       return res.status(409).json({ success: false, message: `Email "${email}" is already in use.` });
     }
 
-    // Save photo if provided
+    let photoUrl = "";
     if (req.file) {
-      // Enforce max file size 1MB
-      const MAX_BYTES = 1024 * 1024
+      const MAX_BYTES = 1024 * 1024;
       if (req.file.size != null && req.file.size > MAX_BYTES) {
         return res.status(413).json({ success: false, message: "Photo too large. Maximum allowed size is 1MB." });
       }
-      if (!existsSync(UPLOADS_DIR)) mkdirSync(UPLOADS_DIR, { recursive: true });
-      const dest = resolve(UPLOADS_DIR, `${employeeId}.png`);
-      writeFileSync(dest, req.file.buffer);
+      photoUrl = await uploadToDrive(req.file.buffer, `${employeeId}.png`, config.msEmployeeImagesFolder);
     }
 
     let formattedDob = dateOfBirth || "";
@@ -214,13 +199,19 @@ export async function createEmployee(req, res) {
       department: department ? await resolveRef(department, DepartmentModel) : null,
       designation: designation ? await resolveRef(designation, DesignationModel) : null,
       dateOfBirth: formattedDob || null,
-      photoUrl: `uploads/${employeeId}.png`,
+      photoUrl,
     });
 
     // Send welcome email if opted in
     if (sendWelcome === "true" || sendWelcome === true) {
-      const photoFile = resolve(UPLOADS_DIR, `${employeeId}.png`);
-      const photoBuffer = existsSync(photoFile) ? readFileSync(photoFile) : null;
+      let photoBuffer = null;
+      if (photoUrl) {
+        try {
+          photoBuffer = await downloadFromDrive(`${employeeId}.png`, config.msEmployeeImagesFolder);
+        } catch (err) {
+          logger.warn("Failed to download photo for welcome email", { error: err.message, employeeId });
+        }
+      }
       const departmentName = await resolveName(department, DepartmentModel);
       const designationName = await resolveName(designation, DesignationModel);
       sendWelcomeEmail({

@@ -6,6 +6,7 @@ import { renderWelcomeEmail } from "./templates/welcome.js";
 import { renderBirthdayEmail } from "./templates/birthday.js";
 import { config } from "../config/env.js";
 import logger from "../utils/logger.js";
+import { uploadToDrive } from "../services/msGraph.js";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const EMAIL_ASSETS_DIR = resolve(__dirname, "assets");
@@ -88,9 +89,28 @@ export async function sendWelcomeEmail({
   });
 }
 
-export async function sendBirthdayEmail({ name, email, cardBuffer }) {
+export async function sendBirthdayEmail({ name, email, cardBuffer, employeeId }) {
   const cid = "birthdayCard@lmsin.com";
-  const cardSrc = `data:image/png;base64,${cardBuffer.toString('base64')}`;
+
+  let cardSrc;
+  try {
+    if (
+      config.msAuthTenantId &&
+      config.msAuthClientId &&
+      config.msAuthClientSecret &&
+      config.msDriveId
+    ) {
+      const fileName = `birthday-${employeeId}-${Date.now()}.png`;
+      cardSrc = await uploadToDrive(cardBuffer, fileName);
+      logger.info(`Birthday card uploaded to drive: ${cardSrc}`);
+    } else {
+      throw new Error("MS Graph not configured");
+    }
+  } catch (err) {
+    logger.warn(`MS Graph upload failed, falling back to CID: ${err.message}`);
+    cardSrc = `cid:${cid}`;
+  }
+
   const html = renderBirthdayEmail({ name, cardSrc });
 
   await sendMail({

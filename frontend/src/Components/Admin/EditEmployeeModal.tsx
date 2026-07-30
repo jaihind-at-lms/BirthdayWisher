@@ -9,7 +9,7 @@ import FileInput from '@project/Components/Form/FileInput'
 import Button from '@project/Components/Form/Button'
 import SelectOrInput from '@project/Components/Form/SelectOrInput'
 import EmployeeAvatar from '@project/Components/UI/EmployeeAvatar'
-import { env } from '@project/Utils/envValidation'
+import { getPhotoUrl } from '@project/Utils/domUtils'
 import { date18YearsAgo } from '@project/Utils/dateUtils'
 import {
   useUpdateEmployeeMutation,
@@ -94,7 +94,7 @@ const EditEmployeeModal = ({
   }, [employee, updateEmployee, uploadPhoto, photo, onClose])
 
   const name = employee ? getEmployeeName(employee) : ''
-  const imageUrl = employee ? env.VITE_API_BASE_URL + employee.photoUrl + '?v='+employee.updatedAt : ''
+  const imageUrl = employee ? getPhotoUrl(employee.photoUrl, employee.updatedAt) : ''
 
   return (
     <div ref={modalRef} className="modal fade" id={EDIT_MODAL_ID} tabIndex={-1}>

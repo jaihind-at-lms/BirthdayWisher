@@ -10,7 +10,7 @@ import {
 } from '@project/Store/Api'
 import type { Employee } from '@project/Types/Features/employee'
 import { formatBirthday } from '@project/Utils/dateUtils'
-import { env } from '@project/Utils/envValidation'
+import { getPhotoUrl } from '@project/Utils/domUtils'
 
 const STAT_CARDS = [
   { key: 'totalEmployees', label: 'Total Employees', icon: Users, color: 'primary', bg: 'primary' },
@@ -95,7 +95,7 @@ const AdminDashboardPage = (): JSX.Element => {
                         <tr key={emp.id || i} className="border-bottom border-light">
                           <td className="ps-4 py-3">
                             <div className="d-flex align-items-center gap-3">
-                              <EmployeeAvatar name={emp.name} imageUrl={env.VITE_API_BASE_URL + emp.photoUrl + '?v='+emp.updatedAt} size={38} />
+                              <EmployeeAvatar name={emp.name} imageUrl={getPhotoUrl(emp.photoUrl, emp.updatedAt)} size={38} />
                               <span className="fw-semibold">{emp.name}</span>
                             </div>
                           </td>
