@@ -25,8 +25,8 @@ const limiter = expressRateLimit({
 app.use(limiter);
 
 (async () => {
-  await runMigrations();
-  await seedDefaultData();
+  // await runMigrations();
+  // await seedDefaultData();
   startBirthdayWisherJob();
 })();
 
