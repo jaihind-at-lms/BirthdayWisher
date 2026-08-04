@@ -99,8 +99,9 @@ export async function sendBirthdayEmail({ name, email, cardBuffer, employeeId })
       config.azureStorageAccountKey &&
       config.azureStorageContainerName
     ) {
+      const year = new Date().getFullYear();
       const fileName = `birthday-${employeeId}-${Date.now()}.png`;
-      const blobName = await uploadToBlob(cardBuffer, fileName, config.azureBirthdayCardsFolder);
+      const blobName = await uploadToBlob(cardBuffer, fileName, `${config.azureBirthdayCardsFolder}/${year}`);
       cardSrc = getBlobUrl(blobName);
       logger.info(`Birthday card uploaded to blob storage: ${cardSrc}`);
     } else {
