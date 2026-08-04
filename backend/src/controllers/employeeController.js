@@ -5,10 +5,9 @@ import { DepartmentModel } from "../models/department.js";
 import { DesignationModel } from "../models/designation.js";
 import logger from "../utils/logger.js";
 import { sendWelcomeEmail } from "../emails/index.js";
-import { uploadToDrive, deleteByItemId, downloadByItemId, getDownloadUrlByItemId } from "../services/msGraph.js";
+import { uploadToBlob, deleteBlob, downloadBlob } from "../services/azureBlob.js";
 
-const downloadUrlCache = new Map();
-const CACHE_TTL = 50 * 60 * 1000;
+
 
 async function resolveRef(value, model) {
   if (value == null || value === "") return null;
@@ -119,9 +118,9 @@ export async function deleteEmployee(req, res) {
     }
 
     try {
-      await deleteByItemId(employee.photoUrl);
+      await deleteBlob(employee.photoUrl);
     } catch (err) {
-      logger.warn("Failed to delete employee photo from drive", { error: err.message, employeeId: employee.employeeId });
+      logger.warn("Failed to delete employee photo from blob storage", { error: err.message, employeeId: employee.employeeId });
     }
 
     await EmployeeModel.delete(id);
@@ -142,10 +141,10 @@ export async function uploadEmployeePhoto(req, res) {
       return res.status(413).json({ success: false, message: "File too large. Maximum allowed size is 1MB." });
     }
 
-    const photoUrl = await uploadToDrive(
+    const photoUrl = await uploadToBlob(
       req.file.buffer,
       `${employeeId}.png`,
-      config.msEmployeeImagesFolder
+      config.azureEmployeeImagesFolder
     );
 
     await EmployeeModel.updateWithEmployeeId(employeeId, { photoUrl });
@@ -156,19 +155,7 @@ export async function uploadEmployeePhoto(req, res) {
   }
 }
 
-export const serveUpload = async (req, res) => {
-  try {
-    const buffer = await downloadByItemId(req.params.driveItemID);
 
-    res.setHeader("Content-Type", "image/png");
-    res.setHeader("Cache-Control", "public, max-age=86400");
-
-    res.end(buffer);
-  } catch (err) {
-    console.error(err);
-    res.status(404).send("Image not found");
-  }
-};
 
 export async function createEmployee(req, res) {
   try {
@@ -196,7 +183,7 @@ export async function createEmployee(req, res) {
       if (req.file.size != null && req.file.size > MAX_BYTES) {
         return res.status(413).json({ success: false, message: "Photo too large. Maximum allowed size is 1MB." });
       }
-      photoUrl = await uploadToDrive(req.file.buffer, `${employeeId}.png`, config.msEmployeeImagesFolder);
+      photoUrl = await uploadToBlob(req.file.buffer, `${employeeId}.png`, config.azureEmployeeImagesFolder);
     }
 
     let formattedDob = dateOfBirth || "";
@@ -227,7 +214,7 @@ export async function createEmployee(req, res) {
       let photoBuffer = null;
       if (photoUrl) {
         try {
-          photoBuffer = await downloadByItemId(photoUrl);
+          photoBuffer = await downloadBlob(photoUrl);
         } catch (err) {
           logger.warn("Failed to download photo for welcome email", { error: err.message, employeeId });
         }

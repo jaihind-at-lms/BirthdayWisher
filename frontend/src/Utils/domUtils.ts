@@ -45,10 +45,13 @@ export const downloadFile = (url: string, fileName: string): void => {
 export const getPhotoUrl = (photoUrl: string | null): string => {
   if (!photoUrl) return ''
 
-  const base = typeof import.meta !== 'undefined'
-      ? ((import.meta.env as Record<string, string>).VITE_API_BASE_URL ?? '')
+  // If it's already a full URL (legacy data), return as-is
+  if (photoUrl.startsWith('http')) return photoUrl
+
+  const blobBase = typeof import.meta !== 'undefined'
+    ? ((import.meta.env as Record<string, string>).VITE_AZURE_BLOB_BASE_URL ?? '')
     : ''
-    
-  return `${base}/photos/${photoUrl}`;
+
+  return `${blobBase}/${photoUrl}`
 }
 

@@ -6,7 +6,7 @@ import { renderWelcomeEmail } from "./templates/welcome.js";
 import { renderBirthdayEmail } from "./templates/birthday.js";
 import { config } from "../config/env.js";
 import logger from "../utils/logger.js";
-import { uploadToDrive } from "../services/msGraph.js";
+import { uploadToBlob, getBlobUrl } from "../services/azureBlob.js";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const EMAIL_ASSETS_DIR = resolve(__dirname, "assets");
@@ -95,20 +95,19 @@ export async function sendBirthdayEmail({ name, email, cardBuffer, employeeId })
   let cardSrc;
   try {
     if (
-      config.msAuthTenantId &&
-      config.msAuthClientId &&
-      config.msAuthClientSecret &&
-      config.msDriveId
+      config.azureStorageAccountName &&
+      config.azureStorageAccountKey &&
+      config.azureStorageContainerName
     ) {
       const fileName = `birthday-${employeeId}-${Date.now()}.png`;
-      const driveItemId = await uploadToDrive(cardBuffer, fileName);
-      cardSrc = `${config.appUrl}/photos/${driveItemId}`;
-      logger.info(`Birthday card uploaded to drive: ${cardSrc}`);
+      const blobName = await uploadToBlob(cardBuffer, fileName, config.azureBirthdayCardsFolder);
+      cardSrc = getBlobUrl(blobName);
+      logger.info(`Birthday card uploaded to blob storage: ${cardSrc}`);
     } else {
-      throw new Error("MS Graph not configured");
+      throw new Error("Azure Blob Storage not configured");
     }
   } catch (err) {
-    logger.warn(`MS Graph upload failed, falling back to CID: ${err.message}`);
+    logger.warn(`Azure Blob upload failed, falling back to CID: ${err.message}`);
     cardSrc = `cid:${cid}`;
   }
 

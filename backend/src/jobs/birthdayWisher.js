@@ -7,7 +7,7 @@ import { generateBirthdayCard } from "../services/birthdayCard.js";
 import { sendBirthdayEmail } from "../emails/index.js";
 import { EmployeeModel } from "../models/employee.js";
 import { config } from "../config/env.js";
-import { downloadByItemId } from "../services/msGraph.js";
+import { downloadBlob } from "../services/azureBlob.js";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const TEMPLATES_DIR = resolve(__dirname, "../templates");
@@ -47,7 +47,7 @@ export const BirthdayWisher = async () => {
 
     let photoBuffer;
     try {
-      photoBuffer = await downloadByItemId(photoUrl);
+      photoBuffer = await downloadBlob(photoUrl);
     } catch (err) {
       logger.warn(`No photo available for "${name}" (${id}), skipping: ${err.message}`);
       continue;

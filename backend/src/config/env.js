@@ -29,18 +29,14 @@ export const config = {
   smtpUser: process.env.SMTP_USER ?? "",
   smtpPassword: process.env.SMTP_PASSWORD ?? "",
 
-  // App URL (used to build absolute URLs in emails)
-  appUrl: (process.env.APP_URL ?? "http://localhost:3000").replace(/\/+$/, ""),
-
   // Welcome email recipient (usually all-staff list)
   emailTo: process.env.EMAIL_TO ?? "",
 
-  // Microsoft Graph API (for uploading to OneDrive/SharePoint)
-  msAuthTenantId: process.env.MS_AUTH_TENANT_ID ?? "",
-  msAuthClientId: process.env.MS_AUTH_CLIENT_ID ?? "",
-  msAuthClientSecret: process.env.MS_AUTH_CLIENT_SECRET ?? "",
-  msDriveId: process.env.MS_DRIVE_ID ?? "",
-  msDriveUser: process.env.MS_DRIVE_USER ?? "",
-  msEmployeeImagesFolder: process.env.MS_EMPLOYEE_IMAGES_FOLDER ?? "employee-images",
-  msBirthdayCardsFolder: process.env.MS_BIRTHDAY_CARDS_FOLDER ?? "birthday-cards",
+  // Azure Blob Storage
+  azureStorageAccountName: process.env.AZURE_STORAGE_ACCOUNT_NAME ?? "",
+  azureStorageAccountKey: process.env.AZURE_STORAGE_ACCOUNT_KEY ?? "",
+  azureStorageConnectionString: process.env.AZURE_STORAGE_CONNECTION_STRING ?? "",
+  azureStorageContainerName: process.env.AZURE_STORAGE_CONTAINER_NAME ?? "birthdaymailer",
+  azureEmployeeImagesFolder: process.env.AZURE_EMPLOYEE_IMAGES_FOLDER ?? "employee-images",
+  azureBirthdayCardsFolder: process.env.AZURE_BIRTHDAY_CARDS_FOLDER ?? "birthday-cards",
 };

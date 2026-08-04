@@ -6,7 +6,6 @@ import { startBirthdayWisherJob } from "./jobs/index.js";
 import { runMigrations } from "./db/migrate.js";
 import { seedDefaultData } from "./db/seed.js";
 import { config } from "./config/env.js";
-import { serveUpload } from "./controllers/employeeController.js";
 
 const app = express();
 
@@ -30,9 +29,6 @@ app.use(limiter);
   await seedDefaultData();
   startBirthdayWisherJob();
 })();
-
-// Serve employee photos via OneDrive proxy
-app.get("/photos/:driveItemID", serveUpload);
 
 // Routes
 app.get("/health", (_, res) => res.json({ status: "ok" }));
