@@ -165,12 +165,6 @@ export const generateBirthdayCard = async (
   quoteOverride = null,
   configOverride = null
 ) => {
-  const W = CANVAS_W;
-  const H = CANVAS_H;
-
-  const canvas = createCanvas(W, H);
-  const ctx = canvas.getContext("2d");
-
   // Resolve template config — from override, DB, or pick random
   let tmplCfg = configOverride;
   let selectedFile = templateFile;
@@ -195,15 +189,26 @@ export const generateBirthdayCard = async (
     }
   }
 
-  // Draw background
+  // Load background image first to determine canvas size from the template's native dimensions
+  let bg = null;
   if (selectedFile) {
     try {
       const bgBuffer = await downloadBlob(selectedFile);
-      const bg = await loadImage(bgBuffer);
-      ctx.drawImage(bg, 0, 0, W, H);
+      bg = await loadImage(bgBuffer);
     } catch (err) {
       logger.error(`Failed to load template background from Azure: ${err.message}`);
     }
+  }
+
+  const W = bg ? bg.width : CANVAS_W;
+  const H = bg ? bg.height : CANVAS_H;
+
+  const canvas = createCanvas(W, H);
+  const ctx = canvas.getContext("2d");
+
+  // Draw background at its native size (no stretching)
+  if (bg) {
+    ctx.drawImage(bg, 0, 0, W, H);
   } else {
     const grad = ctx.createLinearGradient(0, 0, W, H);
     grad.addColorStop(0, "#667eea");
