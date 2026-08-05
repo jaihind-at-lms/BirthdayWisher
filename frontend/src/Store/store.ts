@@ -18,12 +18,13 @@ import sessionStorage from 'redux-persist/es/storage'
 import authApi from './Api/auth.api'
 import employeeApi from './Api/employee.api'
 import sheetApi from './Api/sheet.api'
+import templateApi from './Api/template.api'
 import { setStoreRef } from './Api/baseQuery'
 import authSlice, { resetStore } from './Feature/auth.slice'
 
 // ─── API slice registry ───────────────────────────────────────────────────────
 
-const apiSlices = [authApi, employeeApi, sheetApi] as const
+const apiSlices = [authApi, employeeApi, sheetApi, templateApi] as const
 
 // ─── Persist config (auth slice only) ────────────────────────────────────────
 
@@ -50,6 +51,7 @@ const rootReducer = combineReducers({
   [authApi.reducerPath]: authApi.reducer,
   [employeeApi.reducerPath]: employeeApi.reducer,
   [sheetApi.reducerPath]: sheetApi.reducer,
+  [templateApi.reducerPath]: templateApi.reducer,
 })
 
 /**

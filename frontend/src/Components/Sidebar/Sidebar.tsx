@@ -1,13 +1,14 @@
 import { NavLink } from 'react-router-dom'
+import type { LucideIcon } from 'lucide-react'
 import {
-  LayoutDashboard,
-  Users,
-  Quote,
-  Building2,
   Briefcase,
+  Building2,
+  Image,
+  LayoutDashboard,
+  Quote,
+  Users,
 } from 'lucide-react'
 import type { JSX } from 'react'
-import type { LucideIcon } from 'lucide-react'
 
 import { AppPaths } from '@project/Routes/paths'
 
@@ -26,6 +27,7 @@ const MASTER_SECTION: NavItem[] = [
   { to: AppPaths.ADMIN_WISHES, label: 'Wishes', icon: Quote },
   { to: AppPaths.ADMIN_DEPARTMENTS, label: 'Departments', icon: Building2 },
   { to: AppPaths.ADMIN_DESIGNATIONS, label: 'Designations', icon: Briefcase },
+  { to: AppPaths.ADMIN_TEMPLATES, label: 'Templates', icon: Image },
 ]
 
 const Sidebar = ({ onNavClick }: { onNavClick?: () => void }): JSX.Element => (

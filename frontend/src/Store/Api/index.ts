@@ -13,3 +13,6 @@ export * from './employee.api'
 
 export { default as sheetApi } from './sheet.api'
 export * from './sheet.api'
+
+export { default as templateApi } from './template.api'
+export * from './template.api'

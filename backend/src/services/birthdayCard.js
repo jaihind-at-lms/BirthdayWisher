@@ -1,31 +1,14 @@
 import { createCanvas, loadImage } from "canvas";
-import { readdirSync, readFileSync, existsSync } from "fs";
-import { resolve, dirname } from "path";
-import { fileURLToPath } from "url";
 import sharp from "sharp";
 import logger from "../utils/logger.js";
-
-const __dirname = dirname(fileURLToPath(import.meta.url));
-const TEMPLATES_DIR = resolve(__dirname, "../templates");
-const CONFIG_PATH = resolve(__dirname, "../config/template-config.json");
-
+import { TemplateModel } from "../models/template.js";
 import { WishModel } from "../models/wish.js";
+import { downloadBlob } from "./azureBlob.js";
 
-const getRandomItem = (arr) => arr[Math.floor(Math.random() * arr.length)];
+const CANVAS_W = 1080;
+const CANVAS_H = 1080;
 
-const loadConfig = () => {
-  try {
-    if (!existsSync(CONFIG_PATH)) return null;
-    return JSON.parse(readFileSync(CONFIG_PATH, "utf-8"));
-  } catch {
-    return null;
-  }
-};
-
-const findTemplateConfig = (config, templateFile) => {
-  if (!config?.templates) return null;
-  return config.templates.find((t) => t.file === templateFile) ?? null;
-};
+// ── Drawing helpers (unchanged logic) ────────────────────────────────────────
 
 const drawOverlay = (ctx, cfg, W, H) => {
   if (!cfg?.enabled) return;
@@ -37,7 +20,7 @@ const drawOverlay = (ctx, cfg, W, H) => {
 };
 
 const drawPhoto = (ctx, cfg, W, H, img) => {
-  if (!cfg) {
+  if (!cfg || Object.keys(cfg).length === 0) {
     const s = 0.22 * W;
     const x = (W - s) / 2;
     const y = 0.26 * H;
@@ -106,18 +89,19 @@ const drawPhoto = (ctx, cfg, W, H, img) => {
 };
 
 const drawGreeting = (ctx, cfg, W, H) => {
-  if (!cfg) return;
+  if (!cfg || Object.keys(cfg).length === 0) return;
   const { cy = 0.48, fontSize = 36, color = "rgba(255,255,255,0.85)", bold = false, align = "center" } = cfg;
+  if (fontSize === 0) return;
   const cx = cfg.cx ?? (align === "right" ? 0.95 : align === "left" ? 0.05 : 0.5);
   ctx.textAlign = align;
   ctx.textBaseline = "top";
   ctx.font = bold ? `bold ${fontSize}px sans-serif` : `${fontSize}px sans-serif`;
   ctx.fillStyle = color;
-  ctx.fillText("Happy Birthday!", cx * W, cy * H);
+  ctx.fillText(cfg.text || "Happy Birthday!", cx * W, cy * H);
 };
 
 const drawName = (ctx, cfg, W, H, employeeName) => {
-  if (!cfg) return;
+  if (!cfg || Object.keys(cfg).length === 0) return;
   const { cy = 0.55, fontSize = 52, color = "#ffffff", bold = true, align = "center" } = cfg;
   const cx = cfg.cx ?? (align === "right" ? 0.95 : align === "left" ? 0.05 : 0.5);
   ctx.textAlign = align;
@@ -127,9 +111,8 @@ const drawName = (ctx, cfg, W, H, employeeName) => {
   ctx.fillText(employeeName, cx * W, cy * H);
 };
 
-const drawQuote = async (ctx, cfg, W, H) => {
-  const quote = await WishModel.random();
-  if (!quote) return;
+const drawQuoteText = (ctx, cfg, W, H, quoteText) => {
+  if (!quoteText) return;
   const { color = "rgba(255,255,255,0.9)", fontSize = 28, cy = 0.63, maxWidth = 750, bold = false, align = "center" } = cfg ?? {};
   const cx = cfg?.cx ?? (align === "right" ? 0.95 : align === "left" ? 0.05 : 0.5);
   ctx.font = bold ? `bold ${fontSize}px sans-serif` : `${fontSize}px sans-serif`;
@@ -138,7 +121,7 @@ const drawQuote = async (ctx, cfg, W, H) => {
   ctx.fillStyle = color;
 
   const lineHeight = fontSize + 14;
-  const words = quote.split(" ");
+  const words = quoteText.split(" ");
   const lines = [];
   let line = "";
 
@@ -155,28 +138,68 @@ const drawQuote = async (ctx, cfg, W, H) => {
 
   const startY = cy * H;
   lines.forEach((l, i) => {
-    const prefix = i === 0 ? "\u201C" : "";
-    const suffix = i === lines.length - 1 ? "\u201D" : "";
-    ctx.fillText(`${prefix}${l}${suffix}`, cx * W, startY + i * lineHeight);
+    ctx.fillText(l, cx * W, startY + i * lineHeight);
   });
 };
 
-export const generateBirthdayCard = async (employeeName, employeeImageBuffer, templateFile) => {
-  const config = loadConfig();
-  const W = config?.canvas?.width ?? 1080;
-  const H = config?.canvas?.height ?? 1080;
+// ── Main export ──────────────────────────────────────────────────────────────
+
+/**
+ * Generate a birthday card image.
+ *
+ * @param {string} employeeName - Name to render on the card
+ * @param {Buffer} employeeImageBuffer - Employee photo buffer
+ * @param {string|null} templateFile - Specific template file name (null = random)
+ * @param {string|null} quoteOverride - If provided, use this instead of random DB quote
+ * @param {object|null} configOverride - If provided, use this config instead of DB lookup
+ * @returns {Buffer} PNG image buffer
+ */
+export const generateBirthdayCard = async (
+  employeeName,
+  employeeImageBuffer,
+  templateFile = null,
+  quoteOverride = null,
+  configOverride = null
+) => {
+  const W = CANVAS_W;
+  const H = CANVAS_H;
 
   const canvas = createCanvas(W, H);
   const ctx = canvas.getContext("2d");
 
-  const selectedFile = templateFile ?? getRandomItem(
-    readdirSync(TEMPLATES_DIR)
-  );
-  const tmplCfg = findTemplateConfig(config, selectedFile);
+  // Resolve template config — from override, DB, or pick random
+  let tmplCfg = configOverride;
+  let selectedFile = templateFile;
 
+  if (!tmplCfg) {
+    let templateRecord;
+    if (selectedFile) {
+      templateRecord = await TemplateModel.findByFile(selectedFile);
+    } else {
+      templateRecord = await TemplateModel.random();
+    }
+
+    if (templateRecord) {
+      selectedFile = templateRecord.file;
+      tmplCfg = {
+        photo: templateRecord.photo,
+        greeting: templateRecord.greeting,
+        name: templateRecord.nameConfig,
+        quote: templateRecord.quote,
+        overlay: templateRecord.overlay,
+      };
+    }
+  }
+
+  // Draw background
   if (selectedFile) {
-    const bg = await loadImage(resolve(TEMPLATES_DIR, selectedFile));
-    ctx.drawImage(bg, 0, 0, W, H);
+    try {
+      const bgBuffer = await downloadBlob(selectedFile);
+      const bg = await loadImage(bgBuffer);
+      ctx.drawImage(bg, 0, 0, W, H);
+    } catch (err) {
+      logger.error(`Failed to load template background from Azure: ${err.message}`);
+    }
   } else {
     const grad = ctx.createLinearGradient(0, 0, W, H);
     grad.addColorStop(0, "#667eea");
@@ -187,6 +210,7 @@ export const generateBirthdayCard = async (employeeName, employeeImageBuffer, te
 
   drawOverlay(ctx, tmplCfg?.overlay, W, H);
 
+  // Draw employee photo
   let empImg = null;
   try {
     const png = await sharp(employeeImageBuffer).png().toBuffer();
@@ -214,7 +238,10 @@ export const generateBirthdayCard = async (employeeName, employeeImageBuffer, te
 
   drawGreeting(ctx, tmplCfg?.greeting, W, H);
   drawName(ctx, tmplCfg?.name, W, H, employeeName);
-  await drawQuote(ctx, tmplCfg?.quote, W, H);
+
+  // Quote: use override, or fetch random from DB
+  const quoteText = quoteOverride || (await WishModel.random());
+  drawQuoteText(ctx, tmplCfg?.quote, W, H, quoteText);
 
   return canvas.toBuffer("image/png");
 };

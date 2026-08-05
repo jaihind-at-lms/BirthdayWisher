@@ -13,6 +13,7 @@ export const AppPaths = {
   ADMIN_WISHES: '/admin/wishes',
   ADMIN_DEPARTMENTS: '/admin/departments',
   ADMIN_DESIGNATIONS: '/admin/designations',
+  ADMIN_TEMPLATES: '/admin/templates',
   UNAUTHORIZED: '/unauthorized',
   NOT_FOUND: '*',
 } as const

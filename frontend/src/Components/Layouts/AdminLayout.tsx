@@ -11,7 +11,7 @@ const AdminLayout = ({ children }: AdminLayoutProps): JSX.Element => {
   const closeOffcanvas = () => {
     const el = document.getElementById('sidebarOffcanvas')
     if (!el) return
-    import('bootstrap').then(({ Offcanvas }) => {
+    void import('bootstrap').then(({ Offcanvas }) => {
       Offcanvas.getInstance(el)?.hide()
     })
   }
@@ -42,7 +42,7 @@ const AdminLayout = ({ children }: AdminLayoutProps): JSX.Element => {
         {/* Main area */}
         <div className="d-flex flex-column flex-grow-1 overflow-hidden">
           <Header />
-          <main className="flex-grow-1 overflow-hidden p-3 p-lg-4">
+          <main className="flex-grow-1 overflow-auto p-3 p-lg-4">
             {children}
           </main>
         </div>

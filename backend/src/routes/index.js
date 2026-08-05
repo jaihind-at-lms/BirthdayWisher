@@ -17,6 +17,7 @@ import {
 import { wishController } from "../controllers/wishController.js";
 import { departmentController } from "../controllers/departmentController.js";
 import { designationController } from "../controllers/designationController.js";
+import { templateController } from "../controllers/templateController.js";
 
 const router = Router();
 
@@ -60,6 +61,15 @@ router.get("/designations", designationController.list);
 router.post("/designations", designationController.create);
 router.put("/designations/:id", designationController.update);
 router.delete("/designations/:id", designationController.remove);
+
+// ── Templates ─────────────────────────────────────────────────────────────────
+
+router.get("/templates", templateController.list);
+router.get("/templates/:id", templateController.getById);
+router.post("/templates", upload.single("image"), templateController.create);
+router.put("/templates/:id", upload.single("image"), templateController.update);
+router.delete("/templates/:id", templateController.remove);
+router.post("/templates/:id/preview", upload.single("testImage"), templateController.preview);
 
 // ── Birthday wisher routes ───────────────────────────────────────────────────
 

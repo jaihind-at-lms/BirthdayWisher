@@ -1,16 +1,10 @@
 import cron from "node-cron";
-import { readdirSync } from "fs";
-import { resolve, dirname } from "path";
-import { fileURLToPath } from "url";
 import logger from "../utils/logger.js";
 import { generateBirthdayCard } from "../services/birthdayCard.js";
 import { sendBirthdayEmail } from "../emails/index.js";
 import { EmployeeModel } from "../models/employee.js";
-import { config } from "../config/env.js";
+import { TemplateModel } from "../models/template.js";
 import { downloadBlob } from "../services/azureBlob.js";
-
-const __dirname = dirname(fileURLToPath(import.meta.url));
-const TEMPLATES_DIR = resolve(__dirname, "../templates");
 
 const shuffle = (arr) => {
   const a = [...arr];
@@ -25,8 +19,14 @@ export const BirthdayWisher = async () => {
   const matches = await EmployeeModel.findTodayBirthdays();
   logger.info(`Found ${matches.length} birthday(s) today`);
 
-  const templates = readdirSync(TEMPLATES_DIR);
-  let templateCycle = shuffle(templates);
+  // Get active templates from DB
+  const allTemplates = await TemplateModel.findAllActive();
+  if (!allTemplates.length) {
+    logger.warn("No active templates in DB. Skipping birthday wishes.");
+    return matches;
+  }
+
+  let templateCycle = shuffle(allTemplates);
   let ti = 0;
 
   for (const emp of matches) {
@@ -41,7 +41,7 @@ export const BirthdayWisher = async () => {
     }
 
     if (ti >= templateCycle.length) {
-      templateCycle = shuffle(templates);
+      templateCycle = shuffle(allTemplates);
       ti = 0;
     }
 
@@ -54,8 +54,10 @@ export const BirthdayWisher = async () => {
     }
 
     try {
-      const cardBuffer = await generateBirthdayCard(name, photoBuffer, templateCycle[ti]);
+      const template = templateCycle[ti];
       ti++;
+
+      const cardBuffer = await generateBirthdayCard(name, photoBuffer, template.file);
       await sendBirthdayEmail({ name, email, cardBuffer, employeeId: id });
       logger.info(`Birthday email sent to ${name} (${id}) at ${email}`);
     } catch (err) {

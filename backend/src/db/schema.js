@@ -1,4 +1,4 @@
-import { pgTable, serial, text, date, integer, timestamp } from "drizzle-orm/pg-core";
+import { pgTable, serial, text, date, integer, timestamp, jsonb, boolean } from "drizzle-orm/pg-core";
 
 export const employees = pgTable("employees", {
   id: serial("id").primaryKey(),
@@ -30,4 +30,19 @@ export const wishes = pgTable("wishes", {
   id: serial("id").primaryKey(),
   text: text("text").notNull(),
   createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const templates = pgTable("templates", {
+  id: serial("id").primaryKey(),
+  name: text("name").notNull(),
+  file: text("file").notNull(),
+  imageUrl: text("image_url").notNull(),
+  photo: jsonb("photo").default({}),
+  greeting: jsonb("greeting").default({}),
+  nameConfig: jsonb("name_config").default({}),
+  quote: jsonb("quote").default({}),
+  overlay: jsonb("overlay").default({}),
+  active: boolean("active").default(true),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
 });

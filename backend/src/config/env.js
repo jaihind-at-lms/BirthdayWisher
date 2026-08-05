@@ -39,4 +39,5 @@ export const config = {
   azureStorageContainerName: process.env.AZURE_STORAGE_CONTAINER_NAME ?? "birthdaymailer",
   azureEmployeeImagesFolder: process.env.AZURE_EMPLOYEE_IMAGES_FOLDER ?? "employee-images",
   azureBirthdayCardsFolder: process.env.AZURE_BIRTHDAY_CARDS_FOLDER ?? "birthday-cards",
+  azureTemplatesFolder: process.env.AZURE_TEMPLATES_FOLDER ?? "birthday-templates",
 };

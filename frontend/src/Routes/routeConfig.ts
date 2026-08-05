@@ -20,6 +20,9 @@ const DepartmentsPage = lazy(
 const DesignationsPage = lazy(
   () => import('@project/Pages/Admin/DesignationsPage')
 )
+const TemplatesPage = lazy(
+  () => import('@project/Pages/Admin/TemplatesPage')
+)
 const NotFoundPage = lazy(() => import('@project/Pages/Errors/NotFoundPage'))
 const UnauthorizedPage = lazy(
   () => import('@project/Pages/Errors/UnauthorizedPage')
@@ -68,6 +71,15 @@ export const protectedRoutes: RouteConfig[] = [
     layout: 'admin',
     label: 'Designations',
     icon: 'designations',
+    showInNav: true,
+    roles: [AppRole.ADMIN, AppRole.SUPER_ADMIN],
+  },
+  {
+    path: AppPaths.ADMIN_TEMPLATES,
+    component: TemplatesPage,
+    layout: 'admin',
+    label: 'Templates',
+    icon: 'templates',
     showInNav: true,
     roles: [AppRole.ADMIN, AppRole.SUPER_ADMIN],
   },
