@@ -2,7 +2,7 @@ export interface PhotoConfig {
   cx?: number
   cy?: number
   size?: number
-  shape?: 'circle' | 'rounded'
+  shape?: 'circle' | 'rounded' | 'square'
   align?: 'left' | 'center' | 'right'
   borderColor?: string
   borderWidth?: number

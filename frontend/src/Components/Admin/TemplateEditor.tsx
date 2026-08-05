@@ -296,10 +296,11 @@ const TemplateEditor = ({ template, onClose }: TemplateEditorProps): JSX.Element
                   <select
                     className="form-select form-select-sm"
                     value={photo.shape ?? 'circle'}
-                    onChange={(e) => setPhoto((p) => ({ ...p, shape: e.target.value as 'circle' | 'rounded' }))}
+                    onChange={(e) => setPhoto((p) => ({ ...p, shape: e.target.value as 'circle' | 'rounded' | 'square' }))}
                   >
                     <option value="circle">Circle</option>
                     <option value="rounded">Rounded</option>
+                    <option value="square">Square</option>
                   </select>
                 </div>
                 <div className="col-6 col-md-4">

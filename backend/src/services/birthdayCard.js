@@ -61,6 +61,8 @@ const drawPhoto = (ctx, cfg, W, H, img) => {
   if (cfg.shape === "rounded") {
     const rad = s * 0.15;
     ctx.roundRect(x, y, s, s, rad);
+  } else if (cfg.shape === "square") {
+    ctx.rect(x, y, s, s);
   } else {
     ctx.arc(cx, cy, r, 0, Math.PI * 2);
   }
@@ -80,6 +82,8 @@ const drawPhoto = (ctx, cfg, W, H, img) => {
   if (cfg.shape === "rounded") {
     const rad = s * 0.15;
     ctx.roundRect(x - bw / 2, y - bw / 2, s + bw, s + bw, rad + 2);
+  } else if (cfg.shape === "square") {
+    ctx.rect(x - bw / 2, y - bw / 2, s + bw, s + bw);
   } else {
     ctx.arc(cx, cy, r + bw / 2, 0, Math.PI * 2);
   }
